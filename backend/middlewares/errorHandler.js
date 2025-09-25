@@ -1,6 +1,6 @@
 const {
-  PrismaPrismaClientKnownRequestError,
-} = require("@prisma/client/runtime");
+  PrismaClientKnownRequestError,
+} = require("@prisma/client/runtime/library");
 const languages = require("@utils/language");
 
 const errorHandler = (err, req, res, next) => {
@@ -19,7 +19,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // handle Prisma specific errs
-  if (err instanceof PrismaPrismaClientKnownRequestError) {
+  if (err instanceof PrismaClientKnownRequestError) {
     // switch based on err code
     switch (err.code) {
       case "P2002":
@@ -43,6 +43,4 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-module.exports = {
-  errorHandler,
-};
+module.exports = errorHandler;
