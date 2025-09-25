@@ -8,6 +8,13 @@
     "test": "dotenv -e .env.test jest --runInBand",
     "lint": "eslint . --fix"
   },
+  "_moduleAliases": {
+    "@root": ".",
+    "@routes": "routes",
+    "@controllers": "controllers",
+    "@utils": "utils",
+    "@middlewares": "middlewares"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -22,6 +29,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
+    "module-alias": "^2.2.3",
     "multer": "^2.0.2"
   },
   "devDependencies": {
