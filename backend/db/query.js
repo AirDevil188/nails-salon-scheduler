@@ -31,8 +31,21 @@ const createRefreshToken = async (token, userId) => {
     throw err;
   }
 };
+const invalidateRefreshToken = async (userId) => {
+  try {
+    return prisma.token.delete({
+      where: {
+        userId: userId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 
 module.exports = {
   findUser,
   createRefreshToken,
+  invalidateRefreshToken,
 };
