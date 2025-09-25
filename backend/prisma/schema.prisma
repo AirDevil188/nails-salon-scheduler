@@ -21,15 +21,14 @@ enum Role {
   admin
 }
 
-
-// MODELS
-
 enum AppointmentStatus {
   pending
   confirmed
   completed
   canceled
 }
+
+// MODELS
 
 model Invitation {
   id String @id @default(uuid())
