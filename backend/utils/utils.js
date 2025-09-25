@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const jsonwebtoken = require("jsonwebtoken");
 
 const verifyHash = async (value, hashedValue) => {
@@ -31,8 +32,25 @@ const signRefreshToken = async (credentials) => {
   });
 };
 
+const generateRefreshToken = () => {
+  try {
+    const buffer = crypto.randomBytes(48);
+    // Convert the buffer to a Base64 URL-safe string
+    return buffer.toString("base64").replace(/\//g, "_").replace(/\+/g, "-");
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 const decodeToken = (token) => {
   return jsonwebtoken.decode(token);
 };
 
-module.exports = { verifyHash, signToken, signRefreshToken, decodeToken };
+module.exports = {
+  verifyHash,
+  signToken,
+  signRefreshToken,
+  decodeToken,
+  generateRefreshToken,
+};
