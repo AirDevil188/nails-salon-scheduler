@@ -17,8 +17,33 @@ const findUser = async (email) => {
   }
 };
 
+const createUser = async (
+  email,
+  password,
+  first_name,
+  last_name,
+  avatar,
+  invitation
+) => {
+  try {
+    return await prisma.user.create({
+      data: {
+        email: email,
+        password: password,
+        first_name: first_name,
+        last_name: last_name,
+        avatar: avatar,
+        invitation: invitation,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 // TOKEN queries
-const createRefreshToken = async (token, userId) => {
+const createRefreshToken = async (token, userId, expiresAt) => {
   try {
     return await prisma.token.create({
       data: {
@@ -46,6 +71,7 @@ const invalidateRefreshToken = async (userId) => {
 
 module.exports = {
   findUser,
+  createUser,
   createRefreshToken,
   invalidateRefreshToken,
 };
