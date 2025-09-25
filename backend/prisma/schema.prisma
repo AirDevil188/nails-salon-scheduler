@@ -13,7 +13,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+// ENUMS
+
 enum Role {
   user
   admin
 }
+
+
+// MODELS
+
+enum AppointmentStatus {
+  pending
+  confirmed
+  completed
+  canceled
+}
+
+model Invitation {
+  id String @id @default(uuid())
+  token String @unique @db.Text
+  email String
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("invitation")
+}
+
+model Token {
+  id String @id @default(uuid())
+  token String @unique @db.Text
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("token")
+}
+
+model User {
+  id String @id @default(uuid())
+  email String @unique
+  first_name String
+  last_name String
+  avatar String? 
+  invitation Invitation?
+  token Token?
+  role Role @default(user) 
+  appointments Appointment[]
+
+  @@map("user")
+}
+
+
+model Appointment {
+  id String @id @default(uuid())
+  title String
+  status AppointmentStatus @default(pending)
+  userId String?
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  external_client String? 
+
+  @@map("appointment")
+} 
+
