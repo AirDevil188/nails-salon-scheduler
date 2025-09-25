@@ -17,6 +17,22 @@ const findUser = async (email) => {
   }
 };
 
+// TOKEN queries
+const createRefreshToken = async (token, userId) => {
+  try {
+    return await prisma.token.create({
+      data: {
+        token: token,
+        userId: userId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
+  createRefreshToken,
 };
