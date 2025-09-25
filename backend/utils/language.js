@@ -14,6 +14,7 @@ const languages = {
     validator_password_min: "Password must contain at least six characters",
     validator_first_name: "First Name is required",
     validator_last_name: "Last Name is required",
+    validator_email_password_incorrect: "Login credentials are incorrect",
   },
 
   sr: {
@@ -32,6 +33,7 @@ const languages = {
     validator_password_min: "Lozinka mora sadržati minimum šest karaktera",
     validator_first_name: "Ime je obavezno",
     validator_last_name: "Prezime je obavezno",
+    validator_email_password_incorrect: "Email ili Lozinka nisu tačni",
   },
 };
 module.exports = {
