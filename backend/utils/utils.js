@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jsonwebtoken = require("jsonwebtoken");
+const { addWeeks } = require("date-fns");
 
 const verifyHash = async (value, hashedValue) => {
   return await bcrypt.compare(value, hashedValue);
@@ -32,6 +33,16 @@ const signRefreshToken = async (credentials) => {
   });
 };
 
+const createHashedPassword = async (value) => {
+  try {
+    const hashedPassword = await bcrypt.hash(value, 12);
+    return hashedPassword;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const generateRefreshToken = () => {
   try {
     const buffer = crypto.randomBytes(48);
@@ -47,10 +58,17 @@ const decodeToken = (token) => {
   return jsonwebtoken.decode(token);
 };
 
+const oneWeekFromNow = () => {
+  const now = new Date();
+  return addWeeks(now, 1);
+};
+
 module.exports = {
   verifyHash,
   signToken,
   signRefreshToken,
   decodeToken,
   generateRefreshToken,
+  createHashedPassword,
+  oneWeekFromNow,
 };
