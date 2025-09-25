@@ -49,6 +49,7 @@ const createRefreshToken = async (token, userId, expiresAt) => {
       data: {
         token: token,
         userId: userId,
+        expiresAt: expiresAt,
       },
     });
   } catch (err) {
