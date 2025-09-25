@@ -1,4 +1,10 @@
+
+# Node_modules
 /node_modules
+
+# ENV files
 .env
 .env.test
-/generated/prisma
+
+# EsLint
+.eslintcache
