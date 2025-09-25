@@ -35,6 +35,7 @@ model Invitation {
   token String @unique @db.Text
   email String
   userId String @unique
+  expiresAt DateTime
   user User @relation(fields: [userId], references: [id])
 
   @@map("invitation")
@@ -44,6 +45,7 @@ model Token {
   id String @id @default(uuid())
   token String @unique @db.Text
   userId String @unique
+  expiresAt DateTime
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("token")
