@@ -2,6 +2,7 @@ const languages = {
   en: {
     // General errs
     general_server_err: "An unexpected error occurred on the server",
+    conflict_server_err: "There was a conflict with your request",
     request_server_err: "The request was not found",
     authenticate_err: "You must be logged in to access this page",
     authorization_err: "You don't have permission to perform this action",
@@ -18,6 +19,7 @@ const languages = {
   sr: {
     // General errs
     general_server_err: "Došlo je do neočeivane greške na serveru",
+    conflict_server_err: "Došlo je do konflikta sa vašim zapisom",
     request_server_err: "Traženi zapis nije pronađen",
     authenticate_err:
       "Morate biti prijavljeni da bi ste mogli pristupiti ovoj stranici",
