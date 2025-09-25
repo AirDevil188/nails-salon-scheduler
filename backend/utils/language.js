@@ -15,6 +15,7 @@ const languages = {
     validator_first_name: "First Name is required",
     validator_last_name: "Last Name is required",
     validator_email_password_incorrect: "Login credentials are incorrect",
+    validator_email: "User already exists",
   },
 
   sr: {
@@ -34,6 +35,7 @@ const languages = {
     validator_first_name: "Ime je obavezno",
     validator_last_name: "Prezime je obavezno",
     validator_email_password_incorrect: "Email ili Lozinka nisu tačni",
+    validator_email: "Korisnik već postoji",
   },
 };
 module.exports = {
