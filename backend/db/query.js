@@ -89,6 +89,23 @@ const createInvitationCode = async (token, code, expiresAt) => {
   }
 };
 
+const findInvitationCode = async (token, code, expiresAt) => {
+  try {
+    return await prisma.invitation.findUnique({
+      where: {
+        token: token,
+        code: code,
+        codeExpiresAt: {
+          gte: expiresAt,
+        },
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const createInvitation = async (token, email, expiresAt) => {
   try {
     return prisma.invitation.create({
@@ -171,4 +188,5 @@ module.exports = {
   updateInvitation,
   invalidateInvitation,
   createInvitationCode,
+  findInvitationCode,
 };
