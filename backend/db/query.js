@@ -117,12 +117,26 @@ const findInvitation = async (email) => {
   }
 };
 
+const findInvitationByToken = async (token) => {
+  try {
+    return await prisma.invitation.findUnique({
+      where: {
+        token: token,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
   createRefreshToken,
   invalidateRefreshToken,
   findInvitation,
+  findInvitationByToken,
   createInvitation,
   updateInvitation,
 };
