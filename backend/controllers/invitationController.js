@@ -90,7 +90,34 @@ const validateInvitation = async (req, res, next) => {
   }
 };
 
+const verifyInvitationCode = async (req, res, next) => {
+  const { code, token } = req.body;
+  let validateCode;
+  const now = new Date();
+
+  // find the code in the db
+  try {
+    validateCode = await db.findInvitationCode(token, Number(code), now);
+
+    // check if the code is not found OR expired
+    if (!validateCode) {
+      const error = new Error("authenticate_code_err");
+      error.status = 401;
+      return next(error);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Code verified successfully",
+      email: validateCode.email,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   generateInvitation,
   validateInvitation,
+  verifyInvitationCode,
 };
