@@ -46,8 +46,8 @@ model Invitation {
   updatedAt DateTime @updatedAt
   invitationStatus InvitationStatus @default(pending)
   user User?
-  code Int?
-  codeExpiresAt DateTime
+  code Int? 
+  codeExpiresAt DateTime?
 
   @@map("invitation")
 }
