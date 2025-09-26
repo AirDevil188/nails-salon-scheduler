@@ -72,7 +72,7 @@ const invalidateRefreshToken = async (userId) => {
 
 // INVITATION queries
 
-const createInvitationCode = async (token, code) => {
+const createInvitationCode = async (token, code, expiresAt) => {
   try {
     return await prisma.invitation.update({
       where: {
@@ -80,6 +80,7 @@ const createInvitationCode = async (token, code) => {
       },
       data: {
         code: code,
+        codeExpiresAt: expiresAt,
       },
     });
   } catch (err) {
