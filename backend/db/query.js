@@ -70,9 +70,59 @@ const invalidateRefreshToken = async (userId) => {
   }
 };
 
+// INVITATION queries
+
+const createInvitation = async (token, email, expiresAt) => {
+  try {
+    return prisma.invitation.create({
+      data: {
+        token: token,
+        email: email,
+        expiresAt: expiresAt,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const updateInvitation = async (token, email, expiresAt) => {
+  try {
+    return await prisma.invitation.update({
+      where: {
+        email: email,
+      },
+      data: {
+        token: token,
+        expiresAt: expiresAt,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const findInvitation = async (email) => {
+  try {
+    return prisma.invitation.findUnique({
+      where: {
+        email: email,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
   createRefreshToken,
   invalidateRefreshToken,
+  findInvitation,
+  createInvitation,
+  updateInvitation,
 };
