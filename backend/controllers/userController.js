@@ -161,9 +161,6 @@ const signUpUser = [
       const time = oneWeekFromNow();
       await db.createRefreshToken(refreshTokenRaw, newUser.id, time);
 
-      // invalidate invitation
-      // TODO
-
       // get the new UserInfo
       const { password: _, ...rest } = newUser;
 
@@ -177,6 +174,7 @@ const signUpUser = [
       return res.status(200).json({
         success: true,
         message: "User successfully created",
+        accessToken: accessToken,
         refreshToken: refreshTokenRaw,
         userInfo: userInfo,
         expiresAt: expiresAt,
