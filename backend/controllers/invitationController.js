@@ -1,5 +1,5 @@
 const db = require("@db/query");
-const { generateRefreshToken } = require("@utils/utils");
+const { generateRefreshToken, sendVerificationCode } = require("@utils/utils");
 const { addHours } = require("date-fns/addHours");
 const crypto = require("crypto");
 const { addMinutes } = require("date-fns/addMinutes");
@@ -50,7 +50,7 @@ const generateInvitation = async (req, res, next) => {
 const validateInvitation = async (req, res, next) => {
   // get the token from params from URL
   const now = new Date();
-  const { token } = req.params;
+  const { token } = req.body;
 
   let invitation;
   try {
@@ -73,15 +73,17 @@ const validateInvitation = async (req, res, next) => {
     // generate random 6code
     const randomCode = crypto.randomInt(100000, 999999 + 1);
     // create authorization code that will be tied to this token in db
-    const updatedInvitation = db.createInvitationCode(
+    await db.createInvitationCode(
       invitation.token,
       randomCode,
       addMinutes(new Date(), 5)
     );
+    // send an email to the user that wants to register
+    await sendVerificationCode(invitation.email, randomCode);
     return res.status(200).json({
       success: true,
-      message: "Invitation Token successfully validated",
-      code: updatedInvitation.code,
+      invitationToken: token,
+      message: "Invitation code successfully sent",
     });
   } catch (err) {
     return next(err);
