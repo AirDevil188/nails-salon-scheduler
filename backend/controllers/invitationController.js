@@ -2,6 +2,7 @@ const db = require("@db/query");
 const { generateRefreshToken } = require("@utils/utils");
 const { addHours } = require("date-fns/addHours");
 const crypto = require("crypto");
+const { addMinutes } = require("date-fns/addMinutes");
 
 const generateInvitation = async (req, res, next) => {
   const { email } = req.body;
@@ -74,7 +75,8 @@ const validateInvitation = async (req, res, next) => {
     // create authorization code that will be tied to this token in db
     const updatedInvitation = db.createInvitationCode(
       invitation.token,
-      randomCode
+      randomCode,
+      addMinutes(new Date(), 5)
     );
     return res.status(200).json({
       success: true,
