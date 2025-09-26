@@ -6,9 +6,9 @@ const invitationRouter = Router();
 
 invitationRouter.post("/generate", invitationController.generateInvitation);
 
-// invitationRouter.get(
-//   "/validate-token",
-//   invitationController.validateInvitation
-// );
+invitationRouter.post(
+  "/validate-token",
+  invitationController.validateInvitation
+);
 
 module.exports = invitationRouter;
