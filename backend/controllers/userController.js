@@ -5,6 +5,8 @@ const {
   signToken,
   decodeToken,
   generateRefreshToken,
+  createHashedPassword,
+  oneWeekFromNow,
 } = require("@utils/utils");
 
 const signInUser = async (req, res, next) => {
@@ -92,6 +94,99 @@ const signInUser = async (req, res, next) => {
   }
 };
 
+const signUpUser = [
+  body("email").isEmail().withMessage("validator_email_invalid"),
+
+  body("password").isLength({ min: 6 }).withMessage("validator_password_min"),
+
+  // custom confirm_password checker
+  body("confirm_password").custom((value, { req }) => {
+    if (value !== req.body.password) {
+      throw new Error("validator_confirm_password");
+    }
+    return true;
+  }),
+  body("first_name").notEmpty().withMessage("validator_first_name"),
+  body("last_name").notEmpty().withMessage("validator_last_name"),
+
+  async (req, res, next) => {
+    // validate errs
+    const errs = validationResult(req);
+
+    // if there are validation errs
+    if (!errs.isEmpty()) {
+      // pickup the first message
+      const validationErr = errs.array()[0];
+      const statusErrMessage = validationErr.msg;
+
+      // create costume err obj
+      const error = new Error(statusErrMessage);
+      error.name = "ValidationError";
+      return next(error);
+    }
+
+    const { email, password, first_name, last_name, avatar } = req.body;
+
+    try {
+      // check if the user already exists
+      const user = await db.findUser(email);
+
+      // if the user exists throw an validation err
+      if (user) {
+        const error = new Error("validator_email");
+        error.status = 400;
+        return next(error);
+      }
+
+      // hash the password
+      const hashedPassword = await createHashedPassword(password);
+
+      // create the new user
+      const newUser = await db.createUser(
+        email,
+        hashedPassword,
+        first_name,
+        last_name,
+        null
+      );
+      const refreshTokenRaw = generateRefreshToken();
+
+      if (!refreshTokenRaw) {
+        const error = new Error("general_server_err");
+        error.status = 500;
+        return next(error);
+      }
+
+      // push the refreshToken in the db
+      const time = oneWeekFromNow();
+      await db.createRefreshToken(refreshTokenRaw, newUser.id, time);
+
+      // invalidate invitation
+      // TODO
+
+      // get the new UserInfo
+      const { password: _, ...rest } = newUser;
+
+      const userInfo = Object.assign({}, { ...rest });
+
+      // create accessToken
+      const accessToken = await signToken(userInfo);
+      const decodedToken = await decodeToken(accessToken);
+      const expiresAt = decodedToken.exp;
+
+      return res.status(200).json({
+        success: true,
+        message: "User successfully created",
+        refreshToken: refreshTokenRaw,
+        userInfo: userInfo,
+        expiresAt: expiresAt,
+      });
+    } catch (err) {
+      return next(err); // pass any unexpected errors to errorHandler
+    }
+  },
+];
 module.exports = {
   signInUser,
+  signUpUser,
 };
