@@ -46,7 +46,8 @@ model Invitation {
   updatedAt DateTime @updatedAt
   invitationStatus InvitationStatus @default(pending)
   user User?
-  
+  code Int?
+
   @@map("invitation")
 }
 
