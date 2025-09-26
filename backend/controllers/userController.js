@@ -53,7 +53,7 @@ const signInUser = async (req, res, next) => {
 
     // if there are no errs proceed with user logging
 
-    const { password, ...rest } = user;
+    const { password: _, ...rest } = user;
 
     const userInfo = Object.assign({}, { ...rest });
 
@@ -68,7 +68,7 @@ const signInUser = async (req, res, next) => {
       return next(error);
     }
     // push the token to the db
-    await db.createRefreshToken(refreshTokenRaw, user.id);
+    await db.createRefreshToken(refreshTokenRaw, user.id, oneWeekFromNow());
 
     // sign the token
     const accessToken = await signToken(userInfo);
