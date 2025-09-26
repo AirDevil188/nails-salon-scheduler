@@ -72,6 +72,22 @@ const invalidateRefreshToken = async (userId) => {
 
 // INVITATION queries
 
+const createInvitationCode = async (token, code) => {
+  try {
+    return await prisma.invitation.update({
+      where: {
+        token: token,
+      },
+      data: {
+        code: code,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const createInvitation = async (token, email, expiresAt) => {
   try {
     return prisma.invitation.create({
@@ -153,4 +169,5 @@ module.exports = {
   createInvitation,
   updateInvitation,
   invalidateInvitation,
+  createInvitationCode,
 };
