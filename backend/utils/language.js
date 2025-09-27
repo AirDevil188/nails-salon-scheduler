@@ -6,6 +6,7 @@ const languages = {
     request_server_err: "The request was not found",
     authenticate_err: "You must be logged in to access this page",
     authorization_err: "You don't have permission to perform this action",
+    authenticate_code_err: "Invalid code, please try again",
 
     // Validation errs
     validator_email_invalid: "Please provide a valid email address",
@@ -26,6 +27,7 @@ const languages = {
     authenticate_err:
       "Morate biti prijavljeni da bi ste mogli pristupiti ovoj stranici",
     authorization_err: "Nemate dozvolu za izvršenje ove radnje",
+    authenticate_code_err: "Nepostojeći kod, molimm vas probajte ponovo",
 
     // Validation errs
     validator_email_invalid: "Molimo vas da unesete ispravnu email adresu",
