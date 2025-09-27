@@ -11,4 +11,9 @@ invitationRouter.post(
   invitationController.validateInvitation
 );
 
+invitationRouter.post(
+  "/validate-verification-code",
+  invitationController.verifyInvitationCode
+);
+
 module.exports = invitationRouter;
