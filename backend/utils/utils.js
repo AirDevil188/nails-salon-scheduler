@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jsonwebtoken = require("jsonwebtoken");
 const { addWeeks } = require("date-fns");
+const { Resend } = require("resend");
 
 const verifyHash = async (value, hashedValue) => {
   return await bcrypt.compare(value, hashedValue);
@@ -63,6 +64,17 @@ const oneWeekFromNow = () => {
   return addWeeks(now, 1);
 };
 
+const sendVerificationCode = async (email, code) => {
+  const resend = new Resend(process.env.MAIL_API_KEY);
+
+  resend.emails.send({
+    from: "onboarding@resend.dev",
+    to: email,
+    subject: "Verification Code",
+    html: `<p>This your code <strong>${code}</strong>!</p>`,
+  });
+};
+
 module.exports = {
   verifyHash,
   signToken,
@@ -71,4 +83,5 @@ module.exports = {
   generateRefreshToken,
   createHashedPassword,
   oneWeekFromNow,
+  sendVerificationCode,
 };
