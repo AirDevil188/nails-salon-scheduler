@@ -16,4 +16,9 @@ invitationRouter.post(
   invitationController.verifyInvitationCode
 );
 
+invitationRouter.post(
+  "/resend-verification-code",
+  invitationController.resendVerificationCode
+);
+
 module.exports = invitationRouter;
