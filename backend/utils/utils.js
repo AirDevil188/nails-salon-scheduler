@@ -65,7 +65,7 @@ const oneWeekFromNow = () => {
 };
 
 const sendVerificationCode = async (email, code) => {
-  const resend = new Resend(process.env.MAIL_API_KEY);
+  const resend = new Resend(process.env.EMAIL_API_KEY);
 
   resend.emails.send({
     from: "onboarding@resend.dev",
