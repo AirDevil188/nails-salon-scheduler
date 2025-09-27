@@ -69,7 +69,17 @@ const validateInvitation = async (req, res, next) => {
       return next(error);
     }
 
-    // if it is found and not expired
+    // check if the invitation is already code_verified
+    if (invitation.invitationStatus === "code_verified") {
+      return res.status(200).json({
+        success: true,
+        message: "Invitation and the code has already been verified",
+        invitationToken: token,
+        redirect: true,
+      });
+    }
+
+    // if it is found and not expired and the status is pending
 
     // generate random 6code
     const randomCode = crypto.randomInt(100000, 999999 + 1);
