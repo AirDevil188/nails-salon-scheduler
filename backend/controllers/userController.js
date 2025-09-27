@@ -1,4 +1,5 @@
 const { body, validationResult } = require("express-validator");
+const { languages } = require("@utils/language");
 const db = require("@db/query");
 const {
   verifyHash,
@@ -10,6 +11,9 @@ const {
 } = require("@utils/utils");
 
 const signInUser = async (req, res, next) => {
+  const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
+  const type = languages[languageKey];
+
   // Check for the validation errs using express-validator
 
   const errs = validationResult(req);
@@ -82,7 +86,7 @@ const signInUser = async (req, res, next) => {
     res.status(200).json({
       // return successful response
       success: true,
-      message: "User logged in successfully",
+      message: type.success_sign_in,
       accessToken,
       refreshToken: refreshTokenRaw,
       userInfo,
@@ -110,6 +114,9 @@ const signUpUser = [
   body("last_name").notEmpty().withMessage("validator_last_name"),
 
   async (req, res, next) => {
+    const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
+    const type = languages[languageKey];
+
     const invitation = req.invitation;
     // validate errs
     const errs = validationResult(req);
@@ -178,7 +185,7 @@ const signUpUser = [
 
       return res.status(200).json({
         success: true,
-        message: "User successfully created",
+        message: type.success_sign_up,
         accessToken: accessToken,
         refreshToken: refreshTokenRaw,
         userInfo: userInfo,

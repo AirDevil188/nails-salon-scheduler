@@ -5,6 +5,9 @@ const crypto = require("crypto");
 const { addMinutes } = require("date-fns/addMinutes");
 
 const generateInvitation = async (req, res, next) => {
+  const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
+  const type = languages[languageKey];
+
   const { email } = req.body;
 
   try {
@@ -40,7 +43,7 @@ const generateInvitation = async (req, res, next) => {
     console.log("Invitation link successfully created");
     return res.status(200).json({
       success: true,
-      message: "Invitation link sent successfully",
+      message: type.success_invitation_link,
       invitationLink: invitation,
     });
   } catch (err) {
@@ -49,6 +52,8 @@ const generateInvitation = async (req, res, next) => {
 };
 
 const validateInvitation = async (req, res, next) => {
+  const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
+  const type = languages[languageKey];
   // get the token from params from URL
   const now = new Date();
   const { token } = req.body;
@@ -73,7 +78,7 @@ const validateInvitation = async (req, res, next) => {
     if (invitation.invitationStatus === "code_verified") {
       return res.status(200).json({
         success: true,
-        message: "Invitation and the code has already been verified",
+        message: type.success_invitation_and_code_already_verified,
         invitationToken: token,
         redirect: true,
       });
@@ -94,7 +99,7 @@ const validateInvitation = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       invitationToken: token,
-      message: "Invitation code successfully sent",
+      message: type.success_invitation_verification_code_sent,
     });
   } catch (err) {
     return next(err);
@@ -102,6 +107,8 @@ const validateInvitation = async (req, res, next) => {
 };
 
 const verifyInvitationCode = async (req, res, next) => {
+  const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
+  const type = languages[languageKey];
   const { code, token } = req.body;
   let validateCode;
   const now = new Date();
@@ -121,7 +128,7 @@ const verifyInvitationCode = async (req, res, next) => {
     await db.verifyInvitationStatus(token, "code_verified");
     res.status(200).json({
       success: true,
-      message: "Code verified successfully",
+      message: type.success_invitation_verification_code,
       email: validateCode.email,
     });
   } catch (err) {
@@ -130,6 +137,8 @@ const verifyInvitationCode = async (req, res, next) => {
 };
 
 const resendVerificationCode = async (req, res, next) => {
+  const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
+  const type = languages[languageKey];
   const { token } = req.body;
   const now = new Date();
 
@@ -166,7 +175,7 @@ const resendVerificationCode = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Invitation code resented successfully",
+      message: type.success_invitation_verification_code_resend,
       invitationToken: token,
     });
   } catch (err) {
