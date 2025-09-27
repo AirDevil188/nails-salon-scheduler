@@ -117,8 +117,54 @@ const verifyInvitationCode = async (req, res, next) => {
   }
 };
 
+const resendVerificationCode = async (req, res, next) => {
+  const { token } = req.body;
+  const now = new Date();
+
+  try {
+    // find the code by invitation token
+    const invitation = await db.findInvitationByToken(token);
+    if (!invitation) {
+      // if the invitation by token was not found
+      const error = new Error("authorization_err");
+      error.status = 401;
+      return next(error);
+    }
+
+    // check if the invitation has expired
+    if (invitation.expiresAt < now) {
+      const error = new Error("authorization_err");
+      error.status = 401;
+      return next(error);
+    }
+    const randomCode = crypto.randomInt(100000, 999999 + 1);
+    await db.createInvitationCode(
+      token,
+      Number(randomCode),
+      addMinutes(new Date(), 5)
+    );
+    // resend new verification code by email
+    const emailSent = await sendVerificationCode(invitation.email, randomCode);
+
+    if (!emailSent) {
+      console.error(
+        "Code has been successfully generated but email was not sent"
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Invitation code resented successfully",
+      invitationToken: token,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   generateInvitation,
   validateInvitation,
   verifyInvitationCode,
+  resendVerificationCode,
 };
