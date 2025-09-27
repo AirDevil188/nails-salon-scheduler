@@ -33,7 +33,7 @@ const createUser = async (
         first_name: first_name,
         last_name: last_name,
         avatar: avatar,
-        invitation: invitation,
+        invitationId: invitation,
       },
     });
   } catch (err) {
@@ -138,15 +138,32 @@ const updateInvitation = async (token, email, expiresAt) => {
   }
 };
 
-const updateInvitationStatus = async (token, status) => {
+const acceptInvitationStatus = async (token) => {
   try {
     return await prisma.invitation.update({
       where: {
         token: token,
-        invitationStatus: status,
+        invitationStatus: "code_verified",
       },
       data: {
-        invitationStatus: status,
+        invitationStatus: "accepted",
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const verifyInvitationStatus = async (token) => {
+  try {
+    return await prisma.invitation.update({
+      where: {
+        token: token,
+        invitationStatus: "pending",
+      },
+      data: {
+        invitationStatus: "code_verified",
       },
     });
   } catch (err) {
@@ -206,5 +223,6 @@ module.exports = {
   invalidateInvitation,
   createInvitationCode,
   findInvitationCode,
-  updateInvitationStatus,
+  acceptInvitationStatus,
+  verifyInvitationStatus,
 };
