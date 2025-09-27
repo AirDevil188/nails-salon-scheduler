@@ -110,6 +110,7 @@ const signUpUser = [
   body("last_name").notEmpty().withMessage("validator_last_name"),
 
   async (req, res, next) => {
+    const invitation = req.invitation;
     // validate errs
     const errs = validationResult(req);
 
@@ -129,7 +130,7 @@ const signUpUser = [
 
     try {
       // check if the user already exists
-      const user = await db.findUser(email);
+      const user = await db.findUser(invitation.email);
 
       // if the user exists throw an validation err
       if (user) {
@@ -143,11 +144,12 @@ const signUpUser = [
 
       // create the new user
       const newUser = await db.createUser(
-        email,
+        invitation.email,
         hashedPassword,
         first_name,
         last_name,
-        null
+        null,
+        invitation.id
       );
       const refreshTokenRaw = generateRefreshToken();
 
@@ -170,6 +172,9 @@ const signUpUser = [
       const accessToken = await signToken(userInfo);
       const decodedToken = await decodeToken(accessToken);
       const expiresAt = decodedToken.exp;
+
+      // update invitation status to accepted
+      await db.acceptInvitationStatus(invitation.token, "accepted");
 
       return res.status(200).json({
         success: true,
