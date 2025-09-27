@@ -108,7 +108,7 @@ const verifyInvitationCode = async (req, res, next) => {
     }
 
     // change the status of the invitation to the code_verified
-    await db.updateInvitationStatus(token, "code_verified");
+    await db.verifyInvitationStatus(token, "code_verified");
     res.status(200).json({
       success: true,
       message: "Code verified successfully",
