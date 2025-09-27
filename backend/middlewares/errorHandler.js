@@ -1,7 +1,7 @@
 const {
   PrismaClientKnownRequestError,
 } = require("@prisma/client/runtime/library");
-const languages = require("@utils/language");
+const { languages } = require("@utils/language");
 
 const errorHandler = (err, req, res, next) => {
   console.log(err.stack); // Log all errs for debugging purposes
@@ -11,11 +11,10 @@ const errorHandler = (err, req, res, next) => {
 
   let statusErrCode = err.status || 500;
   let statusErrMessage = type.general_server_err;
-
   // handle validation errs
   if (err.name === "ValidationError") {
     statusErrCode = 400;
-    statusErrCode = type[err.message] || err.message; // Fallback option just in case if it can't find the right language key from languages module
+    statusErrMessage = type[err.message] || err.message; // Fallback option just in case if it can't find the right language key from languages module
   }
 
   // handle Prisma specific errs
