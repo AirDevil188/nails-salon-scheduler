@@ -17,11 +17,24 @@ const languages = {
     validator_last_name: "Last Name is required",
     validator_email_password_incorrect: "Login credentials are incorrect",
     validator_email: "User already exists",
+
+    // Success messages
+    success_sign_up: "User successfully registered",
+    success_sign_in: "User successfully logged in",
+    success_invitation_link: "Invitation link generated successfully",
+    success_invitation_verification_code_sent:
+      "Invitation verification code successfully sent. Please check your email",
+    success_invitation_verification_code:
+      "Invitation code verified successfully",
+    success_invitation_verification_code_resend:
+      "Invitation code resented successfully",
+    success_invitation_and_code_already_verified:
+      "Invitation and the code has already been verified",
   },
 
   sr: {
     // General errs
-    general_server_err: "Došlo je do neočeivane greške na serveru",
+    general_server_err: "Došlo je do neočekivane greške na serveru",
     conflict_server_err: "Došlo je do konflikta sa vašim zapisom",
     request_server_err: "Traženi zapis nije pronađen",
     authenticate_err:
@@ -38,6 +51,18 @@ const languages = {
     validator_last_name: "Prezime je obavezno",
     validator_email_password_incorrect: "Email ili Lozinka nisu tačni",
     validator_email: "Korisnik već postoji",
+
+    // Success messages
+    success_sign_up: "Korisnik je uspešno registrovan",
+    success_sign_in: "Korisnik je uspešno prijavljen",
+    success_invitation_link: "Link sa pozivnicom uspešno generisan",
+    success_invitation_verification_code_sent:
+      "Verifikacioni kod za pozvnicu uspešno poslat. Molimo vas proverite vaš mejl",
+    success_invitation_verification_code:
+      "Verifikacioni kod uspešno verifikovan",
+    success_invitation_verification_code_resend: "Kod uspešno reizdat",
+    success_invitation_and_code_already_verified:
+      "Pozivnica i verifikacioni kod su već verifikovani",
   },
 };
 module.exports = {
