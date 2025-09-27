@@ -24,6 +24,7 @@ const generateInvitation = async (req, res, next) => {
       // if the invitation with the email already exists update it
       invitation = await db.updateInvitation(
         generateRawInvitationToken,
+        email,
         addHours(new Date(), 8)
       );
     } else {
