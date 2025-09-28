@@ -161,7 +161,7 @@ const resendVerificationCode = async (req, res, next) => {
       return next(error);
     }
     const randomCode = crypto.randomInt(100000, 999999 + 1);
-    await db.createInvitationCode(
+    await db.updateInvitationCode(
       token,
       Number(randomCode),
       addMinutes(new Date(), 5)
