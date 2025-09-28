@@ -128,6 +128,7 @@ const signUpUser = [
     const type = languages[languageKey];
 
     const invitation = req.invitation;
+    console.error(invitation);
     // validate errs
     const errs = validationResult(req);
 
@@ -187,8 +188,8 @@ const signUpUser = [
 
       // user payload for JWT
       const payload = {
-        id: user.id,
-        role: user.role,
+        id: newUser.id,
+        role: newUser.role,
       };
 
       // create accessToken
@@ -208,6 +209,7 @@ const signUpUser = [
         expiresAt: expiresAt,
       });
     } catch (err) {
+      console.log(err);
       return next(err); // pass any unexpected errors to errorHandler
     }
   },
