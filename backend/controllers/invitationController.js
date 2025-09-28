@@ -179,6 +179,7 @@ const resendVerificationCode = async (req, res, next) => {
       success: true,
       message: type.success_invitation_verification_code_resend,
       invitationToken: token,
+      code: randomCode,
     });
   } catch (err) {
     return next(err);
