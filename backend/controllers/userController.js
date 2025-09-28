@@ -61,6 +61,12 @@ const signInUser = async (req, res, next) => {
 
     const userInfo = Object.assign({}, { ...rest });
 
+    // user payload for JWT
+    const payload = {
+      id: user.id,
+      role: user.role,
+    };
+
     // check if user has the refresh token is in the db and invalidate it
     await db.invalidateRefreshToken(user.id);
 
@@ -75,7 +81,7 @@ const signInUser = async (req, res, next) => {
     await db.createRefreshToken(refreshTokenRaw, user.id, oneWeekFromNow());
 
     // sign the token
-    const accessToken = await signToken(userInfo);
+    const accessToken = await signToken(payload, "15m");
 
     // create new refreshToken
 
@@ -175,8 +181,14 @@ const signUpUser = [
 
       const userInfo = Object.assign({}, { ...rest });
 
+      // user payload for JWT
+      const payload = {
+        id: user.id,
+        role: user.role,
+      };
+
       // create accessToken
-      const accessToken = await signToken(userInfo);
+      const accessToken = await signToken(payload, "15m");
       const decodedToken = await decodeToken(accessToken);
       const expiresAt = decodedToken.exp;
 
