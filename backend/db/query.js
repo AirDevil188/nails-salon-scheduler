@@ -70,6 +70,19 @@ const invalidateRefreshToken = async (userId) => {
   }
 };
 
+const findRefreshTokenByUserId = async (userId) => {
+  try {
+    return prisma.token.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 // INVITATION queries
 
 const createInvitationCode = async (token, code, expiresAt) => {
@@ -214,6 +227,7 @@ const findInvitationByToken = async (token) => {
 module.exports = {
   findUser,
   createUser,
+  findRefreshTokenByUserId,
   createRefreshToken,
   invalidateRefreshToken,
   findInvitation,
