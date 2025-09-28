@@ -8,7 +8,7 @@ const verifyHash = async (value, hashedValue) => {
   return await bcrypt.compare(value, hashedValue);
 };
 
-const signToken = async (credentials, expiresIn) => {
+const signToken = (credentials, expiresIn) => {
   const payload = {
     id: credentials.id,
     role: credentials.role,
