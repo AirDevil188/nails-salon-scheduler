@@ -63,7 +63,6 @@ const sendVerificationCode = async (email, code) => {
 module.exports = {
   verifyHash,
   signToken,
-  signRefreshToken,
   decodeToken,
   generateRefreshToken,
   createHashedPassword,
