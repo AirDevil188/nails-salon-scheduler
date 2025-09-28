@@ -128,7 +128,6 @@ const signUpUser = [
     const type = languages[languageKey];
 
     const invitation = req.invitation;
-    console.error(invitation);
     // validate errs
     const errs = validationResult(req);
 
