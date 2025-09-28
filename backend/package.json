@@ -16,6 +16,18 @@
     "@middlewares": "middlewares",
     "@db": "db"
   },
+  "jest": {
+    "moduleNameMapper": {
+      "^@root(.*)$": "<rootDir>/$1",
+      "^@routes(.*)$": "<rootDir>/routes$1",
+      "^@controllers(.*)$": "<rootDir>/controllers$1",
+      "^@utils(.*)$": "<rootDir>/utils$1",
+      "^@middlewares(.*)$": "<rootDir>/middlewares$1",
+      "^@db(.*)$": "<rootDir>/db$1"
+    },
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": []
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
