@@ -80,4 +80,13 @@ describe("POST /invitations", () => {
     expect(res.body.code).toBeDefined();
     mockVerificationCode = res.body.code;
   });
+  test("should verify verification code", async () => {
+    const res = await request(app)
+      .post("/invitations/validate-verification-code")
+      .send({ code: mockVerificationCode, token: invitation.token })
+      .expect(200);
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.email).toBeDefined();
+  });
 });
