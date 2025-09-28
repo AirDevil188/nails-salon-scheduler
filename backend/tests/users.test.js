@@ -1,4 +1,7 @@
-const { createHashedPassword } = require("../utils/utils");
+const {
+  createHashedPassword,
+  generateRefreshToken,
+} = require("../utils/utils");
 const express = require("express");
 const request = require("supertest");
 const { execSync } = require("child_process");
@@ -8,6 +11,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const userRouter = require("../routes/userRouter");
+const { addHours } = require("date-fns/addHours");
 
 const app = express();
 app.use(express.json());
@@ -24,11 +28,13 @@ const testUser = {
 };
 
 let accessToken;
+let testInvitation;
 
 beforeAll(async () => {
   await prisma.user.deleteMany({
     where: { email: testUser.email },
   });
+  await prisma.invitation.deleteMany({});
 
   // hash the password
   const hashedPassword = await createHashedPassword(testUser.password);
@@ -40,6 +46,18 @@ beforeAll(async () => {
       first_name: testUser.first_name,
       last_name: testUser.last_name,
       role: testUser.role,
+    },
+  });
+
+  // create invitation
+  const invitationToken = generateRefreshToken();
+  const now = new Date();
+  testInvitation = await prisma.invitation.create({
+    data: {
+      token: invitationToken,
+      email: "testing@email.com",
+      expiresAt: addHours(now, 8),
+      invitationStatus: "code_verified",
     },
   });
 
@@ -80,5 +98,26 @@ describe("POST /users/sign-in", () => {
       .post("/users/sign-in")
       .send({ email: "wrong@email.com", password: testUser.password })
       .expect(401);
+  });
+});
+
+describe("POST /users/sign-up", () => {
+  test("should successfully create a new user with a valid invitation", async () => {
+    const res = await request(app)
+      .post("/users/sign-up")
+      .send({
+        email: testInvitation.email,
+        password: testUser.password,
+        confirm_password: testUser.password,
+        first_name: "Test",
+        last_name: "Test",
+        invitationToken: testInvitation.token,
+      })
+      .expect(200);
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.accessToken).toBeDefined();
+    expect(res.body.refreshToken).toBeDefined();
+    expect(res.body.expiresAt).toBeDefined();
   });
 });
