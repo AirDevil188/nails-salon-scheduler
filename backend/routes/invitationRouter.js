@@ -1,10 +1,18 @@
 const { Router } = require("express");
 
+const { authenticate } = require("@middlewares/authenticate");
+const { authorization } = require("@middlewares/authorization");
+
 const invitationController = require("@controllers/invitationController");
 
 const invitationRouter = Router();
 
-invitationRouter.post("/generate", invitationController.generateInvitation);
+invitationRouter.post(
+  "/generate",
+  authenticate,
+  authorization,
+  invitationController.generateInvitation
+);
 
 invitationRouter.post(
   "/validate-token",
