@@ -27,6 +27,8 @@ const testUser = {
 };
 
 let accessToken;
+let invitation;
+let mockVerificationCode;
 
 beforeAll(async () => {
   await prisma.invitation.deleteMany({});
@@ -65,5 +67,17 @@ describe("POST /invitations", () => {
 
     expect(res.body.success).toBe(true);
     expect(res.body.invitationLink).toBeDefined();
+    invitation = res.body.invitationLink;
+  });
+  test("should successfully test validation of the token", async () => {
+    const res = await request(app)
+      .post("/invitations/validate-token")
+      .send({ token: invitation.token })
+      .expect(200);
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.invitationToken).toBe(invitation.token);
+    expect(res.body.code).toBeDefined();
+    mockVerificationCode = res.body.code;
   });
 });
