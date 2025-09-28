@@ -1,4 +1,5 @@
 const db = require("@db/query");
+const { verifyToken } = require("@utils/utils");
 
 const checkInvitationStatus = async (req, res, next) => {
   const { token } = req.body;
@@ -23,6 +24,29 @@ const checkInvitationStatus = async (req, res, next) => {
   }
 };
 
+const authenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  // check if the req has authorization header
+  if (!authHeader || authHeader.startsWith("Bearer ")) {
+    const error = new Error("authorization_err");
+    error.status = 401;
+    return next(error);
+  }
+  // remove the Bearer from the token
+  const token = authHeader.split(" ")[1];
+
+  // verify the token
+  try {
+    const decodedPayload = verifyToken(token);
+    req.user = decodedPayload;
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   checkInvitationStatus,
+  authenticate,
 };
