@@ -28,7 +28,7 @@ const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   // check if the req has authorization header
-  if (!authHeader || authHeader.startsWith("Bearer ")) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     const error = new Error("authorization_err");
     error.status = 401;
     return next(error);
