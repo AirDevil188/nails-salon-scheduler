@@ -74,4 +74,11 @@ describe("POST /users/sign-in", () => {
       .send({ email: testUser.email, password: "WrongPassword123!" })
       .expect(401);
   });
+
+  test("should give error 401 if the email is non existent", async () => {
+    await request(app)
+      .post("/users/sign-in")
+      .send({ email: "wrong@email.com", password: testUser.password })
+      .expect(401);
+  });
 });
