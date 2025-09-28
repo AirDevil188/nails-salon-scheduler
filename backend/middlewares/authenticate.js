@@ -2,16 +2,16 @@ const db = require("@db/query");
 const { verifyToken } = require("@utils/utils");
 
 const checkInvitationStatus = async (req, res, next) => {
-  const { token } = req.body;
+  const token = req.body.invitationToken;
   // check if the token is present
   try {
     const invitationToken = await db.findInvitationByToken(token);
+
     if (
       // if the token has the invitation status of code_verified let the user continue
       !invitationToken ||
       invitationToken.invitationStatus !== "code_verified"
     ) {
-      console.log("fff");
       const error = new Error("authorization_err");
       error.status = 401;
       return next(error);
