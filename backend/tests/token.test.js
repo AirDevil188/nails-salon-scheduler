@@ -89,4 +89,14 @@ describe("POST /invitations", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.email).toBeDefined();
   });
+
+  test("should throw err 401 if the code is wrong", async () => {
+    const res = await request(app)
+      .post("/invitations/validate-verification-code")
+      .send({
+        code: 111111,
+        token: invitation.token,
+      })
+      .expect(401);
+  });
 });
