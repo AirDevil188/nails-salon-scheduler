@@ -19,6 +19,10 @@ const signToken = async (credentials, expiresIn) => {
   });
 };
 
+const verifyToken = (token) => {
+  return jsonwebtoken.verify(token, process.env.JWT_SECRET);
+};
+
 const createHashedPassword = async (value) => {
   try {
     const hashedPassword = await bcrypt.hash(value, 12);
@@ -63,6 +67,7 @@ const sendVerificationCode = async (email, code) => {
 module.exports = {
   verifyHash,
   signToken,
+  verifyToken,
   decodeToken,
   generateRefreshToken,
   createHashedPassword,
