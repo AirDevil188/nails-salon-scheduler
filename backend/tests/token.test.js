@@ -1,4 +1,7 @@
-const { createHashedPassword } = require("../utils/utils");
+const {
+  createHashedPassword,
+  generateRefreshToken,
+} = require("../utils/utils");
 const express = require("express");
 const request = require("supertest");
 const { execSync } = require("child_process");
@@ -29,13 +32,16 @@ const testUser = {
 let accessToken;
 let invitation;
 let mockVerificationCode;
+let verifiedInvitation;
 
 beforeAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.token.deleteMany({});
   await prisma.user.deleteMany({});
 
+  const generateRawToken = generateRefreshToken();
   const hashedPassword = await createHashedPassword(testUser.password);
+  const now = new Date();
 
   await prisma.user.create({
     data: {
@@ -44,6 +50,16 @@ beforeAll(async () => {
       first_name: testUser.first_name,
       last_name: testUser.last_name,
       role: testUser.role,
+    },
+  });
+
+  verifiedInvitation = await prisma.invitation.create({
+    data: {
+      email: "test5@email.com",
+      token: generateRawToken,
+      expiresAt: addHours(now, 8),
+      invitationStatus: "code_verified",
+      code: 123456,
     },
   });
 
@@ -80,6 +96,20 @@ describe("POST /invitations", () => {
     expect(res.body.code).toBeDefined();
     mockVerificationCode = res.body.code;
   });
+
+  test("should redirect if the invitation status is code_verified", async () => {
+    const res = await request(app)
+      .post("/invitations/validate-token")
+      .send({
+        token: verifiedInvitation.token,
+      })
+      .expect(200);
+
+    expect(res.body.success).toBe(true);
+    expect(res.body.redirect).toBe(true);
+    expect(res.body.invitationToken).toBe(verifiedInvitation.token);
+  });
+
   test("should verify verification code", async () => {
     const res = await request(app)
       .post("/invitations/validate-verification-code")
