@@ -100,6 +100,7 @@ const validateInvitation = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       invitationToken: token,
+      code: randomCode,
       message: type.success_invitation_verification_code_sent,
     });
   } catch (err) {
