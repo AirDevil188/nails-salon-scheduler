@@ -110,6 +110,15 @@ describe("POST /invitations", () => {
     expect(res.body.invitationToken).toBe(verifiedInvitation.token);
   });
 
+  test("should resend a new verification code", async () => {
+    const res = await request(app)
+      .post("/invitations/resend-verification-code")
+      .send({ token: invitation.token })
+      .expect(200);
+
+    mockVerificationCode = res.body.code;
+  });
+
   test("should verify verification code", async () => {
     const res = await request(app)
       .post("/invitations/validate-verification-code")
