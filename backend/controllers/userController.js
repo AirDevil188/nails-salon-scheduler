@@ -68,7 +68,11 @@ const signInUser = async (req, res, next) => {
     };
 
     // check if user has the refresh token is in the db and invalidate it
-    await db.invalidateRefreshToken(user.id);
+    const refreshToken = await db.findRefreshTokenByUserId(user.id);
+    if (refreshToken) {
+      await db.invalidateRefreshToken(user.id);
+      console.log("Refresh token successfully invalidated");
+    }
 
     //. create refreshToken
     const refreshTokenRaw = await generateRefreshToken();
