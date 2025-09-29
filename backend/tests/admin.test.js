@@ -20,6 +20,9 @@ app.use("/admin", adminRouter);
 
 let accessToken;
 const adminPassword = "Admin123!";
+let users;
+let testAdmin;
+let testUser;
 
 afterAll(async () => {
   await prisma.user.deleteMany({});
@@ -39,7 +42,7 @@ beforeAll(async () => {
   const hashedPassword = await createHashedPassword(adminPassword);
 
   // push users to the db
-  const testAdmin = await prisma.user.create({
+  testAdmin = await prisma.user.create({
     data: {
       email: "testadmins@email.com",
       password: hashedPassword,
@@ -48,6 +51,17 @@ beforeAll(async () => {
       role: "admin",
     },
   });
+
+  testUser = await prisma.user.create({
+    data: {
+      email: "testuser3@email.com",
+      password: hashedPassword,
+      first_name: "Test",
+      last_name: "Test",
+      role: "user",
+    },
+  });
+
   const fakeUsers = Array.from({ length: 10 }).map(async (_, i) => {
     const hashedPassword = await createHashedPassword(
       faker.internet.password({ length: 8 })
@@ -64,7 +78,8 @@ beforeAll(async () => {
 
     return user;
   });
-  await Promise.all(fakeUsers);
+
+  users = await Promise.all(fakeUsers);
 
   const res = await request(app)
     .post("/users/sign-in")
@@ -83,6 +98,14 @@ describe("GET /admin", () => {
       .expect(200);
 
     expect(res.body.users).toBeDefined();
-    expect(res.body.users).toHaveLength(10);
+    expect(res.body.users).toHaveLength(11);
+  });
+
+  test("admin should delete the user", async () => {
+    const userId = users[1].id;
+    const res = await request(app)
+      .delete(`/admin/users/${userId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(204);
   });
 });
