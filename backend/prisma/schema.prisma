@@ -22,10 +22,10 @@ enum Role {
 }
 
 enum AppointmentStatus {
-  pending
-  confirmed
+  scheduled
   completed
   canceled
+  no_show
 }
 
 enum InvitationStatus {
@@ -83,7 +83,7 @@ model User {
 model Appointment {
   id String @id @default(uuid())
   title String
-  status AppointmentStatus @default(pending)
+  status AppointmentStatus @default(scheduled)
   userId String?
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   external_client String? 
