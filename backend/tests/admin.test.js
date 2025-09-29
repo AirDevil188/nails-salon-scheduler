@@ -28,12 +28,14 @@ let users;
 let testAdmin;
 let testUser;
 let invitations;
+let appointments;
 const now = new Date();
 
 afterAll(async () => {
   await prisma.user.deleteMany({});
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
+  await prisma.appointment.deleteMany({});
 
   await prisma.$disconnect();
 });
@@ -44,6 +46,7 @@ beforeAll(async () => {
   await prisma.user.deleteMany({});
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
+  await prisma.appointment.deleteMany({});
 
   const hashedPassword = await createHashedPassword(adminPassword);
 
@@ -68,24 +71,17 @@ beforeAll(async () => {
     },
   });
 
-  const fakeUsers = Array.from({ length: 10 }).map(async (_, i) => {
-    const hashedPassword = await createHashedPassword(
-      faker.internet.password({ length: 8 })
-    );
-    const user = await prisma.user.create({
-      data: {
-        email: faker.internet.email(),
-        password: hashedPassword,
-        first_name: faker.person.firstName(),
-        last_name: faker.person.lastName(),
-        role: "user",
-      },
-    });
+  const userData = Array.from({ length: 50 }).map((_, i) => ({
+    email: faker.internet.email(),
+    password: hashedPassword,
+    first_name: faker.person.firstName(),
+    last_name: faker.person.lastName(),
+    role: "user",
+  }));
 
-    return user;
+  users = await prisma.user.createManyAndReturn({
+    data: userData,
   });
-
-  users = await Promise.all(fakeUsers);
 
   const fakeInvitations = Array.from({ length: 5 }).map(async (_, i) => {
     const generateRawToken = generateRefreshToken();
@@ -101,6 +97,17 @@ beforeAll(async () => {
   });
 
   invitations = await Promise.all(fakeInvitations);
+
+  const appointmentData = Array.from({ length: 50 }).map((_, i) => ({
+    userId: users[i].id,
+    title: "Test title",
+    date: new Date(),
+    status: "scheduled",
+  }));
+
+  appointments = await prisma.appointment.createMany({
+    data: appointmentData,
+  });
 
   const res = await request(app)
     .post("/users/sign-in")
@@ -119,7 +126,7 @@ describe("GET /admin", () => {
       .expect(200);
 
     expect(res.body.users).toBeDefined();
-    expect(res.body.users).toHaveLength(11);
+    expect(res.body.users).toHaveLength(51);
   });
 
   test("admin should delete the user", async () => {
@@ -146,6 +153,15 @@ describe("GET /admin", () => {
       .delete(`/admin/invitations/${invitationId}`)
       .set(`Authorization`, `Bearer ${accessToken}`);
     expect(204);
+  });
+
+  test("should fetch the first 25 appointments", async () => {
+    const res = await request(app)
+      .get("/admin/appointments")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.appointments).toHaveLength(25);
   });
 
   test("should switch logged in user from admin to the regular user", async () => {
