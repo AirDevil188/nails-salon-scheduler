@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 
 const adminRouter = require("../routes/adminRouter");
 const userRouter = require("../routes/userRouter");
-const { createHashedPassword } = require("../utils/utils");
+const {
+  createHashedPassword,
+  generateRefreshToken,
+} = require("../utils/utils");
+const { addHours } = require("date-fns/addHours");
 
 const app = express();
 
@@ -23,6 +27,7 @@ const adminPassword = "Admin123!";
 let users;
 let testAdmin;
 let testUser;
+const now = new Date();
 
 afterAll(async () => {
   await prisma.user.deleteMany({});
@@ -81,6 +86,21 @@ beforeAll(async () => {
 
   users = await Promise.all(fakeUsers);
 
+  const fakeInvitations = Array.from({ length: 5 }).map(async (_, i) => {
+    const generateRawToken = generateRefreshToken();
+    const invitation = await prisma.invitation.create({
+      data: {
+        email: faker.internet.email(),
+        token: generateRawToken,
+        invitationStatus: "pending",
+        expiresAt: addHours(now, 8),
+      },
+    });
+    return invitation;
+  });
+
+  await Promise.all(fakeInvitations);
+
   const res = await request(app)
     .post("/users/sign-in")
     .send({ email: testAdmin.email, password: adminPassword })
@@ -107,6 +127,16 @@ describe("GET /admin", () => {
       .delete(`/admin/users/${userId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(204);
+  });
+
+  test("should fetch all of the invitations in the db", async () => {
+    const res = await request(app)
+      .get("/admin/invitations")
+      .set(`Authorization`, `Bearer ${accessToken}`);
+    expect(200);
+
+    expect(res.body.invitations).toBeDefined();
+    expect(res.body.invitations).toHaveLength(5);
   });
 
   test("should switch logged in user from admin to the regular user", async () => {
