@@ -26,11 +26,15 @@ const deleteInvitation = async (req, res, next) => {
 };
 
 const getUsers = async (req, res, next) => {
-  const { id } = req.user;
-
   try {
+    const { limit = 25, page = 1 } = req.query;
+    const { id } = req.user;
+
     // find all users in the db
-    const allUsers = await db.adminGetAllUsers(id);
+    const allUsers = await db.adminGetAllUsers(id, {
+      limit: parseInt(limit),
+      page: parseInt(page),
+    });
 
     return res.status(200).json({
       users: allUsers,
