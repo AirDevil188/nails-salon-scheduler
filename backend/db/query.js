@@ -287,6 +287,7 @@ const adminDeleteInvitation = async (id) => {
         NOT: {
           invitationStatus: "accepted",
         },
+        id: id,
       },
     });
   } catch (err) {
@@ -313,6 +314,7 @@ module.exports = {
   verifyInvitationStatus,
   adminGetAllUsers,
   adminDeleteUser,
+  adminGetAllAppointments,
   adminGetAllInvitations,
   adminDeleteInvitation,
 };
