@@ -10,11 +10,9 @@ const getInvitations = async (req, res, next) => {
     });
   } catch (err) {
     console.error(err);
-    throw err;
+    return next(err);
   }
 };
-// TODO:
-// admins can revoke invitations
 
 const deleteInvitation = async (req, res, next) => {
   try {
