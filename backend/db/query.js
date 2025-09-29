@@ -243,28 +243,76 @@ const findInvitationByToken = async (token) => {
 };
 
 // ADMIN queries
-const adminGetAllUsers = async (userId, { limit, page }) => {
+const adminGetAllUsers = async (userId, { limit, page, orderBy }) => {
   try {
-    return await prisma.user.findMany({
-      where: {
-        NOT: {
-          id: userId,
+    const pageSize = parseInt(limit, 10) || 25;
+    const pageNumber = parseInt(page, 10) || 1;
+    const skipCount = (pageNumber - 1) * pageSize;
+
+    let orderCriteria = [{ createdAt: "desc" }]; // default option
+
+    if (orderBy) {
+      // split as first_name_asc
+      const [field, directionOfTheOrder] = orderBy.split("_");
+
+      // prevent injection
+      if (
+        ["first_name", "email", "last_name", "createdAt"].includes(field) &&
+        ["asc", "desc"].includes(directionOfTheOrder)
+      ) {
+        // sort based on user choice
+        orderCriteria = [{ [field]: directionOfTheOrder }];
+
+        // add a string tie break
+        let secondaryField = null;
+
+        switch (field) {
+          case "first_name":
+          case "last_name":
+            secondaryField =
+              field === "first_name" ? "last_name" : "first_name";
+            break;
+          case "email":
+            // If sorting by email, use a name field (firstName) as tie-breaker
+            secondaryField = "first_name";
+            break;
+          case "createdAt":
+            secondaryField = "email";
+            break;
+        }
+
+        if (secondaryField) {
+          orderCriteria.push({ [secondaryField]: "asc" });
+        }
+      }
+    }
+
+    const [users, totalCount] = await prisma.$transaction([
+      prisma.user.findMany({
+        where: {
+          NOT: { id: userId },
         },
-      },
-      take: limit,
-      // first page (1 - 1) * 25 = skip 0;
-      // second page (2 -1) * 25 = skip 25;
-      // etc...
-      skip: (page - 1) * limit,
-      select: {
-        id: true,
-        email: true,
-        first_name: true,
-        last_name: true,
-        role: true,
-        avatar: true,
-      },
-    });
+        skip: skipCount,
+        take: pageSize,
+        orderBy: orderCriteria,
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          avatar: true,
+          role: true,
+        },
+      }),
+      prisma.user.count({
+        where: {
+          NOT: {
+            id: userId,
+          },
+        },
+      }),
+    ]);
+    return { users: users, totalCount: totalCount };
   } catch (err) {
     console.error(err);
     throw err;
