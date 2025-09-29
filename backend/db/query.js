@@ -296,6 +296,28 @@ const adminDeleteInvitation = async (id) => {
   }
 };
 
+const adminGetAllAppointments = async ({ status, limit, page }) => {
+  const where = {};
+  if (status) {
+    where.status = status;
+  }
+  try {
+    return await prisma.appointment.findMany({
+      where: where,
+      orderBy: { date: "asc" },
+      take: limit,
+      // first page (1 - 1) * 25 = skip 0
+      // second page (2 - 1) * 25 = skip 25
+      // third page (3 - 1) * 25 = skip 50
+      // etc...
+      skip: (page - 1) * limit,
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
