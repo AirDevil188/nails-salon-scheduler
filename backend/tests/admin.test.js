@@ -204,4 +204,11 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(403);
   });
+
+  test("regular user should not be able to view the appointments", async () => {
+    const res = await request(app)
+      .get("/admin/appointments?limit=50&page=1")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(403);
+  });
 });
