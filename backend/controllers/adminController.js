@@ -1,7 +1,19 @@
 const db = require("@db/query");
 
+const getInvitations = async (req, res, next) => {
+  try {
+    // find all invitations in the db
+    const allInvitations = await db.adminGetAllInvitations();
+
+    return res.status(200).json({
+      invitations: allInvitations,
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 // TODO:
-// admins can get all sent invitations and they can view  their status
 // admins can revoke invitations
 
 const getUsers = async (req, res, next) => {
@@ -38,6 +50,7 @@ const deleteUser = async (req, res, next) => {
 // admins can cancel appointments
 
 module.exports = {
+  getInvitations,
   getUsers,
   deleteUser,
 };
