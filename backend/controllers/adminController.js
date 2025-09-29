@@ -2,11 +2,30 @@ const db = require("@db/query");
 
 const getInvitations = async (req, res, next) => {
   try {
+    const {
+      status,
+      limit: limitString = "25",
+      page: pageString = "1",
+      orderBy,
+    } = req.query;
+
+    const safeLimit = parseInt(limitString, 10) || 25;
+    const safePage = parseInt(pageString, 10) || 1;
+
     // find all invitations in the db
-    const allInvitations = await db.adminGetAllInvitations();
+    const { invitations, totalCount } = await db.adminGetAllInvitations({
+      status,
+      limit: safeLimit,
+      page: safePage,
+      orderBy,
+    });
 
     return res.status(200).json({
-      invitations: allInvitations,
+      invitations: invitations, // The slice of data
+      limit: safeLimit,
+      page: safePage,
+      totalCount: totalCount,
+      totalPages: Math.ceil(totalCount / safeLimit),
     });
   } catch (err) {
     console.error(err);
