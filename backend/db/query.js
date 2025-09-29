@@ -280,6 +280,21 @@ const adminGetAllInvitations = async () => {
   }
 };
 
+const adminDeleteInvitation = async (id) => {
+  try {
+    return await prisma.invitation.delete({
+      where: {
+        NOT: {
+          invitationStatus: "accepted",
+        },
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
@@ -299,4 +314,5 @@ module.exports = {
   adminGetAllUsers,
   adminDeleteUser,
   adminGetAllInvitations,
+  adminDeleteInvitation,
 };
