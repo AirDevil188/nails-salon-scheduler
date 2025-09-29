@@ -21,7 +21,7 @@ const getInvitations = async (req, res, next) => {
     });
 
     return res.status(200).json({
-      invitations: invitations, // The slice of data
+      invitations: invitations,
       limit: safeLimit,
       page: safePage,
       totalCount: totalCount,
@@ -46,17 +46,29 @@ const deleteInvitation = async (req, res, next) => {
 
 const getUsers = async (req, res, next) => {
   try {
-    const { limit = 25, page = 1 } = req.query;
+    const {
+      limit: limitString = "25",
+      page: pageString = "1",
+      orderBy,
+    } = req.query;
     const { id } = req.user;
 
+    const safeLimit = parseInt(limitString, 10) || 25;
+    const safePage = parseInt(pageString, 10) || 1;
+
     // find all users in the db
-    const allUsers = await db.adminGetAllUsers(id, {
-      limit: parseInt(limit),
-      page: parseInt(page),
+    const { users, totalCount } = await db.adminGetAllUsers(id, {
+      limit: safeLimit,
+      page: safePage,
+      orderBy,
     });
 
     return res.status(200).json({
-      users: allUsers,
+      users: users,
+      limit: safeLimit,
+      page: safePage,
+      totalCount: totalCount,
+      totalPages: Math.ceil(totalCount / safeLimit),
     });
   } catch (err) {
     return next(err);
