@@ -35,6 +35,8 @@ let mockVerificationCode;
 let verifiedInvitation;
 
 beforeAll(async () => {
+  await prisma.$connect();
+
   await prisma.invitation.deleteMany({});
   await prisma.token.deleteMany({});
   await prisma.user.deleteMany({});
@@ -63,14 +65,20 @@ beforeAll(async () => {
     },
   });
 
-  await prisma.$disconnect();
-
   const res = await request(app)
     .post("/users/sign-in")
     .send({ email: testUser.email, password: testUser.password })
     .expect(200);
 
   accessToken = res.body.accessToken;
+});
+
+afterAll(async () => {
+  await prisma.user.deleteMany({});
+  await prisma.token.deleteMany({});
+  await prisma.invitation.deleteMany({});
+
+  await prisma.$disconnect();
 });
 
 describe("POST /invitations", () => {
@@ -80,7 +88,6 @@ describe("POST /invitations", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ email: "testing3@email.com" })
       .expect(200);
-
     expect(res.body.success).toBe(true);
     expect(res.body.invitationLink).toBeDefined();
     invitation = res.body.invitationLink;
@@ -90,13 +97,11 @@ describe("POST /invitations", () => {
       .post("/invitations/validate-token")
       .send({ token: invitation.token })
       .expect(200);
-
     expect(res.body.success).toBe(true);
     expect(res.body.invitationToken).toBe(invitation.token);
     expect(res.body.code).toBeDefined();
     mockVerificationCode = res.body.code;
   });
-
   test("should redirect if the invitation status is code_verified", async () => {
     const res = await request(app)
       .post("/invitations/validate-token")
@@ -104,31 +109,25 @@ describe("POST /invitations", () => {
         token: verifiedInvitation.token,
       })
       .expect(200);
-
     expect(res.body.success).toBe(true);
     expect(res.body.redirect).toBe(true);
     expect(res.body.invitationToken).toBe(verifiedInvitation.token);
   });
-
   test("should resend a new verification code", async () => {
     const res = await request(app)
       .post("/invitations/resend-verification-code")
       .send({ token: invitation.token })
       .expect(200);
-
     mockVerificationCode = res.body.code;
   });
-
   test("should verify verification code", async () => {
     const res = await request(app)
       .post("/invitations/validate-verification-code")
       .send({ code: mockVerificationCode, token: invitation.token })
       .expect(200);
-
     expect(res.body.success).toBe(true);
     expect(res.body.email).toBeDefined();
   });
-
   test("should throw err 401 if the code is wrong", async () => {
     const res = await request(app)
       .post("/invitations/validate-verification-code")
