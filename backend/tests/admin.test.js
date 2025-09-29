@@ -164,6 +164,15 @@ describe("GET /admin", () => {
     expect(res.body.appointments).toHaveLength(25);
   });
 
+  test("should fetch 50 appointments on the second page", async () => {
+    const res = await request(app)
+      .get("/admin/appointments?limit=50&page=1")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.appointments).toHaveLength(49);
+  });
+
   test("should switch logged in user from admin to the regular user", async () => {
     const res = await request(app)
       .post("/users/sign-in")
