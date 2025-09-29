@@ -52,8 +52,24 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+const getAppointments = async (req, res, next) => {
+  // set default if not provided to req query
+  try {
+    const { status, limit = 25, page = 1 } = req.query;
+
+    const appointments = await db.adminGetAllAppointments({
+      status,
+      limit: parseInt(limit),
+      page: parseInt(page),
+    });
+    return res.status(200).json({
+      appointments: appointments,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
 // TODO:
-// admins can view their appointments
 // admins can create new appointments
 // admins can update their appointments
 // admins can cancel appointments
@@ -63,4 +79,5 @@ module.exports = {
   deleteInvitation,
   getUsers,
   deleteUser,
+  getAppointments,
 };
