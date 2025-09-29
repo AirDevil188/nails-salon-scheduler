@@ -20,7 +20,12 @@ adminRouter.get(
   adminController.getInvitations
 );
 
-adminRouter.delete("/invitations/:invitationId", authenticate, authorization);
+adminRouter.delete(
+  "/invitations/:invitationId",
+  authenticate,
+  authorization,
+  adminController.deleteInvitation
+);
 
 adminRouter.delete(
   "/users/:userId",
