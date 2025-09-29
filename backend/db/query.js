@@ -284,9 +284,53 @@ const adminDeleteUser = async (userId) => {
   }
 };
 
-const adminGetAllInvitations = async () => {
+const adminGetAllInvitations = async ({
+  invitationStatus,
+  limit,
+  page,
+  orderBy,
+}) => {
+  // Sanitize inputs for safety
+  const pageSize = parseInt(limit, 10) || 25;
+  const pageNumber = parseInt(page, 10) || 1;
+  const skipCount = (pageNumber - 1) * pageSize;
+
+  let orderCriteria = [{ createdAt: "desc" }]; // Default sort: Newest first
+
+  if (orderBy) {
+    const [field, directionOfTheOrder] = orderBy.split("_"); // split as expiresAt_desc
+
+    if (
+      ["createdAt", "expiresAt"].includes(field) &&
+      ["asc", "desc"].includes(directionOfTheOrder)
+    ) {
+      // set the order based on user input
+
+      orderCriteria = [{ [field]: directionOfTheOrder }];
+
+      // Add a secondary sort to break ties (use the other field)
+      const secondaryField = field === "createdAt" ? "expiresAt" : "createdAt";
+
+      // Keep secondary sort ascending by default for clarity
+      orderCriteria.push({ [secondaryField]: "asc" });
+    }
+  }
+  const where = {};
+  if (invitationStatus) {
+    where.invitationStatus = invitationStatus;
+  }
   try {
-    return await prisma.invitation.findMany({});
+    // use prisma transaction to execute two queries at the same time
+    const [invitations, totalCount] = await prisma.$transaction([
+      prisma.invitation.findMany({
+        where: where,
+        take: pageSize,
+        skip: skipCount,
+        orderBy: orderCriteria,
+      }),
+      prisma.invitation.count({ where: where }),
+    ]);
+    return { invitations: invitations, totalCount: totalCount };
   } catch (err) {
     console.error(err);
     throw err;
