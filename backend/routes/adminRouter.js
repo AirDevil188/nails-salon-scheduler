@@ -13,6 +13,13 @@ adminRouter.get(
   adminController.getUsers
 );
 
+adminRouter.get(
+  "/invitations",
+  authenticate,
+  authorization,
+  adminController.getInvitations
+);
+
 adminRouter.delete(
   "/users/:userId",
   authenticate,
