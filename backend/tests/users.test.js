@@ -29,11 +29,21 @@ const testUser = {
 
 let accessToken;
 let testInvitation;
+const signUpTestEmail = "testing@email.com";
+
+afterAll(async () => {
+  await prisma.user.deleteMany({});
+  await prisma.token.deleteMany({});
+  await prisma.invitation.deleteMany({});
+
+  await prisma.$disconnect();
+});
 
 beforeAll(async () => {
-  await prisma.user.deleteMany({
-    where: { email: testUser.email },
-  });
+  await prisma.$connect();
+
+  await prisma.user.deleteMany({});
+  await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
 
   // hash the password
@@ -55,20 +65,11 @@ beforeAll(async () => {
   testInvitation = await prisma.invitation.create({
     data: {
       token: invitationToken,
-      email: "testing@email.com",
+      email: signUpTestEmail,
       expiresAt: addHours(now, 8),
       invitationStatus: "code_verified",
     },
   });
-
-  await prisma.$disconnect();
-});
-
-afterAll(async () => {
-  await prisma.user.deleteMany({});
-  await prisma.token.deleteMany({});
-
-  await prisma.$disconnect();
 });
 
 describe("POST /users/sign-in", () => {
