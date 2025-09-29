@@ -141,7 +141,7 @@ describe("GET /admin", () => {
   });
 
   test("should delete invitation", async () => {
-    const invitationId = invitations[1];
+    const invitationId = invitations[1].id;
     const res = await request(app)
       .delete(`/admin/invitations/${invitationId}`)
       .set(`Authorization`, `Bearer ${accessToken}`);
@@ -173,7 +173,7 @@ describe("GET /admin", () => {
   });
 
   test("regular user should not be able to delete the invitations of the other users", async () => {
-    const invitation = invitations[1];
+    const invitation = invitations[1].id;
     const res = await request(app)
       .delete(`/admin/invitations/${invitation}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
