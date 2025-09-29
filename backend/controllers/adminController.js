@@ -16,6 +16,17 @@ const getInvitations = async (req, res, next) => {
 // TODO:
 // admins can revoke invitations
 
+const deleteInvitation = async (req, res, next) => {
+  try {
+    const { invitationId } = req.params;
+    await db.adminDeleteInvitation(invitationId);
+    return res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    return next(err);
+  }
+};
+
 const getUsers = async (req, res, next) => {
   const { id } = req.user;
 
@@ -51,6 +62,7 @@ const deleteUser = async (req, res, next) => {
 
 module.exports = {
   getInvitations,
+  deleteInvitation,
   getUsers,
   deleteUser,
 };
