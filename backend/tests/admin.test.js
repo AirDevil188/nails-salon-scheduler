@@ -108,4 +108,21 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(204);
   });
+
+  test("should switch logged in user from admin to the regular user", async () => {
+    const res = await request(app)
+      .post("/users/sign-in")
+      .send({ email: testUser.email, password: adminPassword })
+      .expect(200);
+
+    accessToken = res.body.accessToken;
+  });
+
+  test("regular user should not be able to delete other users", async () => {
+    const userId = users[3].id;
+    const res = await request(app)
+      .delete(`/admin/users/${userId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(403);
+  });
 });
