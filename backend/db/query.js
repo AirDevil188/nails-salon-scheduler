@@ -242,6 +242,22 @@ const findInvitationByToken = async (token) => {
   }
 };
 
+// ADMIN queries
+const adminGetAllUsers = async (userId) => {
+  try {
+    return await prisma.user.findMany({
+      where: {
+        NOT: {
+          id: userId,
+        },
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
@@ -258,4 +274,5 @@ module.exports = {
   findInvitationCode,
   acceptInvitationStatus,
   verifyInvitationStatus,
+  adminGetAllUsers,
 };
