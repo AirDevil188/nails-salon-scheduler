@@ -13,4 +13,11 @@ adminRouter.get(
   adminController.getUsers
 );
 
+adminRouter.delete(
+  "/users/:userId",
+  authenticate,
+  authorization,
+  adminController.deleteUser
+);
+
 module.exports = adminRouter;
