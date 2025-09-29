@@ -34,4 +34,11 @@ adminRouter.delete(
   adminController.deleteUser
 );
 
+adminRouter.get(
+  "/appointments",
+  authenticate,
+  authorization,
+  adminController.getAppointments
+);
+
 module.exports = adminRouter;
