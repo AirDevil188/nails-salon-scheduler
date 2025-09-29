@@ -243,13 +243,26 @@ const findInvitationByToken = async (token) => {
 };
 
 // ADMIN queries
-const adminGetAllUsers = async (userId) => {
+const adminGetAllUsers = async (userId, { limit, page }) => {
   try {
     return await prisma.user.findMany({
       where: {
         NOT: {
           id: userId,
         },
+      },
+      take: limit,
+      // first page (1 - 1) * 25 = skip 0;
+      // second page (2 -1) * 25 = skip 25;
+      // etc...
+      skip: (page - 1) * limit,
+      select: {
+        id: true,
+        email: true,
+        first_name: true,
+        last_name: true,
+        role: true,
+        avatar: true,
       },
     });
   } catch (err) {
