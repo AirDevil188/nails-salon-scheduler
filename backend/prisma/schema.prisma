@@ -75,7 +75,7 @@ model User {
   token Token?
   role Role @default(user) 
   appointments Appointment[]
-
+  createdAt DateTime @default(now())
   @@map("user")
 }
 
