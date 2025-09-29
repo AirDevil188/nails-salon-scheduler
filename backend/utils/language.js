@@ -19,8 +19,12 @@ const languages = {
     validator_email: "User already exists",
 
     // Success messages
+
+    // User Controller
     success_sign_up: "User successfully registered",
     success_sign_in: "User successfully logged in",
+
+    // Invitation Controller
     success_invitation_link: "Invitation link generated successfully",
     success_invitation_verification_code_sent:
       "Invitation verification code successfully sent. Please check your email",
@@ -53,8 +57,12 @@ const languages = {
     validator_email: "Korisnik već postoji",
 
     // Success messages
+
+    // User Controller
     success_sign_up: "Korisnik je uspešno registrovan",
     success_sign_in: "Korisnik je uspešno prijavljen",
+
+    // Invitation Controller
     success_invitation_link: "Link sa pozivnicom uspešno generisan",
     success_invitation_verification_code_sent:
       "Verifikacioni kod za pozvnicu uspešno poslat. Molimo vas proverite vaš mejl",
