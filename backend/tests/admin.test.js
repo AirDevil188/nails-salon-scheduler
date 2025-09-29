@@ -118,7 +118,7 @@ beforeAll(async () => {
 });
 
 describe("GET /admin", () => {
-  test("should fetch all of the users in the db", async () => {
+  test("should fetch the first 25 users", async () => {
     const res = await request(app)
       .get("/admin/users")
       .set(`Authorization`, `Bearer ${accessToken}`)
@@ -126,7 +126,18 @@ describe("GET /admin", () => {
       .expect(200);
 
     expect(res.body.users).toBeDefined();
-    expect(res.body.users).toHaveLength(51);
+    expect(res.body.users).toHaveLength(25);
+  });
+
+  test("should fetch the first 50 users", async () => {
+    const res = await request(app)
+      .get("/admin/users?limit=50&page=1")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+
+      .expect(200);
+
+    expect(res.body.users).toBeDefined();
+    expect(res.body.users).toHaveLength(50);
   });
 
   test("admin should delete the user", async () => {
