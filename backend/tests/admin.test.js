@@ -27,6 +27,7 @@ const adminPassword = "Admin123!";
 let users;
 let testAdmin;
 let testUser;
+let invitations;
 const now = new Date();
 
 afterAll(async () => {
@@ -99,7 +100,7 @@ beforeAll(async () => {
     return invitation;
   });
 
-  await Promise.all(fakeInvitations);
+  invitations = await Promise.all(fakeInvitations);
 
   const res = await request(app)
     .post("/users/sign-in")
@@ -137,6 +138,14 @@ describe("GET /admin", () => {
 
     expect(res.body.invitations).toBeDefined();
     expect(res.body.invitations).toHaveLength(5);
+  });
+
+  test("should delete invitation", async () => {
+    const invitationId = invitations[1];
+    const res = await request(app)
+      .delete(`/admin/invitations/${invitationId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`);
+    expect(204);
   });
 
   test("should switch logged in user from admin to the regular user", async () => {
