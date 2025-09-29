@@ -171,4 +171,12 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(403);
   });
+
+  test("regular user should not be able to delete the invitations of the other users", async () => {
+    const invitation = invitations[1];
+    const res = await request(app)
+      .delete(`/admin/invitations/${invitation}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(403);
+  });
 });
