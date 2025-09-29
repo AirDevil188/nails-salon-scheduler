@@ -155,4 +155,11 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(403);
   });
+
+  test("regular user should not be able to see the invitations of the other users", async () => {
+    const res = await request(app)
+      .get("/admin/invitations")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(403);
+  });
 });
