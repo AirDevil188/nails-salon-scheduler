@@ -87,7 +87,9 @@ model Appointment {
   userId String?
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   external_client String? 
-  date DateTime
+  startDateTime DateTime
+  endDateTime DateTime
+
 
   @@map("appointment")
 } 
