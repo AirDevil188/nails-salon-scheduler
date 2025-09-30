@@ -12,6 +12,7 @@ const {
   generateRefreshToken,
 } = require("../utils/utils");
 const { addHours } = require("date-fns/addHours");
+const { addMinutes } = require("date-fns/addMinutes");
 
 const app = express();
 
@@ -98,11 +99,15 @@ beforeAll(async () => {
 
   invitations = await Promise.all(fakeInvitations);
 
+  const appointmentStatuses = ["no_show", "completed", "canceled", "scheduled"];
+
   const appointmentData = Array.from({ length: 50 }).map((_, i) => ({
     userId: users[i].id,
     title: "Test title",
-    date: new Date(),
-    status: "scheduled",
+    status:
+      appointmentStatuses[Math.floor(Math.random() * appointmentStatuses)],
+    startDateTime: new Date(),
+    endDateTime: addMinutes(new Date(), 30),
   }));
 
   appointments = await prisma.appointment.createMany({
