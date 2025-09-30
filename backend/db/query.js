@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const { addMinutes } = require("date-fns/addMinutes");
 
 const prisma = new PrismaClient({});
 
@@ -515,6 +516,32 @@ const adminGetAllAppointments = async ({
   }
 };
 
+const adminNewAppointment = async (
+  title,
+  status,
+  startDateTime,
+  endDateTime,
+  external_client,
+  clientId
+) => {
+  const now = new Date();
+  try {
+    return await prisma.appointment.create({
+      data: {
+        title: title,
+        status: status,
+        startDateTime: startDateTime,
+        endDateTime: endDateTime || addMinutes(now, 45),
+        external_client: external_client,
+        userId: clientId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
@@ -536,4 +563,5 @@ module.exports = {
   adminGetAllAppointments,
   adminGetAllInvitations,
   adminDeleteInvitation,
+  adminNewAppointment,
 };
