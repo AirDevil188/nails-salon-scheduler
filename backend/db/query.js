@@ -522,7 +522,7 @@ const adminNewAppointment = async (
   startDateTime,
   endDateTime,
   external_client,
-  clientId
+  userId
 ) => {
   const now = new Date();
   try {
@@ -533,7 +533,7 @@ const adminNewAppointment = async (
         startDateTime: startDateTime,
         endDateTime: endDateTime || addMinutes(now, 45),
         external_client: external_client,
-        userId: clientId,
+        userId: userId,
       },
     });
   } catch (err) {
