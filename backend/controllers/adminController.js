@@ -90,15 +90,25 @@ const deleteUser = async (req, res, next) => {
 const getAppointments = async (req, res, next) => {
   // set default if not provided to req query
   try {
-    const { status, limit = 25, page = 1 } = req.query;
+    const { status, limit = "25", page = "1", orderBy, timeScope } = req.query;
 
-    const appointments = await db.adminGetAllAppointments({
+    const safeLimit = parseInt(limit, 10) || 25;
+    const safePage = parseInt(page, 10) || 1;
+
+    const { appointments, totalCount } = await db.adminGetAllAppointments({
       status,
-      limit: parseInt(limit),
-      page: parseInt(page),
+      limit: safeLimit,
+      page: safePage,
+      orderBy,
+      timeScope,
     });
+
     return res.status(200).json({
       appointments: appointments,
+      limit: safeLimit,
+      page: safePage,
+      totalCount: totalCount,
+      totalPages: Math.ceil(totalCount / safeLimit),
     });
   } catch (err) {
     return next(err);
@@ -106,6 +116,7 @@ const getAppointments = async (req, res, next) => {
 };
 // TODO:
 // admins can create new appointments
+
 // admins can update their appointments
 // admins can cancel appointments
 
