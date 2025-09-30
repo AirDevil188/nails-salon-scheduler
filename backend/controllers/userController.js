@@ -134,7 +134,7 @@ const signUpUser = [
     // if there are validation errs
     if (!errs.isEmpty()) {
       // pickup the first message
-      const validationErr = errs.array()[0];
+      const validationErr = errs.array();
       const statusErrMessage = validationErr.msg;
 
       // create costume err obj
