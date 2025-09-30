@@ -9,6 +9,7 @@ const languages = {
     authenticate_code_err: "Invalid code, please try again",
 
     // Validation errs
+    // Sign-up errs
     validator_email_invalid: "Please provide a valid email address",
     validator_password_required: "Password is required",
     validator_confirm_password: "Confirm Password doesn't match",
@@ -17,6 +18,14 @@ const languages = {
     validator_last_name: "Last Name is required",
     validator_email_password_incorrect: "Login credentials are incorrect",
     validator_email: "User already exists",
+
+    // Appointment errs
+    validator_appointment_title: "Naziv termina je obavezan",
+    validator_appointment_startDateTime_not_empty: "Termin je obavezan",
+    validator_appointment_startDateTime_not_in_future:
+      "Vreme početka termina mora biti u budućnosti",
+    validator_appointment_endDateTime_not_in_past:
+      "Vreme završetka termina ne može biti u prošlosti",
 
     // Success messages
 
@@ -47,6 +56,7 @@ const languages = {
     authenticate_code_err: "Nepostojeći kod, molimm vas probajte ponovo",
 
     // Validation errs
+    // Sign-up errs
     validator_email_invalid: "Molimo vas da unesete ispravnu email adresu",
     validator_password_required: "Lozinka je obavezna",
     validator_confirm_password: "Potvrda Lozinke se ne pododura",
@@ -55,6 +65,14 @@ const languages = {
     validator_last_name: "Prezime je obavezno",
     validator_email_password_incorrect: "Email ili Lozinka nisu tačni",
     validator_email: "Korisnik već postoji",
+
+    // Appointment errs
+    validator_appointment_title: "Naziv termina je obavezan",
+    validator_appointment_startDateTime_not_empty: "Termin je obavezan",
+    validator_appointment_startDateTime_not_in_future:
+      "Vreme početka termina mora biti u budućnosti",
+    validator_appointment_endDateTime_not_in_past:
+      "Vreme završetka termina ne može biti u prošlosti",
 
     // Success messages
 
