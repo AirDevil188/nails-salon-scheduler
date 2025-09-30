@@ -20,12 +20,13 @@ const languages = {
     validator_email: "User already exists",
 
     // Appointment errs
-    validator_appointment_title: "Naziv termina je obavezan",
-    validator_appointment_startDateTime_not_empty: "Termin je obavezan",
+    validator_appointment_title: "Appointment title is required",
+    validator_appointment_startDateTime_not_empty:
+      "Appointment time is required",
     validator_appointment_startDateTime_not_in_future:
-      "Vreme početka termina mora biti u budućnosti",
+      "Appointment time must be in the future",
     validator_appointment_endDateTime_not_in_past:
-      "Vreme završetka termina ne može biti u prošlosti",
+      "Appointment time cannot be in the past",
 
     // Success messages
 
