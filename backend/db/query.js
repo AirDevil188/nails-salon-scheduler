@@ -401,22 +401,114 @@ const adminDeleteInvitation = async (id) => {
   }
 };
 
-const adminGetAllAppointments = async ({ status, limit, page }) => {
+const adminGetAllAppointments = async ({
+  status,
+  limit,
+  page,
+  orderBy,
+  timeScope,
+}) => {
+  const now = new Date();
   const where = {};
-  if (status) {
-    where.status = status;
-  }
+
+  // sanitize params to prevent sql injection
+  const pageSize = parseInt(limit, 10) || 25;
+  const pageNumber = parseInt(page, 10) || 1;
+  const skipCount = (pageNumber - 1) * pageSize;
+  // initialize scope
+
+  // sanitize time scope
   try {
-    return await prisma.appointment.findMany({
-      where: where,
-      orderBy: { date: "asc" },
-      take: limit,
-      // first page (1 - 1) * 25 = skip 0
-      // second page (2 - 1) * 25 = skip 25
-      // third page (3 - 1) * 25 = skip 50
-      // etc...
-      skip: (page - 1) * limit,
-    });
+    const validScopes = ["past", "upcoming", "all"];
+
+    // prevent SQL injection
+    const scope = validScopes.includes(timeScope) ? timeScope : "all";
+
+    // scope time filtering logic
+    if (scope === "upcoming") {
+      // Future appointments first
+      where.startDateTime = { gt: now };
+    } else if (scope === "past") {
+      // Past appointments first
+      where.startDateTime = { lt: now };
+    }
+
+    // optional status filter
+    if (status) {
+      where.status = status;
+    }
+
+    // default sorting
+    let defaultSortDirection;
+
+    if (scope === "upcoming") {
+      // Closest appointment
+      defaultSortDirection = "asc";
+    } else if (scope === "past") {
+      defaultSortDirection = "desc";
+    } else {
+      defaultSortDirection = "desc";
+    }
+
+    let orderCriteria = [
+      { startDateTime: defaultSortDirection }, // default
+      { id: "asc" }, // tie breaker secondary field
+    ];
+
+    if (orderBy) {
+      const [field, directionOfTheOrder] = orderBy.split("_"); // split by startDateTime_desc
+
+      // sanitize prevent sql injection
+      if (
+        [
+          "startDateTime",
+          "endDateTime",
+          "createdAt",
+          "updatedAt",
+          "title",
+          "status",
+        ].includes(field) &&
+        ["desc", "asc"].includes(directionOfTheOrder)
+      ) {
+        // sort based on user selection
+
+        orderCriteria = [{ [field]: directionOfTheOrder }];
+
+        let secondaryField;
+
+        // tie break
+        switch (field) {
+          case "startDateTime":
+          case "endDateTime":
+          case "createdAt":
+          case "updatedAt":
+            secondaryField = "id";
+            break;
+
+          case "title":
+            secondaryField = "status";
+            break;
+        }
+
+        orderCriteria.push({ [secondaryField]: "asc" });
+        // tie breaker defense if the secondary field is not an id and if status and title are have multiple same records
+        if (secondaryField !== "id") {
+          orderCriteria.push({ id: "asc" });
+        }
+      }
+    }
+    const [appointments, totalCount] = await prisma.$transaction([
+      prisma.appointment.findMany({
+        where: where,
+        orderBy: orderCriteria,
+        skip: skipCount,
+        take: pageSize,
+      }),
+      prisma.appointment.count({
+        where: where,
+      }),
+    ]);
+    return { appointments: appointments, totalCount: totalCount };
   } catch (err) {
     console.error(err);
     throw err;
