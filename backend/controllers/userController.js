@@ -134,12 +134,12 @@ const signUpUser = [
     // if there are validation errs
     if (!errs.isEmpty()) {
       // pickup the first message
-      const validationErr = errs.array();
-      const statusErrMessage = validationErr.msg;
+      const validationErrors = errs.array().map((error) => error.msg);
 
-      // create costume err obj
-      const error = new Error(statusErrMessage);
+      const error = new Error("Validation Failed");
       error.name = "ValidationError";
+      error.status = 400; // Use 400 Bad Request for validation errors
+      error.validationMessages = validationErrors; // Attach the array of message keys
       return next(error);
     }
 
