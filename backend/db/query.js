@@ -547,6 +547,11 @@ const adminNewAppointment = async (
         external_client: external_client,
         userId: client.id,
       },
+      include: {
+        user: {
+          select: { first_name: true, last_name: true, email: true },
+        },
+      },
     });
   } catch (err) {
     console.error(err);
