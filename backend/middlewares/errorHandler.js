@@ -63,8 +63,7 @@ const errorHandler = (err, req, res, next) => {
   if (validationDetails) {
     resBody.validationErrors = statusErrMessages;
   }
-
-  res.status(statusErrCode).json(resBody);
+  return res.status(statusErrCode).json(resBody);
 };
 
 module.exports = errorHandler;
