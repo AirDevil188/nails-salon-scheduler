@@ -535,7 +535,7 @@ const adminNewAppointment = async (
       },
     });
 
-    if (!user) {
+    if (!client) {
       throw Error("validator_appointment_userId_invalid");
     }
     return await prisma.appointment.create({
