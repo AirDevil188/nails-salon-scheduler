@@ -572,6 +572,49 @@ const adminDeleteAppointment = async (id) => {
   }
 };
 
+const adminUpdateAppointment = async (
+  id,
+  title,
+  startDateTime,
+  endDateTime,
+  userId,
+  status,
+  external_client
+) => {
+  try {
+    let updateData = {};
+    if (title !== undefined) {
+      updateData.title = title;
+    }
+    if (startDateTime !== undefined) {
+      updateData.startDateTime = startDateTime;
+    }
+    if (endDateTime !== undefined) {
+      updateData.endDateTime = endDateTime;
+    }
+    if (userId !== undefined) {
+      updateData.userId = userId;
+      updateData.external_client = null;
+    }
+    if (status !== undefined) {
+      updateData.status = status;
+    }
+    if (external_client !== undefined) {
+      updateData.external_client = external_client;
+      updateData.userId = null;
+    }
+    return await prisma.appointment.update({
+      where: {
+        id: id,
+      },
+      data: updateData,
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
@@ -594,5 +637,6 @@ module.exports = {
   adminGetAllInvitations,
   adminDeleteInvitation,
   adminNewAppointment,
+  adminUpdateAppointment,
   adminDeleteAppointment,
 };
