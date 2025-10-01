@@ -3,7 +3,7 @@ const crypto = require("crypto");
 const jsonwebtoken = require("jsonwebtoken");
 const { addWeeks } = require("date-fns");
 const { Resend } = require("resend");
-const { validator } = require("validator");
+const validator = require("validator");
 
 const verifyHash = async (value, hashedValue) => {
   return await bcrypt.compare(value, hashedValue);
@@ -67,6 +67,7 @@ const sendVerificationCode = async (email, code) => {
 
 const isUUID = (string) => {
   // check if the provided userId is UUID of version 4 - because prisma is using the fourth version
+
   return typeof string === "string" && validator.isUUID(string, 4);
 };
 
