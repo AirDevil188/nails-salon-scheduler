@@ -279,6 +279,23 @@ describe("GET /admin", () => {
     expect(res.body.validationDetails[0]).toBe("Status termina nije ispravan");
   });
 
+  test("should not allow for appointment status to be empty", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Generic Title",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+        userId: `${users[5].id}`,
+      })
+      .expect(400);
+    expect(res.body).toHaveProperty("success", false);
+    expect(res.body).toHaveProperty("statusErrMessage");
+    expect(res.body.validationDetails).toBeInstanceOf(Array);
+    expect(res.body.validationDetails[0]).toBe("Status termina je obavezan");
+  });
+
   test("should delete the appointment", async () => {
     const appointmentId = appointments[3].id;
     const res = await request(app)
