@@ -221,6 +221,46 @@ describe("GET /admin", () => {
     expect(res.body).toHaveProperty("success", false);
     expect(res.body).toHaveProperty("statusErrMessage");
     expect(res.body.validationDetails).toBeInstanceOf(Array);
+    expect(res.body.validationDetails[0]).toBe("Naziv termina je obavezan");
+  });
+
+  test("should display validation error for the uuid field (invalid)", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Generic Title",
+        status: "scheduled",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+        userId: `s`,
+      })
+      .expect(400);
+    expect(res.body).toHaveProperty("success", false);
+    expect(res.body).toHaveProperty("statusErrMessage");
+    expect(res.body.validationDetails).toBeInstanceOf(Array);
+    expect(res.body.validationDetails[0]).toBe(
+      "Dati ID klijenta (userId) nije ispravan"
+    );
+  });
+
+  test("should display validation error for the uuid field (required)", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Generic Title",
+        status: "scheduled",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+      })
+      .expect(400);
+    expect(res.body).toHaveProperty("success", false);
+    expect(res.body).toHaveProperty("statusErrMessage");
+    expect(res.body.validationDetails).toBeInstanceOf(Array);
+    expect(res.body.validationDetails[0]).toBe(
+      "ID klijenta (userId) je obavezan za zakazivanje termina"
+    );
   });
 
   test("should delete the appointment", async () => {
