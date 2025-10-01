@@ -235,6 +235,77 @@ const deleteAppointment = async (req, res, next) => {
   }
 };
 
+const updateAppointment = [
+  body("title")
+    .trim()
+    .notEmpty()
+    .withMessage("validator_appointment_title")
+    .optional(),
+  body("startDateTime")
+    .notEmpty()
+    .isISO8601()
+    .withMessage("validator_appointment_startDateTime_not_empty")
+    .custom((value, { req }) => {
+      // get server time
+      const now = new Date();
+      const startTime = new Date(value);
+
+      // check if the startDateTime is less or equal to now
+      if (startTime <= now) {
+        throw new Error("validator_appointment_startDateTime_not_in_future");
+      }
+      return true;
+    })
+    .optional(),
+  body("endDateTime")
+    .notEmpty()
+    .isISO8601()
+    .custom((value, { req }) => {
+      const now = new Date();
+      const endTime = new Date(value);
+
+      // run this check only if both dates are present
+      if (value && req.body.startDateTime) {
+        if (endTime < now) {
+          throw new Error("validator_appointment_endDateTime_not_in_past");
+        }
+        return true;
+      }
+    })
+
+    .optional(),
+  body("userId")
+    .custom((value, { req }) => {
+      if (!req.body.external_client && !value) {
+        throw new Error("validator_appointment_userId_required");
+      }
+      return true;
+    })
+    .custom((value) => {
+      if (!isUUID(value)) {
+        throw new Error("validator_appointment_userId_invalid");
+      }
+      return true;
+    })
+    .optional(),
+  // insure that the appointment status is not empty and that matches the provided options
+  body("status")
+    .notEmpty()
+    .withMessage("validator_appointment_status_not_empty")
+    .isIn(["scheduled", "completed", "canceled", "no_show"])
+    .withMessage("validator_appointment_status_invalid")
+    .optional(),
+
+  body("external_client")
+    .custom((value, { req }) => {
+      if (value && req.body.userId) {
+        throw new Error("validator_external_client_userId_not_allowed");
+      }
+      return true;
+    })
+    .optional(),
+];
+
 // TODO:
 // admins can update their appointments
 // admins can cancel appointments
