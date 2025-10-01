@@ -10,11 +10,27 @@ const errorHandler = (err, req, res, next) => {
   const type = languages[languageKey];
 
   let statusErrCode = err.status || 500;
-  let statusErrMessage = type.general_server_err;
+  let statusErrMessage;
+  let statusErrMessages = [];
+  let validationDetails;
+
   // handle validation errs
   if (err.name === "ValidationError") {
     statusErrCode = 400;
-    statusErrMessage = type[err.message] || err.message; // Fallback option just in case if it can't find the right language key from languages module
+  }
+  // if there are validation errors push them to an array
+  if (err.validationMessages && Array.isArray(err.validationMessages)) {
+    validationDetails = err.validationMessages;
+    for (const msg of validationDetails) {
+      if (type[msg]) {
+        statusErrMessages.push(type[msg]);
+      } else {
+        statusErrMessages.push(msg);
+      }
+    }
+  } else {
+    // if there are no validation errors throw general err
+    statusErrMessage = type.general_server_err;
   }
 
   // handle Prisma specific errs
@@ -36,10 +52,19 @@ const errorHandler = (err, req, res, next) => {
         break;
     }
   }
-  res.status(statusErrCode).json({
+
+  // declare resBody Obj
+  const resBody = {
     success: false,
     statusErrMessage,
-  });
+  };
+
+  // assign validationErrors to res body only if there are validation errs
+  if (validationDetails) {
+    resBody.validationErrors = statusErrMessages;
+  }
+
+  res.status(statusErrCode).json(resBody);
 };
 
 module.exports = errorHandler;
