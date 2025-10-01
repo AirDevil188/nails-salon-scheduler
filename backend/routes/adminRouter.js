@@ -41,4 +41,19 @@ adminRouter.get(
   adminController.getAppointments
 );
 
+adminRouter.post(
+  "/appointments",
+  authenticate,
+  authorization,
+  adminController.newAppointment
+);
+
+// :TODO:
+// admin PUT to update appointments
+// admin DELETE to delete appointments
+// admin PUT route to grant an admin to someone else
+// admin GET route for notes
+// admin POST route for notes
+// admin PUT route for notes
+
 module.exports = adminRouter;
