@@ -216,10 +216,19 @@ const newAppointment = [
   },
 ];
 
+const deleteAppointment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await db.adminDeleteInvitation(id);
+    return res.status(204).end();
+  } catch (err) {
+    return next(err);
+  }
+};
+
 // TODO:
 // admins can update their appointments
 // admins can cancel appointments
-
 module.exports = {
   getInvitations,
   deleteInvitation,
@@ -227,4 +236,5 @@ module.exports = {
   deleteUser,
   getAppointments,
   newAppointment,
+  deleteAppointment,
 };
