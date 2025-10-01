@@ -181,12 +181,12 @@ const newAppointment = [
 
   async (req, res, next) => {
     const errs = validationResult(req);
-
     if (!errs.isEmpty()) {
       // map all messages
       const validationErrors = errs.array().map((error) => error.msg);
       // create costume err obj
       const error = new Error("Validation Error");
+      error.status = 400;
       error.name = "ValidationError";
       error.validationMessages = validationErrors; // Attach the array of message keys
       return next(error);

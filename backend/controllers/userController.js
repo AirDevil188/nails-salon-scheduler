@@ -137,6 +137,7 @@ const signUpUser = [
       const validationErrors = errs.array().map((error) => error.msg);
       const error = new Error("Validation Error");
       error.name = "ValidationError";
+      error.status = 400;
       error.validationMessages = validationErrors; // Attach the array of message keys
       return next(error);
     }
