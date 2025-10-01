@@ -306,6 +306,7 @@ describe("GET /admin", () => {
         endDateTime: "2025-10-05T09:00:00.000Z",
         status: "scheduled",
         external_client: "James Cameron",
+        userId: `${users[5].id}`,
       })
       .expect(400);
     expect(res.body).toHaveProperty("success", false);
@@ -314,6 +315,19 @@ describe("GET /admin", () => {
     expect(res.body.validationDetails[0]).toBe(
       "ID klijenta ne može biti prisutan, ako je eksterni klijent zadat"
     );
+  });
+
+  test("should  allow userId to be null if the external_client is provided", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Generic Title",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+        status: "scheduled",
+        external_client: "James Cameron",
+      });
   });
 
   test("should delete the appointment", async () => {
