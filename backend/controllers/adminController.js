@@ -160,8 +160,11 @@ const newAppointment = [
     }),
   // insure that the userId is not empty and that is UUID
   body("userId")
-    .notEmpty()
-    .withMessage("validator_appointment_userId_required")
+    .custom((value, { req }) => {
+      if (!req.body.external_client && !value) {
+        throw new Error("validator_appointment_userId_required");
+      }
+    })
     .custom((value) => {
       if (!isUUID(value)) {
         throw new Error("validator_appointment_userId_invalid");
@@ -181,11 +184,9 @@ const newAppointment = [
     if (!errs.isEmpty()) {
       // map all messages
       const validationErrors = errs.array().map((error) => error.msg);
-
       // create costume err obj
-      const error = new Error("Validation Failed");
+      const error = new Error("Validation Error");
       error.name = "ValidationError";
-      error.status = 400; // Use 400 Bad Request for validation errors
       error.validationMessages = validationErrors; // Attach the array of message keys
       return next(error);
     }
