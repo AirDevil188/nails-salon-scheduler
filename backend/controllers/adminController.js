@@ -280,6 +280,9 @@ const updateAppointment = [
     .optional(),
   body("userId")
     .custom((value, { req }) => {
+      if (req.body.external_client && !value) {
+        return true;
+      }
       if (!req.body.external_client && !value) {
         throw new Error("validator_appointment_userId_required");
       }
