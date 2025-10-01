@@ -179,6 +179,13 @@ const newAppointment = [
     .isIn(["scheduled", "completed", "canceled", "no_show"])
     .withMessage("validator_appointment_status_invalid"),
 
+  body("external_client").custom((value, { req }) => {
+    if (value && req.body.userId) {
+      throw new Error("validator_external_client_userId_not_allowed");
+    }
+    return true;
+  }),
+
   async (req, res, next) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
