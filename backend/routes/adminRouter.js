@@ -42,7 +42,7 @@ adminRouter.get(
 );
 
 adminRouter.post(
-  "/appointments",
+  "/appointments/new",
   authenticate,
   authorization,
   adminController.newAppointment
