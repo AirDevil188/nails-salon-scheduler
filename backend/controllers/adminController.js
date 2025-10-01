@@ -164,6 +164,7 @@ const newAppointment = [
       if (!req.body.external_client && !value) {
         throw new Error("validator_appointment_userId_required");
       }
+      return true;
     })
     .custom((value) => {
       if (!isUUID(value)) {
