@@ -205,7 +205,6 @@ describe("GET /admin", () => {
 
   test("should delete the appointment", async () => {
     const appointmentId = appointments[3].id;
-    console.error(appointmentId);
     const res = await request(app)
       .delete(`/admin/appointments/${appointmentId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
@@ -247,6 +246,13 @@ describe("GET /admin", () => {
   test("regular user should not be able to view the appointments", async () => {
     const res = await request(app)
       .get("/admin/appointments?limit=50&page=1")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(403);
+  });
+
+  test("regular user should not be able to add new appointments", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(403);
   });
