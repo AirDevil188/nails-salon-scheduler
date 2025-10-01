@@ -189,6 +189,20 @@ describe("GET /admin", () => {
     expect(res.body.appointments).toHaveLength(49);
   });
 
+  test("should add the appointment", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Generic Title",
+        status: "scheduled",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+        userId: `${users[5].id}`,
+      })
+      .expect(201);
+  });
+
   test("should delete the appointment", async () => {
     const appointmentId = appointments[3].id;
     console.error(appointmentId);
