@@ -32,6 +32,8 @@ const languages = {
       "The client ID (userId) is required to book the appointment",
     validator_appointment_userId_invalid:
       "Provided client ID (userId) is invalid",
+    validator_appointment_status_invalid: "Appointment status is invalid",
+    validator_appointment_status_not_empty: "Appointment status is required",
 
     // Success messages
 
@@ -79,11 +81,13 @@ const languages = {
       "Vreme početka termina mora biti u budućnosti",
     validator_appointment_endDateTime_not_in_past:
       "Vreme završetka termina ne može biti u prošlosti",
-    validator_appointment_duration_invalid: "Appointment time is invalid",
+    validator_appointment_duration_invalid: "Vreme termina nije ispravno",
     validator_appointment_userId_required:
       "ID klijenta (userId) je obavezan za zakazivanje termina",
     validator_appointment_userId_invalid:
       "Dati ID klijenta (userId) nije ispravan",
+    validator_appointment_status_invalid: "Status termina nije ispravan",
+    validator_appointment_status_not_empty: "Status termina je obezan",
 
     // Success messages
 
