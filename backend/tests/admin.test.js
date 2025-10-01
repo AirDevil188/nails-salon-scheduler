@@ -203,8 +203,6 @@ describe("GET /admin", () => {
         userId: `${users[5].id}`,
       })
       .expect(201);
-
-    console.error(res.body);
   });
 
   test("should display validation error for the title field", async () => {
@@ -261,6 +259,24 @@ describe("GET /admin", () => {
     expect(res.body.validationDetails[0]).toBe(
       "ID klijenta (userId) je obavezan za zakazivanje termina"
     );
+  });
+
+  test("should not allow custom appointment status", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Generic Title",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+        userId: `${users[5].id}`,
+        status: "ha",
+      })
+      .expect(400);
+    expect(res.body).toHaveProperty("success", false);
+    expect(res.body).toHaveProperty("statusErrMessage");
+    expect(res.body.validationDetails).toBeInstanceOf(Array);
+    expect(res.body.validationDetails[0]).toBe("Status termina nije ispravan");
   });
 
   test("should delete the appointment", async () => {
