@@ -36,6 +36,8 @@ const languages = {
       "Provided client ID (userId) is invalid",
     validator_appointment_status_invalid: "Appointment status is invalid",
     validator_appointment_status_not_empty: "Appointment status is required",
+    validator_external_client_userId_not_allowed:
+      "Provided client ID can't be present if the external client is already defined",
 
     // Success messages
 
@@ -91,6 +93,8 @@ const languages = {
       "Dati ID klijenta (userId) nije ispravan",
     validator_appointment_status_invalid: "Status termina nije ispravan",
     validator_appointment_status_not_empty: "Status termina je obavezan",
+    validator_external_client_userId_not_allowed:
+      "ID klijenta ne može biti prisutan, ako je eksterni klijent zadat",
 
     // Success messages
 
