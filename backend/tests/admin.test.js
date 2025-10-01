@@ -13,6 +13,7 @@ const {
 } = require("../utils/utils");
 const { addHours } = require("date-fns/addHours");
 const { addMinutes } = require("date-fns/addMinutes");
+const errorHandler = require("../middlewares/errorHandler");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/users", userRouter);
 app.use("/admin", adminRouter);
 
+app.use(errorHandler);
 // users test objects
 
 let accessToken;
@@ -201,6 +203,24 @@ describe("GET /admin", () => {
         userId: `${users[5].id}`,
       })
       .expect(201);
+
+    console.error(res.body);
+  });
+
+  test("should display validation error for the title field", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        status: "scheduled",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+        userId: `${users[5].id}`,
+      })
+      .expect(400);
+    expect(res.body).toHaveProperty("success", false);
+    expect(res.body).toHaveProperty("statusErrMessage");
+    expect(res.body.validationDetails).toBeInstanceOf(Array);
   });
 
   test("should delete the appointment", async () => {
