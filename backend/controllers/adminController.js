@@ -218,8 +218,8 @@ const newAppointment = [
 
 const deleteAppointment = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    await db.adminDeleteInvitation(id);
+    const { appointmentId } = req.params;
+    await db.adminDeleteAppointment(appointmentId);
     return res.status(204).end();
   } catch (err) {
     return next(err);
