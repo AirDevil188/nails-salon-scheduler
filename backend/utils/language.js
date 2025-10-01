@@ -27,6 +27,7 @@ const languages = {
       "Appointment time must be in the future",
     validator_appointment_endDateTime_not_in_past:
       "Appointment time cannot be in the past",
+    validator_appointment_duration_invalid: "Appointment time is invalid",
     validator_appointment_userId_required:
       "The client ID (userId) is required to book the appointment",
     validator_appointment_userId_invalid:
@@ -78,6 +79,7 @@ const languages = {
       "Vreme početka termina mora biti u budućnosti",
     validator_appointment_endDateTime_not_in_past:
       "Vreme završetka termina ne može biti u prošlosti",
+    validator_appointment_duration_invalid: "Appointment time is invalid",
     validator_appointment_userId_required:
       "ID klijenta (userId) je obavezan za zakazivanje termina",
     validator_appointment_userId_invalid:
