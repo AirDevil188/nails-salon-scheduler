@@ -10,16 +10,18 @@ const errorHandler = (err, req, res, next) => {
   const type = languages[languageKey];
 
   let statusErrCode = err.status || 500;
-  let statusErrMessage;
+  let statusErrMessage = type.general_server_err;
   let statusErrMessages = [];
   let validationDetails;
 
-  // handle validation errs
-  if (err.name === "ValidationError") {
-    statusErrCode = 400;
+  // handle custom errors like 401 errs
+  if (err.message && type[err.message] && statusErrCode !== 400) {
+    statusErrMessage = type[err.message];
   }
+
+  //handle validation errors
   // if there are validation errors push them to an array
-  if (err.validationMessages && Array.isArray(err.validationMessages)) {
+  if (err.name === "ValidationError" && Array.isArray(err.validationMessages)) {
     validationDetails = err.validationMessages;
     for (const msg of validationDetails) {
       if (type[msg]) {
@@ -28,9 +30,14 @@ const errorHandler = (err, req, res, next) => {
         statusErrMessages.push(msg);
       }
     }
-  } else {
-    // if there are no validation errors throw general err
-    statusErrMessage = type.general_server_err;
+
+    // set the main status err msg to validator
+    if (statusErrMessages.length > 0) {
+      statusErrMessage = type.general_validator_err;
+    } else {
+      // Fallback for an unknown validation issue
+      statusErrMessage = type.general_validator_err;
+    }
   }
 
   // handle Prisma specific errs
@@ -61,8 +68,9 @@ const errorHandler = (err, req, res, next) => {
 
   // assign validationErrors to res body only if there are validation errs
   if (validationDetails) {
-    resBody.validationErrors = statusErrMessages;
+    resBody.validationDetails = statusErrMessages;
   }
+
   return res.status(statusErrCode).json(resBody);
 };
 
