@@ -189,27 +189,30 @@ const newAppointment = [
       error.validationMessages = validationErrors; // Attach the array of message keys
       return next(error);
     }
-    const {
-      title,
-      startDateTime,
-      endDateTime,
-      status,
-      external_client,
-      userId,
-    } = req.body;
+    try {
+      const {
+        title,
+        startDateTime,
+        endDateTime,
+        status,
+        external_client,
+        userId,
+      } = req.body;
 
-    const appointment = await db.adminNewAppointment(
-      title,
-      status,
-      startDateTime,
-      endDateTime,
-      external_client,
-      userId
-    );
-
-    return res.status(201).json({
-      appointment: appointment,
-    });
+      const appointment = await db.adminNewAppointment(
+        title,
+        status,
+        startDateTime,
+        endDateTime,
+        external_client,
+        userId
+      );
+      return res.status(201).json({
+        appointment: appointment,
+      });
+    } catch (err) {
+      return next(err);
+    }
   },
 ];
 
