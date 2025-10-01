@@ -559,6 +559,19 @@ const adminNewAppointment = async (
   }
 };
 
+const adminDeleteAppointment = async (id) => {
+  try {
+    return await prisma.appointment.delete({
+      where: {
+        id: id,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   findUser,
   createUser,
@@ -581,4 +594,5 @@ module.exports = {
   adminGetAllInvitations,
   adminDeleteInvitation,
   adminNewAppointment,
+  adminDeleteAppointment,
 };
