@@ -525,18 +525,22 @@ const adminNewAppointment = async (
   userId
 ) => {
   const now = new Date();
-  try {
-    const client = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-      },
-    });
+  let client;
 
-    if (!client) {
-      throw Error("validator_appointment_userId_invalid");
+  try {
+    if (!external_client) {
+      client = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!client) {
+        throw Error("validator_appointment_userId_invalid");
+      }
     }
     return await prisma.appointment.create({
       data: {
@@ -545,7 +549,7 @@ const adminNewAppointment = async (
         startDateTime: startDateTime,
         endDateTime: endDateTime || addMinutes(now, 45),
         external_client: external_client,
-        userId: client.id,
+        userId: client ? client.id : null,
       },
       include: {
         user: {
