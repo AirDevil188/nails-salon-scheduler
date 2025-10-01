@@ -296,6 +296,26 @@ describe("GET /admin", () => {
     expect(res.body.validationDetails[0]).toBe("Status termina je obavezan");
   });
 
+  test("should not allow for userId to be present if the external_client field is provided", async () => {
+    const res = await request(app)
+      .post("/admin/appointments/new")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Generic Title",
+        startDateTime: "2025-10-05T08:00:00.000Z",
+        endDateTime: "2025-10-05T09:00:00.000Z",
+        status: "scheduled",
+        external_client: "James Cameron",
+      })
+      .expect(400);
+    expect(res.body).toHaveProperty("success", false);
+    expect(res.body).toHaveProperty("statusErrMessage");
+    expect(res.body.validationDetails).toBeInstanceOf(Array);
+    expect(res.body.validationDetails[0]).toBe(
+      "ID klijenta ne može biti prisutan, ako je eksterni klijent zadat"
+    );
+  });
+
   test("should delete the appointment", async () => {
     const appointmentId = appointments[3].id;
     const res = await request(app)
