@@ -1,4 +1,6 @@
 const db = require("@db/query");
+const { isUUID } = require("@utils/utils");
+const { body, validationResult } = require("express-validator");
 
 const getInvitations = async (req, res, next) => {
   try {
@@ -116,7 +118,102 @@ const getAppointments = async (req, res, next) => {
 };
 // TODO:
 // admins can create new appointments
+const newAppointment = [
+  // insure that title is not empty
+  body("title").trim().notEmpty().withMessage("validator_appointment_title"),
+  // insure that
+  body("startDateTime")
+    .isISO8601()
+    .withMessage("validator_appointment_startDateTime_not_empty")
+    .custom((value, { req }) => {
+      // get server time
+      const now = new Date();
+      const startTime = new Date(value);
 
+      // check if the startDateTime is less or equal to now
+      if (startTime <= now) {
+        throw new Error("validator_appointment_startDateTime_not_in_future");
+      }
+      return true;
+    }),
+  body("endDateTime")
+    .isISO8601()
+    .custom((value, { req }) => {
+      const now = new Date();
+      const endTime = new Date(value);
+
+      if (endTime < now) {
+        throw new Error("validator_appointment_endDateTime_not_in_past");
+      }
+      return true;
+    })
+    // insure that startTime can't be larger or equal to  endTime
+    .custom((value, { req }) => {
+      const startDateTimeString = req.body.startDateTime;
+      const startTime = new Date(startDateTimeString);
+      const endTime = new Date(value);
+
+      if (startTime >= endTime) {
+        throw new Error("validator_appointment_duration_invalid");
+      }
+      return true;
+    }),
+  // insure that the userId is not empty and that is UUID
+  body("userId")
+    .notEmpty()
+    .withMessage("validator_appointment_userId_required")
+    .custom((value) => {
+      if (!isUUID(value)) {
+        throw new Error("validator_appointment_userId_invalid");
+      }
+      return true;
+    }),
+  // insure that the appointment status is not empty and that matches the provided options
+  body("status")
+    .notEmpty()
+    .withMessage("validator_appointment_status_not_empty")
+    .isIn(["scheduled", "completed", "canceled", "no_show"])
+    .withMessage("validator_appointment_status_invalid"),
+
+  async (req, res, next) => {
+    const errs = validationResult(req);
+
+    if (!errs.isEmpty()) {
+      // map all messages
+      const validationErrors = errs.array().map((error) => error.msg);
+
+      // create costume err obj
+      const error = new Error("Validation Failed");
+      error.name = "ValidationError";
+      error.status = 400; // Use 400 Bad Request for validation errors
+      error.validationMessages = validationErrors; // Attach the array of message keys
+      return next(error);
+    }
+    const {
+      title,
+      startDateTime,
+      endDateTime,
+      status,
+      external_client,
+      userId,
+    } = req.body;
+
+    const appointment = await db.adminNewAppointment(
+      title,
+      status,
+      startDateTime,
+      endDateTime,
+      external_client,
+      userId
+    );
+
+    return res.status(201).json({
+      appointment: appointment,
+    });
+  },
+];
+
+// TODO:
 // admins can update their appointments
 // admins can cancel appointments
 
@@ -126,4 +223,5 @@ module.exports = {
   getUsers,
   deleteUser,
   getAppointments,
+  newAppointment,
 };
