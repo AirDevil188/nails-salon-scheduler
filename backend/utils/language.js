@@ -7,6 +7,8 @@ const languages = {
     authenticate_err: "You must be logged in to access this page",
     authorization_err: "You don't have permission to perform this action",
     authenticate_code_err: "Invalid code, please try again",
+    general_validator_err:
+      "Error with the provided data. Please check the details",
 
     // Validation errs
     // Sign-up errs
@@ -62,6 +64,7 @@ const languages = {
       "Morate biti prijavljeni da bi ste mogli pristupiti ovoj stranici",
     authorization_err: "Nemate dozvolu za izvršenje ove radnje",
     authenticate_code_err: "Nepostojeći kod, molimm vas probajte ponovo",
+    general_validator_err: "Greška u podacima. Proverite detalje",
 
     // Validation errs
     // Sign-up errs
