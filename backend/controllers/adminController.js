@@ -166,7 +166,11 @@ const newAppointment = [
       }
       return true;
     })
-    .custom((value) => {
+    .custom((value, { req }) => {
+      // if external_client is provided then userId can be null
+      if (req.body.external_client && !value) {
+        return true;
+      }
       if (!isUUID(value)) {
         throw new Error("validator_appointment_userId_invalid");
       }
