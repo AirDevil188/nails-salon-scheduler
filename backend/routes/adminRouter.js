@@ -48,6 +48,13 @@ adminRouter.post(
   adminController.newAppointment
 );
 
+adminRouter.delete(
+  "/appointments/:appointmentId",
+  authenticate,
+  authorization,
+  adminController.deleteAppointment
+);
+
 // :TODO:
 // admin PUT to update appointments
 // admin DELETE to delete appointments
