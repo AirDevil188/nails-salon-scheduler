@@ -135,10 +135,8 @@ const signUpUser = [
     if (!errs.isEmpty()) {
       // pickup the first message
       const validationErrors = errs.array().map((error) => error.msg);
-
-      const error = new Error("Validation Failed");
+      const error = new Error("Validation Error");
       error.name = "ValidationError";
-      error.status = 400; // Use 400 Bad Request for validation errors
       error.validationMessages = validationErrors; // Attach the array of message keys
       return next(error);
     }
@@ -208,7 +206,6 @@ const signUpUser = [
         expiresAt: expiresAt,
       });
     } catch (err) {
-      console.log(err);
       return next(err); // pass any unexpected errors to errorHandler
     }
   },
