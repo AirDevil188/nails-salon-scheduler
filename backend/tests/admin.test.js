@@ -110,7 +110,7 @@ beforeAll(async () => {
     endDateTime: addMinutes(new Date(), 30),
   }));
 
-  appointments = await prisma.appointment.createMany({
+  appointments = await prisma.appointment.createManyAndReturn({
     data: appointmentData,
   });
 
@@ -187,6 +187,15 @@ describe("GET /admin", () => {
       .expect(200);
 
     expect(res.body.appointments).toHaveLength(49);
+  });
+
+  test("should delete the appointment", async () => {
+    const appointmentId = appointments[3].id;
+    console.error(appointmentId);
+    const res = await request(app)
+      .delete(`/admin/appointments/${appointmentId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(204);
   });
 
   test("should switch logged in user from admin to the regular user", async () => {
