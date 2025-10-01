@@ -90,7 +90,7 @@ const languages = {
     validator_appointment_userId_invalid:
       "Dati ID klijenta (userId) nije ispravan",
     validator_appointment_status_invalid: "Status termina nije ispravan",
-    validator_appointment_status_not_empty: "Status termina je obezan",
+    validator_appointment_status_not_empty: "Status termina je obavezan",
 
     // Success messages
 
