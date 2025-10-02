@@ -311,6 +311,46 @@ const updateAppointment = [
       return true;
     })
     .optional(),
+
+  async (req, res, next) => {
+    const errs = validationResult(req);
+
+    // check if the validation errors are present
+    if (!errs.isEmpty()) {
+      const validationErrors = errs.array().map((error) => error.msg);
+      const error = new Error("Validation Error");
+      error.name = "ValidationError";
+      error.status = 400;
+      error.validationMessages = validationErrors;
+      return next(error);
+    }
+
+    try {
+      const { appointmentId } = req.params;
+      const {
+        title,
+        startDateTime,
+        endDateTime,
+        status,
+        userId,
+        external_client,
+      } = req.body;
+      const appointment = await db.adminUpdateAppointment(
+        appointmentId,
+        title,
+        startDateTime,
+        endDateTime,
+        userId,
+        status,
+        external_client
+      );
+      return res.status(200).json({
+        appointment: appointment,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  },
 ];
 
 // TODO:
@@ -323,5 +363,6 @@ module.exports = {
   deleteUser,
   getAppointments,
   newAppointment,
+  updateAppointment,
   deleteAppointment,
 };
