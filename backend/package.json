@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon app.js",
+    "dev": "nodemon server.js",
     "test": "dotenv -e .env.test -- jest --runInBand",
     "lint": "eslint . --fix"
   },
@@ -46,6 +46,7 @@
     "module-alias": "^2.2.3",
     "multer": "^2.0.2",
     "resend": "^6.1.0",
+    "socket.io": "^4.8.1",
     "validator": "^13.15.15"
   },
   "devDependencies": {
