@@ -338,6 +338,18 @@ describe("GET /admin", () => {
       .expect(204);
   });
 
+  test("should update the appointment to have a new title", async () => {
+    const appointmentId = appointments[4].id;
+    const res = await request(app)
+      .patch(`/admin/appointments/${appointmentId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Updated Title",
+      })
+      .expect(200);
+    expect(res.body.appointment.title).toBe("Updated Title");
+  });
+
   test("should switch logged in user from admin to the regular user", async () => {
     const res = await request(app)
       .post("/users/sign-in")
