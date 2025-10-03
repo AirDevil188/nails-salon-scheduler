@@ -1,6 +1,7 @@
 const db = require("@db/query");
 const { isUUID } = require("@utils/utils");
 const { body, validationResult } = require("express-validator");
+const { getIo } = require("../socket/services/socketManager");
 
 const getInvitations = async (req, res, next) => {
   try {
@@ -78,10 +79,21 @@ const getUsers = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
+  const io = getIo();
   try {
     const { userId } = req.params;
     // delete the user
     await db.adminDeleteUser(userId);
+    io.to("admin-dashboard").emit("admin:userDeleted", userId);
+    console.log(
+      `Sent user deletion alert for userId: ${userId} to the 'admin-dashboard' room.`
+    );
+    if (userId) {
+      io.to(`user:${userId}`).emit("user:deleted", userId);
+      console.log(
+        `Sent user deletion confirmation to the 'user:${userId}' room.`
+      );
+    }
     // return 204 because we don't have any content to return
     return res.status(204).end();
   } catch (err) {
@@ -195,6 +207,7 @@ const newAppointment = [
     if (!errs.isEmpty()) {
       // map all messages
       const validationErrors = errs.array().map((error) => error.msg);
+      console.log(errs);
       // create costume err obj
       const error = new Error("Validation Error");
       error.status = 400;
@@ -203,6 +216,7 @@ const newAppointment = [
       return next(error);
     }
     try {
+      const io = getIo();
       const {
         title,
         startDateTime,
@@ -220,6 +234,12 @@ const newAppointment = [
         external_client,
         userId
       );
+      io.to("admin-dashboard").emit("admin:appointment:created", appointment);
+      console.log(`Sent new appointment alert to the 'admin-dashboard' room.`);
+      if (userId) {
+        io.to(`user:${userId}`).emit("appointment:created", appointment);
+        console.log(`Sent new appointment alert to the 'user:${userId}' room.`);
+      }
       return res.status(201).json({
         appointment: appointment,
       });
@@ -231,8 +251,17 @@ const newAppointment = [
 
 const deleteAppointment = async (req, res, next) => {
   try {
+    const io = getIo();
     const { appointmentId } = req.params;
-    await db.adminDeleteAppointment(appointmentId);
+    const appointment = await db.adminDeleteAppointment(appointmentId);
+    const userId = appointment?.id;
+
+    io.to("admin-dashboard").emit("appointmentDeleted", appointmentId);
+    console.log(`Sent new appointment alert to the 'admin-dashboard' room.`);
+    if (userId) {
+      io.to(`user:${userId}`).emit("appointmentDeleted", appointmentId);
+      console.log(`Sent new appointment alert to the 'user:${userId}' room.`);
+    }
     return res.status(204).end();
   } catch (err) {
     return next(err);
@@ -327,6 +356,8 @@ const updateAppointment = [
 
     try {
       const { appointmentId } = req.params;
+      const io = getIo();
+
       const {
         title,
         startDateTime,
@@ -344,6 +375,16 @@ const updateAppointment = [
         status,
         external_client
       );
+      io.to("admin-dashboard").emit("admin:appointmentUpdated", appointment);
+      console.log(
+        `Sent updated appointment alert to the 'admin-dashboard' room.`
+      );
+      if (userId) {
+        io.to(`user:${userId}`).emit("appointment:updated", appointment);
+        console.log(
+          `Sent updated appointment alert to the 'user:${userId}' room.`
+        );
+      }
       return res.status(200).json({
         appointment: appointment,
       });
