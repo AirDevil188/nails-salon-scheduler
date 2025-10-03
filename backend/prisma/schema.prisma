@@ -76,8 +76,8 @@ model User {
   role Role @default(user) 
   appointments Appointment[]
   createdAt DateTime @default(now())
-  isOnline Boolean
-  lastSeen DateTime
+  is_online Boolean?
+  last_seen DateTime?
   @@map("user")
 }
 
