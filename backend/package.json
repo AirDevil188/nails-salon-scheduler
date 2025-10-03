@@ -15,6 +15,7 @@
     "@utils": "utils",
     "@middlewares": "middlewares",
     "@db": "db",
+    "@socketServices": "./socket/services",
     "@socketMiddlewares": "./socket/middlewares",
     "@socketHandlers": "./socket/handlers"
   },
