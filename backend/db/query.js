@@ -5,6 +5,23 @@ const prisma = new PrismaClient({});
 
 // USER queries
 
+const updateUserOnlineStatus = async (userId, status, lastSeen) => {
+  try {
+    return prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        is_online: status,
+        last_seen: lastSeen,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
 const findUser = async (email) => {
   try {
     return await prisma.user.findUnique({
@@ -620,6 +637,7 @@ const adminUpdateAppointment = async (
 };
 
 module.exports = {
+  updateUserOnlineStatus,
   findUser,
   createUser,
   findRefreshTokenByUserId,
