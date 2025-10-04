@@ -4,7 +4,15 @@ const {
 } = require("../utils/utils");
 const express = require("express");
 const request = require("supertest");
-const { execSync } = require("child_process");
+const mockEmit = jest.fn();
+// Spy on the .to() call and ensure it returns an object with the mockEmit function
+const mockTo = jest.fn(() => ({ emit: mockEmit }));
+
+// Tell Jest to replace the actual socketManager module
+jest.mock("../socket/services/socketManager.js", () => ({
+  // When the controller calls getIo(), it receives an object containing our 'to' spy
+  getIo: jest.fn(() => ({ to: mockTo })),
+}));
 
 const { PrismaClient } = require("@prisma/client");
 
@@ -33,6 +41,10 @@ let accessToken;
 let invitation;
 let mockVerificationCode;
 let verifiedInvitation;
+
+beforeEach(async () => {
+  jest.clearAllMocks();
+});
 
 beforeAll(async () => {
   await prisma.$connect();
