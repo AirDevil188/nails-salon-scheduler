@@ -159,7 +159,7 @@ const verifyInvitationCode = async (req, res, next) => {
 
     // change the status of the invitation to the code_verified
     await db.verifyInvitationStatus(token, "code_verified");
-    io.to("admin-dashboard").emit("admin: invitationVerified", {
+    io.to("admin-dashboard").emit("admin:invitationVerified", {
       email: validateCode.email,
       id: validateCode.id,
     });
