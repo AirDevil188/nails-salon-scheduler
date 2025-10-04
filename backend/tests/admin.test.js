@@ -194,6 +194,11 @@ describe("GET /admin", () => {
       .delete(`/admin/invitations/${invitationId}`)
       .set(`Authorization`, `Bearer ${accessToken}`);
     expect(204);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:invitationDelete");
+    expect(mockEmit.mock.calls[0][1]).toBe(invitationId);
   });
 
   test("should fetch the first 25 appointments", async () => {
