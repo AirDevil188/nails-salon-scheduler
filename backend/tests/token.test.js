@@ -104,6 +104,14 @@ describe("POST /invitations", () => {
       .expect(200);
     expect(res.body.success).toBe(true);
     expect(res.body.invitationLink).toBeDefined();
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    expect(mockEmit.mock.calls[0][1]).toEqual({
+      email: res.body.invitationLink.email,
+      id: res.body.invitationLink.id,
+    });
+
     invitation = res.body.invitationLink;
   });
   test("should successfully test validation of the token", async () => {
