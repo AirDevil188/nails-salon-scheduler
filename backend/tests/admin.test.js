@@ -218,13 +218,6 @@ describe("GET /admin", () => {
       })
       .expect(201);
 
-    const expectedPayload = {
-      // ...res.body.appointment,
-      startDateTime: expect.any(String),
-      // endDateTime: String(res.body.appointment.endDateTime),
-    };
-    console.error(expectedPayload);
-
     // --- ASSERT SOCKET.IO CALLS ---
     expect(mockTo).toHaveBeenCalledTimes(2);
 
@@ -243,10 +236,6 @@ describe("GET /admin", () => {
 
     // Check event name
     expect(mockEmit.mock.calls[1][0]).toBe("appointment:created");
-    console.error(
-      typeof new Date(res.body.appointment.startDateTime),
-      mockEmit.mock.calls[1][1].startDateTime
-    );
     expect(mockEmit.mock.calls[1][1].startDateTime).toBeInstanceOf(Date);
   });
 
@@ -451,15 +440,6 @@ describe("GET /admin", () => {
     expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
     expect(mockEmit.mock.calls[0][1].createdAt).toBeInstanceOf(Date);
     expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
-
-    // const expectedUserRoom = `user:${res.body.appointment.userId}`;
-
-    // expect(mockTo.mock.calls[1][0]).toBe(expectedUserRoom);
-
-    // expect(mockEmit.mock.calls[1][0]).toBe("user:appointment:updated");
-
-    // expect(mockEmit.mock.calls[0][1].startDateTime).toBeInstanceOf(Date);
-    // expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
   });
 
   test("should switch logged in user from admin to the regular user", async () => {
