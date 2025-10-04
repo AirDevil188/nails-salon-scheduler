@@ -3,6 +3,16 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const { faker } = require("@faker-js/faker");
 
+const mockEmit = jest.fn();
+// Spy on the .to() call and ensure it returns an object with the mockEmit function
+const mockTo = jest.fn(() => ({ emit: mockEmit }));
+
+// Tell Jest to replace the actual socketManager module
+jest.mock("../socket/services/socketManager.js", () => ({
+  // When the controller calls getIo(), it receives an object containing our 'to' spy
+  getIo: jest.fn(() => ({ to: mockTo })),
+}));
+
 const prisma = new PrismaClient();
 
 const adminRouter = require("../routes/adminRouter");
@@ -41,6 +51,10 @@ afterAll(async () => {
   await prisma.appointment.deleteMany({});
 
   await prisma.$disconnect();
+});
+
+beforeEach(async () => {
+  jest.clearAllMocks();
 });
 
 beforeAll(async () => {
@@ -203,6 +217,37 @@ describe("GET /admin", () => {
         userId: `${users[5].id}`,
       })
       .expect(201);
+
+    const expectedPayload = {
+      // ...res.body.appointment,
+      startDateTime: expect.any(String),
+      // endDateTime: String(res.body.appointment.endDateTime),
+    };
+    console.error(expectedPayload);
+
+    // --- ASSERT SOCKET.IO CALLS ---
+    expect(mockTo).toHaveBeenCalledTimes(2);
+
+    // --- ASSERT THE ADMIN BROADCAST (Call Index 2) ---
+
+    // Check room name
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    // Check event name
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:appointment:created");
+
+    const expectedUserRoom = `user:${users[5].id}`;
+
+    // Check room name
+    expect(mockTo.mock.calls[1][0]).toBe(expectedUserRoom);
+
+    // Check event name
+    expect(mockEmit.mock.calls[1][0]).toBe("appointment:created");
+    console.error(
+      typeof new Date(res.body.appointment.startDateTime),
+      mockEmit.mock.calls[1][1].startDateTime
+    );
+    expect(mockEmit.mock.calls[1][1].startDateTime).toBeInstanceOf(Date);
   });
 
   test("should display validation error for the title field", async () => {
@@ -336,6 +381,22 @@ describe("GET /admin", () => {
       .delete(`/admin/appointments/${appointmentId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(204);
+
+    expect(mockTo).toHaveBeenCalledTimes(2);
+
+    // Check room name
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    // Check event name
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:appointment:deleted");
+
+    const expectedUserRoom = `user:${appointments[3].userId}`;
+
+    // Check room name
+    expect(mockTo.mock.calls[1][0]).toBe(expectedUserRoom);
+
+    // Check event name
+    expect(mockEmit.mock.calls[1][0]).toBe("user:appointment:deleted");
   });
 
   test("should update the appointment to have a new title", async () => {
