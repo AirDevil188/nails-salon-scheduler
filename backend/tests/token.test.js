@@ -122,6 +122,15 @@ describe("POST /invitations", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.invitationToken).toBe(invitation.token);
     expect(res.body.code).toBeDefined();
+
+    expect(mockTo).toHaveBeenCalledTimes(1);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    expect(mockEmit.mock.calls[0][1]).toEqual({
+      email: res.body.invitation.email,
+      id: res.body.invitation.id,
+    });
     mockVerificationCode = res.body.code;
   });
   test("should redirect if the invitation status is code_verified", async () => {
