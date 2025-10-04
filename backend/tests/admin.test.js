@@ -400,6 +400,7 @@ describe("GET /admin", () => {
       })
       .expect(200);
     expect(res.body.appointment.title).toBe("Updated Title");
+    expect(res.body.appointment.external_client).toBeNull();
 
     expect(mockTo).toHaveBeenCalledTimes(2);
 
@@ -412,8 +413,12 @@ describe("GET /admin", () => {
 
     expect(mockEmit.mock.calls[1][0]).toBe("user:appointment:updated");
 
+    expect(mockEmit.mock.calls[0][1].title).toBe("Updated Title");
+    expect(mockEmit.mock.calls[0][1].userId).toBe(res.body.appointment.userId);
     expect(mockEmit.mock.calls[0][1].startDateTime).toBeInstanceOf(Date);
     expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
+    expect(mockEmit.mock.calls[0][1].createdAt).toBeInstanceOf(Date);
+    expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
   });
 
   test("should update the appointment to have a new title, external_client and no userId", async () => {
