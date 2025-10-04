@@ -411,6 +411,20 @@ describe("GET /admin", () => {
       })
       .expect(200);
     expect(res.body.appointment.title).toBe("Updated Title");
+
+    expect(mockTo).toHaveBeenCalledTimes(2);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:appointment:updated");
+
+    const expectedUserRoom = `user:${res.body.appointment.userId}`;
+
+    expect(mockTo.mock.calls[1][0]).toBe(expectedUserRoom);
+
+    expect(mockEmit.mock.calls[1][0]).toBe("user:appointment:updated");
+
+    expect(mockEmit.mock.calls[0][1].startDateTime).toBeInstanceOf(Date);
+    expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
   });
 
   test("should switch logged in user from admin to the regular user", async () => {
