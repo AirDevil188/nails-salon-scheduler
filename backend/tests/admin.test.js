@@ -427,6 +427,41 @@ describe("GET /admin", () => {
     expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
   });
 
+  test("should update the appointment to have a new title, external_client and no userId", async () => {
+    const appointmentId = appointments[7].id;
+    const res = await request(app)
+      .patch(`/admin/appointments/${appointmentId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        title: "Updated Title",
+        external_client: "Kate Perry",
+      })
+      .expect(200);
+    expect(res.body.appointment.title).toBe("Updated Title");
+    expect(res.body.appointment.userId).toBeNull();
+
+    expect(mockTo).toHaveBeenCalledTimes(1);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:appointment:updated");
+
+    expect(mockEmit.mock.calls[0][1].title).toBe("Updated Title");
+    expect(mockEmit.mock.calls[0][1].external_client).toBe("Kate Perry");
+    expect(mockEmit.mock.calls[0][1].startDateTime).toBeInstanceOf(Date);
+    expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
+    expect(mockEmit.mock.calls[0][1].createdAt).toBeInstanceOf(Date);
+    expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
+
+    // const expectedUserRoom = `user:${res.body.appointment.userId}`;
+
+    // expect(mockTo.mock.calls[1][0]).toBe(expectedUserRoom);
+
+    // expect(mockEmit.mock.calls[1][0]).toBe("user:appointment:updated");
+
+    // expect(mockEmit.mock.calls[0][1].startDateTime).toBeInstanceOf(Date);
+    // expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
+  });
+
   test("should switch logged in user from admin to the regular user", async () => {
     const res = await request(app)
       .post("/users/sign-in")
