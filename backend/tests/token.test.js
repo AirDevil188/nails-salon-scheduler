@@ -107,6 +107,8 @@ describe("POST /invitations", () => {
 
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
 
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:createdInvitation");
+
     expect(mockEmit.mock.calls[0][1]).toEqual({
       email: res.body.invitationLink.email,
       id: res.body.invitationLink.id,
@@ -126,6 +128,8 @@ describe("POST /invitations", () => {
     expect(mockTo).toHaveBeenCalledTimes(1);
 
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:invitationCodeCreated");
 
     expect(mockEmit.mock.calls[0][1]).toEqual({
       email: res.body.invitation.email,
@@ -155,6 +159,8 @@ describe("POST /invitations", () => {
 
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
 
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:codeResend");
+
     expect(mockEmit.mock.calls[0][1]).toEqual({
       email: res.body.invitation.email,
       id: res.body.invitation.id,
@@ -171,6 +177,8 @@ describe("POST /invitations", () => {
     expect(mockTo).toHaveBeenCalledTimes(1);
 
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:invitationVerified");
 
     expect(mockEmit.mock.calls[0][1]).toEqual({
       email: res.body.email,
