@@ -365,6 +365,7 @@ const updateAppointment = [
         userId,
         external_client,
       } = req.body;
+
       const appointment = await db.adminUpdateAppointment(
         appointmentId,
         title,
@@ -374,12 +375,15 @@ const updateAppointment = [
         status,
         external_client
       );
-      io.to("admin-dashboard").emit("admin:appointmentUpdated", appointment);
+      io.to("admin-dashboard").emit("admin:appointment:updated", appointment);
       console.log(
         `Sent updated appointment alert to the 'admin-dashboard' room.`
       );
-      if (userId) {
-        io.to(`user:${userId}`).emit("appointment:updated", appointment);
+      if (appointment?.userId) {
+        io.to(`user:${appointment.userId}`).emit(
+          "user:appointment:updated",
+          appointment
+        );
         console.log(
           `Sent updated appointment alert to the 'user:${userId}' room.`
         );
