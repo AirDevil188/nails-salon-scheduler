@@ -37,9 +37,14 @@ const getInvitations = async (req, res, next) => {
 };
 
 const deleteInvitation = async (req, res, next) => {
+  const io = getIo();
   try {
     const { invitationId } = req.params;
     await db.adminDeleteInvitation(invitationId);
+    io.to("admin-dashboard").emit("admin:invitationDelete", invitationId);
+    console.log(
+      `Sent user deletion alert for invitation: ${invitationId} to the 'admin-dashboard' room.`
+    );
     return res.status(204).end();
   } catch (err) {
     console.error(err);
