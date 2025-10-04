@@ -170,6 +170,7 @@ const verifyInvitationCode = async (req, res, next) => {
       success: true,
       message: type.success_invitation_verification_code,
       email: validateCode.email,
+      id: validateCode.id,
     });
   } catch (err) {
     return next(err);
