@@ -150,6 +150,15 @@ describe("POST /invitations", () => {
       .send({ token: invitation.token })
       .expect(200);
     mockVerificationCode = res.body.code;
+
+    expect(mockTo).toHaveBeenCalledTimes(1);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    expect(mockEmit.mock.calls[0][1]).toEqual({
+      email: res.body.invitation.email,
+      id: res.body.invitation.id,
+    });
   });
   test("should verify verification code", async () => {
     const res = await request(app)
