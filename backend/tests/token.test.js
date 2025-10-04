@@ -167,6 +167,15 @@ describe("POST /invitations", () => {
       .expect(200);
     expect(res.body.success).toBe(true);
     expect(res.body.email).toBeDefined();
+
+    expect(mockTo).toHaveBeenCalledTimes(1);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    expect(mockEmit.mock.calls[0][1]).toEqual({
+      email: res.body.email,
+      id: res.body.id,
+    });
   });
   test("should throw err 401 if the code is wrong", async () => {
     const res = await request(app)
