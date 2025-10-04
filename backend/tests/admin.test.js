@@ -167,6 +167,15 @@ describe("GET /admin", () => {
       .delete(`/admin/users/${userId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(204);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+    expect(mockTo.mock.calls[1][0]).toBe(`user:${userId}`);
+
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:userDeleted");
+    expect(mockEmit.mock.calls[0][1]).toBe(userId);
+
+    expect(mockEmit.mock.calls[1][0]).toBe("user:deleted");
+    expect(mockEmit.mock.calls[1][1]).toBe(userId);
   });
 
   test("should fetch all of the invitations in the db", async () => {
