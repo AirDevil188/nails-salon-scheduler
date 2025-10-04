@@ -116,10 +116,19 @@ const validateInvitation = async (req, res, next) => {
       randomCode,
       addMinutes(new Date(), 5)
     );
+
     // send an email to the user that wants to register
     await sendVerificationCode(invitation.email, randomCode);
+    io.to("admin-dashboard").emit("admin:invitationCodeCreated", {
+      email: invitation.email,
+      id: invitation.id,
+    });
+    console.log(
+      `Sent new invitation code  alert to the 'admin-dashboard' room for email: ${invitation.email}.`
+    );
     return res.status(200).json({
       success: true,
+      invitation: invitation,
       invitationToken: token,
       code: randomCode,
       message: type.success_invitation_verification_code_sent,
