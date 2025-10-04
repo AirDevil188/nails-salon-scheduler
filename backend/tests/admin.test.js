@@ -397,6 +397,8 @@ describe("GET /admin", () => {
 
     // Check event name
     expect(mockEmit.mock.calls[1][0]).toBe("user:appointment:deleted");
+
+    expect(mockEmit.mock.calls[1][1]).toBe(appointmentId);
   });
 
   test("should update the appointment to have a new title", async () => {
