@@ -66,6 +66,7 @@ const generateInvitation = async (req, res, next) => {
 };
 
 const validateInvitation = async (req, res, next) => {
+  const io = getIo();
   const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
   const type = languages[languageKey];
   // get the token from params from URL
@@ -129,6 +130,7 @@ const validateInvitation = async (req, res, next) => {
 };
 
 const verifyInvitationCode = async (req, res, next) => {
+  const io = getIo();
   const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
   const type = languages[languageKey];
   const { code, token } = req.body;
@@ -166,6 +168,7 @@ const verifyInvitationCode = async (req, res, next) => {
 };
 
 const resendVerificationCode = async (req, res, next) => {
+  const io = getIo();
   const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
   const type = languages[languageKey];
   const { token } = req.body;
