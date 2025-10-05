@@ -41,6 +41,10 @@ let testInvitation;
 let user;
 const signUpTestEmail = "testing@email.com";
 
+beforeEach(async () => {
+  jest.clearAllMocks();
+});
+
 afterAll(async () => {
   await prisma.user.deleteMany({});
   await prisma.token.deleteMany({});
@@ -152,6 +156,30 @@ describe("POST /users/sign-up", () => {
 
   test("should throw 401 err if the  unauthenticated user tries to fetch a profile", async () => {
     const res = await request(app).get("/users/profile").expect(401);
+  });
+
+  test("should update the profile first name", async () => {
+    const res = await request(app)
+      .patch("/users/profile")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        first_name: "Kengur",
+      })
+      .expect(200);
+
+    expect(mockTo).toHaveBeenCalledTimes(2);
+    expect(res.body.profile.first_name).toEqual("Kengur");
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:userProfileUpdated");
+    expect(mockEmit.mock.calls[0][1]).toEqual({
+      email: res.body.profile.email,
+      id: res.body.profile.id,
+    });
+
+    expect(mockTo.mock.calls[1][0]).toBe(`user:${res.body.profile.id}`);
+    expect(mockEmit.mock.calls[1][0]).toBe("user:userProfileUpdated");
+    expect(mockEmit.mock.calls[1][1]).toEqual(res.body);
   });
 
   test("should throw 401 err if the user password doesn't match with current password", async () => {
