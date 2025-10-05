@@ -5,7 +5,11 @@ const appointmentRouter = Router();
 
 const appointmentController = require("@controllers/appointmentController");
 
-appointmentRouter.get("/", appointmentController.getMyAppointments);
+appointmentRouter.get(
+  "/",
+  authenticate,
+  appointmentController.getMyAppointments
+);
 
 appointmentRouter.get(
   "/calendar",
