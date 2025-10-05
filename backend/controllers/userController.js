@@ -36,6 +36,50 @@ const deleteProfile = async (req, res, next) => {
   }
 };
 
+const changeUserPassword = [
+  body("old_password")
+    .isLength({ min: 6 })
+    .withMessage("validator_password_min"),
+  body("new_password")
+    .isLength({ min: 6 })
+    .withMessage("validator_password_min"),
+  // custom confirm_password checker
+  body("confirm_new_password").custom((value, { req }) => {
+    if (value !== req.body.new_password) {
+      throw new Error("validator_confirm_password");
+    }
+    return true;
+  }),
+
+  async (req, res, next) => {
+    try {
+      const { id } = req.user;
+      const { current_password, new_password } = req.body;
+
+      // get the old password from the db for the current user
+      const { password } = db.findUserById(id);
+      // compare current password with the password that is stored in db
+      const isMatch = await verifyHash(current_password, password);
+
+      if (isMatch) {
+        // hash the plain password
+        const newHashedPassword = await createHashedPassword(new_password);
+
+        // store the new hashed password in the db
+        await db.changeUserPassword(id, newHashedPassword);
+
+        return res.status(204).end();
+      } else {
+        const error = new Error("validator_old_password_no_match");
+        error.status = 401;
+        return next(error);
+      }
+    } catch (err) {
+      return next(err);
+    }
+  },
+];
+
 const signInUser = async (req, res, next) => {
   const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
   const type = languages[languageKey];
@@ -240,6 +284,7 @@ const signUpUser = [
 module.exports = {
   getUserProfile,
   deleteProfile,
+  changeUserPassword,
   signInUser,
   signUpUser,
 };
