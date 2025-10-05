@@ -16,6 +16,7 @@ userRouter.post("/sign-up", checkInvitationStatus, userController.signUpUser);
 // get route for getting user profile
 userRouter.get("/profile", authenticate, userController.getUserProfile);
 // user route to delete account
+userRouter.delete("/profile", authenticate, userController.deleteProfile);
 // user route to update avatar
 // user route to change password
 // user route for forgotten password
