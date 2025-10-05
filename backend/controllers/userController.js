@@ -10,6 +10,18 @@ const {
   oneWeekFromNow,
 } = require("@utils/utils");
 
+const getUserProfile = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const profile = await db.findUserProfile(id);
+    return res.status(201).json({
+      profile: profile,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 const signInUser = async (req, res, next) => {
   const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
   const type = languages[languageKey];
@@ -212,6 +224,7 @@ const signUpUser = [
   },
 ];
 module.exports = {
+  getUserProfile,
   signInUser,
   signUpUser,
 };
