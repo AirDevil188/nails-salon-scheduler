@@ -79,6 +79,19 @@ const findUserProfile = async (userId) => {
   }
 };
 
+const deleteUser = async (userId) => {
+  try {
+    return await prisma.user.delete({
+      where: {
+        id: userId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 // TOKEN queries
 const createRefreshToken = async (token, userId, expiresAt) => {
   try {
@@ -660,6 +673,7 @@ module.exports = {
   findUserProfile,
   findUser,
   createUser,
+  deleteUser,
   findRefreshTokenByUserId,
   createRefreshToken,
   invalidateRefreshToken,
