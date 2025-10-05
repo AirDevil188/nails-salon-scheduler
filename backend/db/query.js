@@ -299,6 +299,20 @@ const getMonthlyAppointments = async (userId, date) => {
   }
 };
 
+const getAppointmentDetails = async (userId, id) => {
+  try {
+    return await prisma.appointment.findUnique({
+      where: {
+        id: id,
+        userId: userId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 // TOKEN queries
 const createRefreshToken = async (token, userId, expiresAt) => {
   const now = new Date();
@@ -895,6 +909,7 @@ module.exports = {
   changeUserPassword,
   getUserAppointments,
   getMonthlyAppointments,
+  getAppointmentDetails,
   findRefreshTokenByUserId,
   createRefreshToken,
   invalidateRefreshToken,
