@@ -18,6 +18,8 @@ userRouter.delete("/profile", authenticate, userController.deleteProfile);
 
 // user route to update avatar
 
+userRouter.patch("/profile", authenticate, userController.updateProfile);
+
 userRouter.patch(
   "/profile/change-password",
   authenticate,
