@@ -36,6 +36,37 @@ const deleteProfile = async (req, res, next) => {
   }
 };
 
+const updateProfile = [
+  body("first_name").notEmpty().withMessage("validator_first_name").optional(),
+  body("last_name").notEmpty().withMessage("validator_last_name").optional(),
+  async (req, res, next) => {
+    try {
+      const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
+      const type = languages[languageKey];
+
+      const io = getIo();
+      const { id } = req.user;
+      const { first_name, last_name } = req.body;
+      const profile = await db.updateUserProfile(id, first_name, last_name);
+      if (!profile) {
+        return res.status(200).json({
+          message: type.profile_update_no_values_provided,
+        });
+      }
+      io.to("admin-dashboard").emit("admin:userProfileUpdated", {
+        email: profile.email,
+        id: profile.id,
+      });
+      io.to(`user:${profile.id}`).emit("user:userProfileUpdated");
+      return res.status(200).json({
+        profile: profile,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  },
+];
+
 const changeUserPassword = [
   body("current_password")
     .isLength({ min: 6 })
@@ -284,6 +315,7 @@ const signUpUser = [
 module.exports = {
   getUserProfile,
   deleteProfile,
+  updateProfile,
   changeUserPassword,
   signInUser,
   signUpUser,
