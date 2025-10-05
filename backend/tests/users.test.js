@@ -123,4 +123,20 @@ describe("POST /users/sign-up", () => {
     expect(res.body.refreshToken).toBeDefined();
     expect(res.body.expiresAt).toBeDefined();
   });
+
+  test("should fetch user profile", async () => {
+    const expectedPayload = {
+      email: "test@email.com",
+      first_name: "Test",
+      last_name: "Test",
+      avatar: null,
+    };
+    const res = await request(app)
+      .get("/users/profile")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.profile).toBeDefined();
+    expect(res.body.profile).toEqual(expectedPayload);
+  });
 });
