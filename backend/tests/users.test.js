@@ -5,13 +5,22 @@ const {
 const express = require("express");
 const request = require("supertest");
 const { execSync } = require("child_process");
-
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
 const userRouter = require("../routes/userRouter");
 const { addHours } = require("date-fns/addHours");
+
+const mockEmit = jest.fn();
+// Spy on the .to() call and ensure it returns an object with the mockEmit function
+const mockTo = jest.fn(() => ({ emit: mockEmit }));
+
+// Tell Jest to replace the actual socketManager module
+jest.mock("../socket/services/socketManager.js", () => ({
+  // When the controller calls getIo(), it receives an object containing our 'to' spy
+  getIo: jest.fn(() => ({ to: mockTo })),
+}));
 
 const app = express();
 app.use(express.json());
@@ -29,6 +38,7 @@ const testUser = {
 
 let accessToken;
 let testInvitation;
+let user;
 const signUpTestEmail = "testing@email.com";
 
 afterAll(async () => {
@@ -51,7 +61,7 @@ beforeAll(async () => {
   // hash the password
   const hashedPassword = await createHashedPassword(testUser.password);
 
-  await prisma.user.create({
+  user = await prisma.user.create({
     data: {
       email: testUser.email,
       password: hashedPassword,
@@ -142,5 +152,18 @@ describe("POST /users/sign-up", () => {
 
   test("should throw 401 err if the  unauthenticated user tries to fetch a profile", async () => {
     const res = await request(app).get("/users/profile").expect(401);
+  });
+
+  test("should delete a user profile", async () => {
+    const res = await request(app)
+      .delete("/users/profile")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(204);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    // Check event name
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:userDeleted");
+    expect(mockEmit.mock.calls[0][1]).toBe(user.id);
   });
 });
