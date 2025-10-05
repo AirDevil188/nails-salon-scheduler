@@ -154,6 +154,17 @@ describe("POST /users/sign-up", () => {
     const res = await request(app).get("/users/profile").expect(401);
   });
 
+  test("should not allow the change of user password if it doesn't match with current password", async () => {
+    const res = await request(app)
+      .patch("/users/profile/change-password")
+      .send({
+        current_password: "Test1234!!",
+        new_password: "Kengur123!",
+      })
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(401);
+  });
+
   test("should change user password", async () => {
     const res = await request(app)
       .patch("/users/profile/change-password")
