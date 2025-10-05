@@ -226,11 +226,12 @@ describe("GET /admin", () => {
       .send({
         title: "Generic Title",
         status: "scheduled",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-30T08:00:00.000Z",
+        endDateTime: "2050-10-30T09:00:00.000Z",
         userId: `${users[5].id}`,
       })
-      .expect(201);
+      .expect(201)
+      .set(`Authorization`, `Bearer ${accessToken}`);
 
     // --- ASSERT SOCKET.IO CALLS ---
     expect(mockTo).toHaveBeenCalledTimes(2);
@@ -259,8 +260,8 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .send({
         status: "scheduled",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-30T08:00:00.000Z",
+        endDateTime: "2050-10-30T09:00:00.000Z",
         userId: `${users[5].id}`,
       })
       .expect(400);
@@ -277,8 +278,8 @@ describe("GET /admin", () => {
       .send({
         title: "Generic Title",
         status: "scheduled",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-05T08:00:00.000Z",
+        endDateTime: "2050-10-05T09:00:00.000Z",
         userId: `s`,
       })
       .expect(400);
@@ -297,8 +298,8 @@ describe("GET /admin", () => {
       .send({
         title: "Generic Title",
         status: "scheduled",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-05T08:00:00.000Z",
+        endDateTime: "2050-10-05T09:00:00.000Z",
       })
       .expect(400);
     expect(res.body).toHaveProperty("success", false);
@@ -315,8 +316,8 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .send({
         title: "Generic Title",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-05T08:00:00.000Z",
+        endDateTime: "2050-10-05T09:00:00.000Z",
         userId: `${users[5].id}`,
         status: "ha",
       })
@@ -333,8 +334,8 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .send({
         title: "Generic Title",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-05T08:00:00.000Z",
+        endDateTime: "2050-10-05T09:00:00.000Z",
         userId: `${users[5].id}`,
       })
       .expect(400);
@@ -350,8 +351,8 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .send({
         title: "Generic Title",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-05T08:00:00.000Z",
+        endDateTime: "2050-10-05T09:00:00.000Z",
         status: "scheduled",
         external_client: "James Cameron",
         userId: `${users[5].id}`,
@@ -371,8 +372,8 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .send({
         title: "Generic Title",
-        startDateTime: "2025-10-05T08:00:00.000Z",
-        endDateTime: "2025-10-05T09:00:00.000Z",
+        startDateTime: "2050-10-05T08:00:00.000Z",
+        endDateTime: "2050-10-05T09:00:00.000Z",
         status: "scheduled",
         external_client: "James Cameron",
       });
