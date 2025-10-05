@@ -46,7 +46,21 @@ const getMonthlyAppointments = async (req, res, next) => {
   }
 };
 
+const getAppointmentDetails = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const { appointmentId } = req.params;
+    const appointment = await db.getAppointmentDetails(id, appointmentId);
+    return res.status(200).json({
+      appointment: appointment,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   getMyAppointments,
   getMonthlyAppointments,
+  getAppointmentDetails,
 };
