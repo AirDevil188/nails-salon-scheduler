@@ -15,13 +15,15 @@ userRouter.post("/sign-up", checkInvitationStatus, userController.signUpUser);
 userRouter.get("/profile", authenticate, userController.getUserProfile);
 
 userRouter.delete("/profile", authenticate, userController.deleteProfile);
-// :TODO:
+
 // user route to update avatar
+
 userRouter.patch(
   "/profile/change-password",
   authenticate,
-  userController.changePassword
+  userController.changeUserPassword
 );
-// user route for forgotten password
 
+// :TODO:
+// user route for forgotten password
 module.exports = userRouter;
