@@ -60,6 +60,25 @@ const createUser = async (
   }
 };
 
+const findUserProfile = async (userId) => {
+  try {
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        email: true,
+        first_name: true,
+        last_name: true,
+        avatar: true,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
 // TOKEN queries
 const createRefreshToken = async (token, userId, expiresAt) => {
   try {
@@ -638,6 +657,7 @@ const adminUpdateAppointment = async (
 
 module.exports = {
   updateUserOnlineStatus,
+  findUserProfile,
   findUser,
   createUser,
   findRefreshTokenByUserId,
