@@ -96,6 +96,27 @@ const findUserProfile = async (userId) => {
   }
 };
 
+const updateUserProfile = async (userId, first_name, last_name) => {
+  let updateData = {};
+  try {
+    if (first_name !== undefined) {
+      updateData.first_name = first_name;
+    }
+    if (last_name !== undefined) {
+      updateData.last_name = last_name;
+    }
+    return await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: updateData,
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const deleteUser = async (userId) => {
   try {
     return await prisma.user.delete({
@@ -707,6 +728,7 @@ module.exports = {
   findUser,
   findUserById,
   createUser,
+  updateUserProfile,
   deleteUser,
   changeUserPassword,
   findRefreshTokenByUserId,
