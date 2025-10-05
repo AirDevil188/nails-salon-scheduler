@@ -110,6 +110,14 @@ const updateUserProfile = async (userId, first_name, last_name) => {
         id: userId,
       },
       data: updateData,
+      select: {
+        first_name: true,
+        email: true,
+        last_name: true,
+        avatar: true,
+        password: false,
+        role: true,
+      },
     });
   } catch (err) {
     console.error(err);
