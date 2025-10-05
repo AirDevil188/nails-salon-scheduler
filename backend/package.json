@@ -26,7 +26,10 @@
       "^@controllers(.*)$": "<rootDir>/controllers$1",
       "^@utils(.*)$": "<rootDir>/utils$1",
       "^@middlewares(.*)$": "<rootDir>/middlewares$1",
-      "^@db(.*)$": "<rootDir>/db$1"
+      "^@db(.*)$": "<rootDir>/db$1",
+      "^@socketServices(.*)$": "<rootDir>/socket/services$1",
+      "^@socketMiddlewares(.*)$": "<rootDir>/socket/middlewares$1",
+      "^@socketHandlers(.*)$": "<rootDir>/socket/handlers$1"
     },
     "testEnvironment": "node",
     "setupFilesAfterEnv": []
