@@ -17,4 +17,10 @@ appointmentRouter.get(
   appointmentController.getMonthlyAppointments
 );
 
+appointmentRouter.get(
+  "/:appointmentId",
+  authenticate,
+  appointmentController.getAppointmentDetails
+);
+
 module.exports = appointmentRouter;
