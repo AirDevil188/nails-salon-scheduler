@@ -12,11 +12,9 @@ userRouter.post("/sign-in", userController.signInUser);
 
 userRouter.post("/sign-up", checkInvitationStatus, userController.signUpUser);
 
-// :TODO:
-// get route for getting user profile
 userRouter.get("/profile", authenticate, userController.getUserProfile);
-// user route to delete account
 userRouter.delete("/profile", authenticate, userController.deleteProfile);
+// :TODO:
 // user route to update avatar
 // user route to change password
 // user route for forgotten password
