@@ -1,6 +1,7 @@
 const { body, validationResult } = require("express-validator");
 const { languages } = require("@utils/language");
 const db = require("@db/query");
+const { getIo } = require("@socketServices/socketManager");
 const {
   verifyHash,
   signToken,
@@ -17,6 +18,19 @@ const getUserProfile = async (req, res, next) => {
     return res.status(200).json({
       profile: profile,
     });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+const deleteProfile = async (req, res, next) => {
+  try {
+    const io = getIo();
+    const { id } = req.user;
+    await db.deleteUser(id);
+    // return 204 status because there is no content to return
+    io.to("admin-dashboard").emit("admin:userDeleted", id);
+    return res.status(204).end();
   } catch (err) {
     return next(err);
   }
@@ -225,6 +239,7 @@ const signUpUser = [
 ];
 module.exports = {
   getUserProfile,
+  deleteProfile,
   signInUser,
   signUpUser,
 };
