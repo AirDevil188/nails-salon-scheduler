@@ -1,6 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
 const { addMinutes } = require("date-fns/addMinutes");
+
 const { verifyHash, createHashedPassword } = require("../utils/utils");
+const { startOfMonth } = require("date-fns/startOfMonth");
+const { addMonths } = require("date-fns/addMonths");
 
 const prisma = new PrismaClient({});
 
@@ -261,6 +264,35 @@ const getUserAppointments = async (
       }),
     ]);
     return { appointments: appointments, totalCount: totalCount };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const getMonthlyAppointments = async (userId, date) => {
+  const getMonthBoundaries = (dateInMonth) => {
+    // get the start date of month
+    const startDate = startOfMonth(dateInMonth);
+
+    // get the first day of next month
+    const endDate = startOfMonth(addMonths(dateInMonth, 1));
+
+    return {
+      startDate: startDate,
+      endDate: endDate,
+    };
+  };
+  try {
+    const { startDate, endDate } = getMonthBoundaries(date);
+
+    return await prisma.appointment.findMany({
+      where: {
+        userId: userId,
+        startDateTime: { gte: startDate },
+        endDateTime: { lt: endDate },
+      },
+    });
   } catch (err) {
     console.error(err);
     throw err;
@@ -862,6 +894,7 @@ module.exports = {
   deleteUser,
   changeUserPassword,
   getUserAppointments,
+  getMonthlyAppointments,
   findRefreshTokenByUserId,
   createRefreshToken,
   invalidateRefreshToken,
