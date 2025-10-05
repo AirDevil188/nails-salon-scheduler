@@ -47,6 +47,8 @@ const languages = {
     // User Controller
     success_sign_up: "User successfully registered",
     success_sign_in: "User successfully logged in",
+    profile_update_no_values_provided:
+      "No valid fields were provided for update. Profile remains unchanged",
 
     // Invitation Controller
     success_invitation_link: "Invitation link generated successfully",
@@ -107,6 +109,8 @@ const languages = {
     // User Controller
     success_sign_up: "Korisnik je uspešno registrovan",
     success_sign_in: "Korisnik je uspešno prijavljen",
+    profile_update_no_values_provided:
+      "Nije uneto nijedno važeće polje za ažuriranje. Profil ostaje nepromenjen",
 
     // Invitation Controller
     success_invitation_link: "Link sa pozivnicom uspešno generisan",
