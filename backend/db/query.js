@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const { addMinutes } = require("date-fns/addMinutes");
+const { verifyHash, createHashedPassword } = require("../utils/utils");
 
 const prisma = new PrismaClient({});
 
@@ -18,6 +19,22 @@ const updateUserOnlineStatus = async (userId, status, lastSeen) => {
     });
   } catch (err) {
     console.log(err);
+    throw err;
+  }
+};
+
+const findUserById = async (userId) => {
+  try {
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        password: true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
     throw err;
   }
 };
@@ -88,6 +105,22 @@ const deleteUser = async (userId) => {
     });
   } catch (err) {
     console.error(err);
+    throw err;
+  }
+};
+
+const changeUserPassword = async (userId, newPassword) => {
+  try {
+    return await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        password: newPassword,
+      },
+    });
+  } catch (err) {
+    console.log(err);
     throw err;
   }
 };
@@ -672,8 +705,10 @@ module.exports = {
   updateUserOnlineStatus,
   findUserProfile,
   findUser,
+  findUserById,
   createUser,
   deleteUser,
+  changeUserPassword,
   findRefreshTokenByUserId,
   createRefreshToken,
   invalidateRefreshToken,
