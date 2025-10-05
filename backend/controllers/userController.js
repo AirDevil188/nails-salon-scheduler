@@ -57,7 +57,7 @@ const updateProfile = [
         email: profile.email,
         id: profile.id,
       });
-      io.to(`user:${profile.id}`).emit("user:userProfileUpdated");
+      io.to(`user:${profile.id}`).emit("user:userProfileUpdated", { profile });
       return res.status(200).json({
         profile: profile,
       });
