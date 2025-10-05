@@ -14,7 +14,7 @@ const getUserProfile = async (req, res, next) => {
   try {
     const { id } = req.user;
     const profile = await db.findUserProfile(id);
-    return res.status(201).json({
+    return res.status(200).json({
       profile: profile,
     });
   } catch (err) {
