@@ -139,4 +139,8 @@ describe("POST /users/sign-up", () => {
     expect(res.body.profile).toBeDefined();
     expect(res.body.profile).toEqual(expectedPayload);
   });
+
+  test("should throw 401 err if the  unauthenticated user tries to fetch a profile", async () => {
+    const res = await request(app).get("/users/profile").expect(401);
+  });
 });
