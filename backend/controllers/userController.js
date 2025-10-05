@@ -37,7 +37,7 @@ const deleteProfile = async (req, res, next) => {
 };
 
 const changeUserPassword = [
-  body("old_password")
+  body("current_password")
     .isLength({ min: 6 })
     .withMessage("validator_password_min"),
   body("new_password")
@@ -57,7 +57,7 @@ const changeUserPassword = [
       const { current_password, new_password } = req.body;
 
       // get the old password from the db for the current user
-      const { password } = db.findUserById(id);
+      const { password } = await db.findUserById(id);
       // compare current password with the password that is stored in db
       const isMatch = await verifyHash(current_password, password);
 
