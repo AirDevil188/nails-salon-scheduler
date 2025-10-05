@@ -21,6 +21,9 @@ const languages = {
     validator_email_password_incorrect: "Login credentials are incorrect",
     validator_email: "User already exists",
 
+    // Change password errs
+    validator_old_password_no_match: "Password is incorrect",
+
     // Appointment errs
     validator_appointment_title: "Appointment title is required",
     validator_appointment_startDateTime_not_empty:
@@ -78,6 +81,9 @@ const languages = {
     validator_last_name: "Prezime je obavezno",
     validator_email_password_incorrect: "Email ili Lozinka nisu tačni",
     validator_email: "Korisnik već postoji",
+
+    // Change password errs
+    validator_old_password_no_match: "Lozinka nije tacna",
 
     // Appointment errs
     validator_appointment_title: "Naziv termina je obavezan",
