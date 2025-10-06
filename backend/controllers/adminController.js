@@ -147,6 +147,18 @@ const getMonthlyAppointments = async (req, res, next) => {
   }
 };
 
+const getAppointmentDetails = async (req, res, next) => {
+  const { appointmentId } = req.params;
+  try {
+    const appointment = await db.adminGetAppointmentDetails(appointmentId);
+    return res.status(200).json({
+      appointment: appointment,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 const newAppointment = [
   // insure that title is not empty
   body("title").trim().notEmpty().withMessage("validator_appointment_title"),
@@ -423,6 +435,7 @@ module.exports = {
   deleteUser,
   getAppointments,
   getMonthlyAppointments,
+  getAppointmentDetails,
   newAppointment,
   updateAppointment,
   deleteAppointment,
