@@ -158,4 +158,13 @@ describe("appointments router", () => {
     expect(res.body.appointment).toBeDefined();
     expect(res.body.appointment.userId).toBe(testUser.id);
   });
+
+  test("should get only the first 25 appointments", async () => {
+    const res = await request(app)
+      .get("/appointments")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.appointments).toHaveLength(25);
+  });
 });
