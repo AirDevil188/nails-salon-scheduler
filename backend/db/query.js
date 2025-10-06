@@ -970,8 +970,21 @@ const adminUpdateAppointment = async (
 };
 
 const adminCancelAppointment = async (id) => {
+  const appointmentData = await prisma.appointment.findUnique({
+    where: {
+      id: id,
+    },
+    select: {
+      userId: true,
+    },
+  });
+
+  // appointment not found in db
+  if (!appointmentData) {
+    return { count: 0, userId: null };
+  }
   try {
-    return await prisma.appointment.updateMany({
+    const appointment = await prisma.appointment.updateMany({
       where: {
         id: id,
         status: "scheduled",
@@ -980,6 +993,10 @@ const adminCancelAppointment = async (id) => {
         status: "canceled",
       },
     });
+    return {
+      count: appointment.count,
+      userId: appointmentData.userId,
+    };
   } catch (err) {
     console.error(err);
     throw err;
