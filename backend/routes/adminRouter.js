@@ -35,6 +35,13 @@ adminRouter.delete(
 );
 
 adminRouter.get(
+  "/appointments/calendar",
+  authenticate,
+  authorization,
+  adminController.getMonthlyAppointments
+);
+
+adminRouter.get(
   "/appointments",
   authenticate,
   authorization,
