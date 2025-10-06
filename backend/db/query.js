@@ -853,6 +853,19 @@ const adminGetMonthlyAppointments = async (month) => {
   }
 };
 
+const adminGetAppointmentDetails = async (id) => {
+  try {
+    return await prisma.appointment.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const adminNewAppointment = async (
   title,
   status,
@@ -985,6 +998,7 @@ module.exports = {
   adminDeleteUser,
   adminGetAllAppointments,
   adminGetMonthlyAppointments,
+  adminGetAppointmentDetails,
   adminGetAllInvitations,
   adminDeleteInvitation,
   adminNewAppointment,
