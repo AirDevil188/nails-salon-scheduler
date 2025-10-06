@@ -969,6 +969,23 @@ const adminUpdateAppointment = async (
   }
 };
 
+const adminCancelAppointment = async (id) => {
+  try {
+    return await prisma.appointment.updateMany({
+      where: {
+        id: id,
+        status: "scheduled",
+      },
+      data: {
+        status: "canceled",
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   updateUserOnlineStatus,
   findUserProfile,
@@ -1004,4 +1021,5 @@ module.exports = {
   adminNewAppointment,
   adminUpdateAppointment,
   adminDeleteAppointment,
+  adminCancelAppointment,
 };
