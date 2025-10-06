@@ -426,8 +426,6 @@ const updateAppointment = [
   },
 ];
 
-// TODO:
-// admins can cancel appointments
 const cancelAppointment = async (req, res, next) => {
   try {
     const io = getIo();

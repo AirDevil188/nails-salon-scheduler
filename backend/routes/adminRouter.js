@@ -84,8 +84,8 @@ adminRouter.post(
 );
 
 // :TODO:
-// admin DELETE to delete appointments
 // admin PUT route to grant an admin to someone else
+
 // admin GET route for notes
 // admin POST route for notes
 // admin PUT route for notes
