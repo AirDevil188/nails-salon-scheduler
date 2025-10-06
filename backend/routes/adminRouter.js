@@ -79,7 +79,8 @@ adminRouter.patch(
 adminRouter.post(
   "/appointments/:appointmentId/cancel",
   authenticate,
-  authorization
+  authorization,
+  adminController.cancelAppointment
 );
 
 // :TODO:
