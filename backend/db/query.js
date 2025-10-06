@@ -808,6 +808,51 @@ const adminGetAllAppointments = async ({
   }
 };
 
+const adminGetMonthlyAppointments = async (month) => {
+  if (!month) {
+    console.error("No month provided");
+
+    return [];
+  }
+
+  const getMonthBoundaries = (month) => {
+    // get the start date of the month example: 1st october
+    const monthStart = startOfMonth(new Date(month));
+
+    // gets the date of the first week which is 29th of september
+    const calendarViewStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+
+    const monthEnd = endOfMonth(monthStart);
+    console.error("monthEnd", monthEnd);
+
+    // gets the date of the last week which is 2th of october
+    const calendarViewEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+    // end bound date to include 1st october time 23:59 but exclude 2th 00:00
+    const endBoundDate = startOfDay(addDays(calendarViewEnd, 1));
+    console.error(calendarViewStart, endBoundDate);
+    return {
+      startDate: calendarViewStart,
+      endDate: endBoundDate,
+    };
+  };
+  try {
+    const { startDate, endDate } = getMonthBoundaries(month);
+    return await prisma.appointment.findMany({
+      where: {
+        startDateTime: { gte: startDate },
+        endDateTime: { lt: endDate },
+      },
+      orderBy: {
+        startDateTime: "asc",
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const adminNewAppointment = async (
   title,
   status,
@@ -939,6 +984,7 @@ module.exports = {
   adminGetAllUsers,
   adminDeleteUser,
   adminGetAllAppointments,
+  adminGetMonthlyAppointments,
   adminGetAllInvitations,
   adminDeleteInvitation,
   adminNewAppointment,
