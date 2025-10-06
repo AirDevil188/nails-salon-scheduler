@@ -4,6 +4,9 @@ const { addMinutes } = require("date-fns/addMinutes");
 const { verifyHash, createHashedPassword } = require("../utils/utils");
 const { startOfMonth } = require("date-fns/startOfMonth");
 const { addMonths } = require("date-fns/addMonths");
+const { startOfWeek } = require("date-fns/startOfWeek");
+const { endOfMonth } = require("date-fns/endOfMonth");
+const { endOfWeek } = require("date-fns/endOfWeek");
 
 const prisma = new PrismaClient({});
 
@@ -272,15 +275,23 @@ const getUserAppointments = async (
 
 const getMonthlyAppointments = async (userId, date) => {
   const getMonthBoundaries = (dateInMonth) => {
-    // get the start date of month
-    const startDate = startOfMonth(dateInMonth);
+    // get the start date of the month example: 1st october
+    const monthStart = startOfMonth(dateInMonth);
 
-    // get the first day of next month
-    const endDate = startOfMonth(addMonths(dateInMonth, 1));
+    // gets the date of the first week which is 29th of september
+    const calendarViewStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+
+    const monthEnd = endOfMonth(dateInMonth);
+
+    // gets the date of the last week which is 2th of october
+    const calendarViewEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+    // end bound date to include 1st october time 23:59 but exclude 2th 00:00
+    const endBoundDate = startOfMonth(addMonths(calendarViewEnd, 1));
 
     return {
-      startDate: startDate,
-      endDate: endDate,
+      startDate: calendarViewStart,
+      endDate: endBoundDate,
     };
   };
   try {
@@ -291,6 +302,9 @@ const getMonthlyAppointments = async (userId, date) => {
         userId: userId,
         startDateTime: { gte: startDate },
         endDateTime: { lt: endDate },
+      },
+      orderBy: {
+        startDateTime: "asc",
       },
     });
   } catch (err) {
