@@ -431,15 +431,15 @@ const updateAppointment = [
 const cancelAppointment = async (req, res, next) => {
   try {
     const io = getIo();
-    const { id } = req.params;
+    const { appointmentId } = req.params;
 
-    const appointment = await db.adminCancelAppointment(id);
+    const appointment = await db.adminCancelAppointment(appointmentId);
     if (appointment.count === 1) {
-      io.to("admin-dashboard").emit("admin:appointmentCanceled", id);
+      io.to("admin-dashboard").emit("admin:appointmentCanceled", appointmentId);
       if (appointment?.userId) {
         io.to(`user:${appointment.userId}`).emit(
           "user:appointmentCanceled",
-          id
+          appointmentId
         );
       }
       return res.status(200).json({
@@ -447,7 +447,6 @@ const cancelAppointment = async (req, res, next) => {
       });
     }
   } catch (err) {
-    console.error(err);
     throw err;
   }
 };
