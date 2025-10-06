@@ -147,4 +147,15 @@ describe("appointments router", () => {
 
     expect(res.body.appointments).toHaveLength(50);
   });
+
+  test("should get appointment detail", async () => {
+    const appointmentId = appointments[3].id;
+    const res = await request(app)
+      .get(`/appointments/${appointmentId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.appointment).toBeDefined();
+    expect(res.body.appointment.userId).toBe(testUser.id);
+  });
 });
