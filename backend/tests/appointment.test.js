@@ -171,4 +171,11 @@ describe("appointments router", () => {
   test("should throw 401 err on /appointments  route because the user is not signed-in", async () => {
     const res = await request(app).get("/appointments").expect(401);
   });
+
+  test("should thor 401 err on appointments detail route because the user is not signed in", async () => {
+    const appointmentId = appointments[3].id;
+    const res = await request(app)
+      .get(`/appointments/${appointmentId}`)
+      .expect(401);
+  });
 });
