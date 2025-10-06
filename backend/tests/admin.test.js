@@ -541,6 +541,14 @@ describe("GET /admin", () => {
   });
 
   test("regular user should not be able to add new appointments", async () => {
+    const appointmentId = appointment.id;
+    const res = await request(app)
+      .post(`/admin/appointments/${appointmentId}/cancel`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(403);
+  });
+
+  test("regular user should not be able to cancel the appointment", async () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
