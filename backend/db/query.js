@@ -1,12 +1,15 @@
 const { PrismaClient } = require("@prisma/client");
 const { addMinutes } = require("date-fns/addMinutes");
+const { formatInTimeZone } = require("date-fns-tz"); // Note: different import!
 
 const { verifyHash, createHashedPassword } = require("../utils/utils");
-const { startOfMonth } = require("date-fns/startOfMonth");
 const { addMonths } = require("date-fns/addMonths");
 const { startOfWeek } = require("date-fns/startOfWeek");
 const { endOfMonth } = require("date-fns/endOfMonth");
 const { endOfWeek } = require("date-fns/endOfWeek");
+const { startOfMonth } = require("date-fns/startOfMonth");
+const { startOfDay } = require("date-fns/startOfDay");
+const { addDays } = require("date-fns/addDays");
 
 const prisma = new PrismaClient({});
 
@@ -276,25 +279,25 @@ const getUserAppointments = async (
 const getMonthlyAppointments = async (userId, month) => {
   if (!month) {
     console.error("No month provided");
+
     return [];
   }
 
   const getMonthBoundaries = (month) => {
-    const dateMonth = new Date(month);
     // get the start date of the month example: 1st october
-    const monthStart = startOfMonth(dateMonth);
+    const monthStart = startOfMonth(new Date(month));
 
     // gets the date of the first week which is 29th of september
     const calendarViewStart = startOfWeek(monthStart, { weekStartsOn: 1 });
 
-    const monthEnd = endOfMonth(dateMonth);
+    const monthEnd = endOfMonth(monthStart);
+    console.error("monthEnd", monthEnd);
 
     // gets the date of the last week which is 2th of october
     const calendarViewEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
     // end bound date to include 1st october time 23:59 but exclude 2th 00:00
-    const endBoundDate = startOfMonth(addMonths(calendarViewEnd, 1));
-
+    const endBoundDate = startOfDay(addDays(calendarViewEnd, 1));
     return {
       startDate: calendarViewStart,
       endDate: endBoundDate,
@@ -302,7 +305,6 @@ const getMonthlyAppointments = async (userId, month) => {
   };
   try {
     const { startDate, endDate } = getMonthBoundaries(month);
-
     return await prisma.appointment.findMany({
       where: {
         userId: userId,
@@ -335,15 +337,6 @@ const getAppointmentDetails = async (userId, id) => {
 
 // TOKEN queries
 const createRefreshToken = async (token, userId, expiresAt) => {
-  const now = new Date();
-  const where = {};
-
-  // sanitize params to prevent sql injection
-  const pageSize = parseInt(limit, 10) || 25;
-  const pageNumber = parseInt(page, 10) || 1;
-  const skipCount = (pageNumber - 1) * pageSize;
-  // initialize scope
-
   try {
     return await prisma.token.create({
       data: {
