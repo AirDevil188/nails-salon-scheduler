@@ -273,15 +273,21 @@ const getUserAppointments = async (
   }
 };
 
-const getMonthlyAppointments = async (userId, date) => {
-  const getMonthBoundaries = (dateInMonth) => {
+const getMonthlyAppointments = async (userId, month) => {
+  if (!month) {
+    console.error("No month provided");
+    return [];
+  }
+
+  const getMonthBoundaries = (month) => {
+    const dateMonth = new Date(month);
     // get the start date of the month example: 1st october
-    const monthStart = startOfMonth(dateInMonth);
+    const monthStart = startOfMonth(dateMonth);
 
     // gets the date of the first week which is 29th of september
     const calendarViewStart = startOfWeek(monthStart, { weekStartsOn: 1 });
 
-    const monthEnd = endOfMonth(dateInMonth);
+    const monthEnd = endOfMonth(dateMonth);
 
     // gets the date of the last week which is 2th of october
     const calendarViewEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
@@ -295,7 +301,7 @@ const getMonthlyAppointments = async (userId, date) => {
     };
   };
   try {
-    const { startDate, endDate } = getMonthBoundaries(date);
+    const { startDate, endDate } = getMonthBoundaries(month);
 
     return await prisma.appointment.findMany({
       where: {
