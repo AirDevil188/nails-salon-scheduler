@@ -55,6 +55,13 @@ adminRouter.post(
   adminController.newAppointment
 );
 
+adminRouter.get(
+  "/appointments/:appointmentId",
+  authenticate,
+  authorization,
+  adminController.getAppointmentDetails
+);
+
 adminRouter.delete(
   "/appointments/:appointmentId",
   authenticate,
