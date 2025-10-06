@@ -161,6 +161,15 @@ describe("GET /admin", () => {
     expect(res.body.users).toHaveLength(50);
   });
 
+  test("should get all appointments in october", async () => {
+    const res = await request(app)
+      .get("/admin/appointments/calendar?month=2025-10-01T12:00:00.000Z")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(res.body.appointments).toHaveLength(50);
+  });
+
   test("admin should delete the user", async () => {
     const userId = users[1].id;
     const res = await request(app)
