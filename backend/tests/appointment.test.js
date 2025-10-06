@@ -167,4 +167,8 @@ describe("appointments router", () => {
 
     expect(res.body.appointments).toHaveLength(25);
   });
+
+  test("should throw 401 err on /appointments  route because the user is not signed-in", async () => {
+    const res = await request(app).get("/appointments").expect(401);
+  });
 });
