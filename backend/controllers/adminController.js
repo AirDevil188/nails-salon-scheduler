@@ -447,7 +447,7 @@ const cancelAppointment = async (req, res, next) => {
       });
     }
   } catch (err) {
-    throw err;
+    return next(err);
   }
 };
 module.exports = {
