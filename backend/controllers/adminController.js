@@ -430,9 +430,22 @@ const updateAppointment = [
 // admins can cancel appointments
 const cancelAppointment = async (req, res, next) => {
   try {
+    const io = getIo();
     const { id } = req.params;
 
-    await db.adminCancelAppointment(id);
+    const appointment = await db.adminCancelAppointment(id);
+    if (appointment.count === 1) {
+      io.to("admin-dashboard").emit("admin:appointmentCanceled", id);
+      if (appointment?.userId) {
+        io.to(`user:${appointment.userId}`).emit(
+          "user:appointmentCanceled",
+          id
+        );
+      }
+      return res.status(200).json({
+        appointment: appointment,
+      });
+    }
   } catch (err) {
     console.error(err);
     throw err;
