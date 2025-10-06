@@ -4,22 +4,22 @@ const { isUUID } = require("@utils/utils");
 const { getIo } = require("@socketServices/socketManager");
 
 const getMyAppointments = async (req, res, next) => {
-  const { id } = req.user;
   // set default if not provided to req query
   try {
+    const { id } = req.user;
     const { status, limit = "25", page = "1", orderBy, timeScope } = req.query;
 
     const safeLimit = parseInt(limit, 10) || 25;
     const safePage = parseInt(page, 10) || 1;
 
-    const { appointments, totalCount } = await db.getUserAppointments({
+    const { appointments, totalCount } = await db.getUserAppointments(
       id,
       status,
-      limit: safeLimit,
-      page: safePage,
+      limit,
+      page,
       orderBy,
-      timeScope,
-    });
+      timeScope
+    );
 
     return res.status(200).json({
       appointments: appointments,
