@@ -76,6 +76,12 @@ adminRouter.patch(
   adminController.updateAppointment
 );
 
+adminRouter.post(
+  "/appointments/:appointmentId/cancel",
+  authenticate,
+  authorization
+);
+
 // :TODO:
 // admin DELETE to delete appointments
 // admin PUT route to grant an admin to someone else
