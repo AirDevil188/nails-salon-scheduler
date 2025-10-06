@@ -428,6 +428,16 @@ const updateAppointment = [
 
 // TODO:
 // admins can cancel appointments
+const cancelAppointment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    await db.adminCancelAppointment(id);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 module.exports = {
   getInvitations,
   deleteInvitation,
@@ -439,4 +449,5 @@ module.exports = {
   newAppointment,
   updateAppointment,
   deleteAppointment,
+  cancelAppointment,
 };
