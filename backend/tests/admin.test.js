@@ -42,6 +42,7 @@ let testAdmin;
 let testUser;
 let invitations;
 let appointments;
+let appointment;
 const now = new Date();
 
 afterAll(async () => {
@@ -130,6 +131,17 @@ beforeAll(async () => {
     data: appointmentData,
   });
 
+  appointment = await prisma.appointment.create({
+    data: {
+      title: "Generic Title",
+      userId: users[5].id,
+      startDateTime: new Date(),
+      endDateTime: addMinutes(new Date(), 30),
+      status: "scheduled",
+    },
+  });
+  console.error(appointment);
+
   const res = await request(app)
     .post("/users/sign-in")
     .send({ email: testAdmin.email, password: adminPassword })
@@ -167,7 +179,7 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(200);
 
-    expect(res.body.appointments).toHaveLength(50);
+    expect(res.body.appointments).toHaveLength(51);
   });
 
   test("admin should delete the user", async () => {
@@ -225,7 +237,7 @@ describe("GET /admin", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(200);
 
-    expect(res.body.appointments).toHaveLength(49);
+    expect(res.body.appointments).toHaveLength(50);
   });
 
   test("should add the appointment", async () => {
@@ -469,6 +481,24 @@ describe("GET /admin", () => {
     expect(mockEmit.mock.calls[0][1].endDateTime).toBeInstanceOf(Date);
     expect(mockEmit.mock.calls[0][1].createdAt).toBeInstanceOf(Date);
     expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
+  });
+
+  test("should cancel the appointment", async () => {
+    const appointmentId = appointment.id;
+    const res = await request(app)
+      .post(`/admin/appointments/${appointmentId}/cancel`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(mockTo).toHaveBeenCalledTimes(2);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:appointmentCanceled");
+
+    expect(mockTo.mock.calls[1][0]).toBe(`user:${res.body.appointment.userId}`);
+    expect(mockEmit.mock.calls[1][0]).toBe("user:appointmentCanceled");
+
+    expect(res.body.appointment.count).toBe(1);
   });
 
   test("should switch logged in user from admin to the regular user", async () => {
