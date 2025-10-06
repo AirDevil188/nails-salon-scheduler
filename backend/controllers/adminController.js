@@ -133,8 +133,20 @@ const getAppointments = async (req, res, next) => {
     return next(err);
   }
 };
-// TODO:
-// admins can create new appointments
+
+const getMonthlyAppointments = async (req, res, next) => {
+  const { month } = req.query;
+
+  try {
+    const appointments = await db.adminGetMonthlyAppointments(month);
+    res.status(200).json({
+      appointments: appointments,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 const newAppointment = [
   // insure that title is not empty
   body("title").trim().notEmpty().withMessage("validator_appointment_title"),
@@ -403,7 +415,6 @@ const updateAppointment = [
 ];
 
 // TODO:
-// admins can update their appointments
 // admins can cancel appointments
 module.exports = {
   getInvitations,
@@ -411,6 +422,7 @@ module.exports = {
   getUsers,
   deleteUser,
   getAppointments,
+  getMonthlyAppointments,
   newAppointment,
   updateAppointment,
   deleteAppointment,
