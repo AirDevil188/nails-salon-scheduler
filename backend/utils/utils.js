@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jsonwebtoken = require("jsonwebtoken");
-const { addWeeks } = require("date-fns");
 const { Resend } = require("resend");
 const validator = require("validator");
 
@@ -49,11 +48,6 @@ const decodeToken = (token) => {
   return jsonwebtoken.decode(token);
 };
 
-const oneWeekFromNow = () => {
-  const now = new Date();
-  return addWeeks(now, 1);
-};
-
 const sendVerificationCode = async (email, code) => {
   const resend = new Resend(process.env.EMAIL_API_KEY);
 
@@ -78,7 +72,6 @@ module.exports = {
   decodeToken,
   generateRefreshToken,
   createHashedPassword,
-  oneWeekFromNow,
   sendVerificationCode,
   isUUID,
 };

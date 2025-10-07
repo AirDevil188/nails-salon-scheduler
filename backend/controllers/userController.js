@@ -9,7 +9,6 @@ const {
   decodeToken,
   generateRefreshToken,
   createHashedPassword,
-  oneWeekFromNow,
 } = require("@utils/utils");
 const { userSaveAvatar } = require("../db/query");
 const { addDays } = require("date-fns/addDays");
