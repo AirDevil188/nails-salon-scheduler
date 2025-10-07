@@ -239,6 +239,14 @@ describe("POST /users/sign-up", () => {
     expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
   });
 
+  test("should throw a 400 err if publicId is not provided", async () => {
+    await request(app)
+      .post("/users/profile/avatar")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({})
+      .expect(400);
+  });
+
   test("should throw 401 err if the user password doesn't match with current password", async () => {
     const res = await request(app)
       .patch("/users/profile/change-password")
