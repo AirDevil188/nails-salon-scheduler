@@ -80,7 +80,7 @@ const validateAndIssueRefreshToken = async (req, res, next) => {
     );
 
     // new access token
-    const newAccessToken = signToken(newPayload);
+    const newAccessToken = signToken(newPayload, "15m");
 
     return res.status(200).json({
       refreshToken: newRefreshRawToken,
