@@ -2,6 +2,7 @@ const { body, validationResult } = require("express-validator");
 const { languages } = require("@utils/language");
 const db = require("@db/query");
 const { getIo } = require("@socketServices/socketManager");
+const cloudinary = require("@config/config");
 const {
   verifyHash,
   signToken,
@@ -312,8 +313,45 @@ const signUpUser = [
     }
   },
 ];
+
+const getUploadSignature = async (req, res, next) => {
+  const { id } = req.user;
+
+  const publicId = `${id}_avatar`; // assign the public id so that we can find the images that were posted by that user in case of the deletion
+  const timestamp = Math.round(new Date().getTime() / 1000);
+  // options
+  const options = {
+    timestamp: timestamp,
+    eager: "c_pad,h_300,w_400|c_crop,h_200,w_260",
+    folder: "nails_appointment_app/avatars",
+    publicId: `${publicId}`,
+  };
+
+  try {
+    // assign signature
+    const signature = cloudinary.utils.api_sign_request(
+      options,
+      process.env.CLOUDINARY_API_SECRET
+    );
+    return res.status(200).json({
+      signature,
+      timestamp: options.timestamp,
+      publicId: `nails_appointment_app/${publicId}`,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      folder: "/nails_appointment/avatars",
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// TODO:
+// avatar upload middleware
+
 module.exports = {
   getUserProfile,
+  getUploadSignature,
   deleteProfile,
   updateProfile,
   changeUserPassword,
