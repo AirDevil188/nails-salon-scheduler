@@ -1,11 +1,5 @@
-const { verifyToken } = require("@utils/utils");
 const db = require("@db/query");
-const {
-  verifyHash,
-  generateRefreshToken,
-  createHashedPassword,
-  signToken,
-} = require("@utils/utils");
+const { generateRefreshToken, signToken } = require("@utils/utils");
 const { addDays } = require("date-fns/addDays");
 const validateAndIssueRefreshToken = async (req, res, next) => {
   // /auth/refresh endpoint POST
@@ -14,17 +8,14 @@ const validateAndIssueRefreshToken = async (req, res, next) => {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     const error = new Error("authorization_err");
     error.status = 401;
-    return next(err);
+    return next(error);
   }
   // split the token value and Bearer
   const token = authHeader.split(" ")[1];
 
   try {
-    // verify the token
-    const decodedPayload = verifyToken(token);
-
     // check if the refresh token matches with the userId from the payload
-    const refreshToken = await db.findRefreshTokenByUserId(decodedPayload.id);
+    const refreshToken = await db.findRefreshTokenByTokenValue(token);
 
     // if the refresh token is not found
     if (!refreshToken) {
@@ -33,20 +24,15 @@ const validateAndIssueRefreshToken = async (req, res, next) => {
       return next(error);
     }
 
-    // verify if the raw refresh token matches the hash in db
-    const isMatch = verifyHash(token, refreshToken.token);
-
-    // if the provided token doesn't match with hashed token value in db trow an err
-    if (!isMatch) {
-      // invalidate all refresh tokens
-      await db.invalidateRefreshToken(decodedPayload.id);
-      const error = new Error("refresh_token_stale_or_invalid");
+    if (refreshToken.expiresAt < new Date()) {
+      await db.invalidateRefreshToken(refreshToken.id); // invalidates by token id
+      const error = new Error("refresh_token_session_expired");
       error.status = 401;
       return next(error);
     }
 
     // get the user
-    const user = await db.findUserById(decodedPayload.id);
+    const user = await db.findUserById(refreshToken.userId);
 
     // if the user is not found throw 401 err
     if (!user) {
@@ -66,16 +52,13 @@ const validateAndIssueRefreshToken = async (req, res, next) => {
     // generate new raw token value
     const newRefreshRawToken = generateRefreshToken();
 
-    // hash the raw token value
-    const hashedRefreshToken = await createHashedPassword(newRefreshRawToken);
-
     // create new refresh token expiration
     const newExpiresAt = addDays(new Date(), 30);
 
     // update the token value in db with new one
     await db.updateRefreshToken(
-      decodedPayload.id,
-      hashedRefreshToken,
+      refreshToken.id,
+      newRefreshRawToken,
       newExpiresAt
     );
 
@@ -87,11 +70,16 @@ const validateAndIssueRefreshToken = async (req, res, next) => {
       accessToken: newAccessToken,
     });
   } catch (err) {
-    if (err.name === "TokenExpiredError" || err.name === "JsonWebTokenError") {
-      const error = new Error("jwt_invalid_or_expired");
-      error.status = 401;
-      return next(error);
+    console.error("Refresh Token Process Error:", err);
+
+    if (err.status) {
+      return next(err);
     }
+    const internalError = new Error(
+      "An internal server error occurred during token refresh."
+    );
+    internalError.status = 500;
+    return next(internalError);
   }
 };
 module.exports = {
