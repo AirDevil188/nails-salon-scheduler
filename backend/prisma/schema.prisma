@@ -58,7 +58,7 @@ model Token {
   token String @unique @db.Text
   userId String
   expiresAt DateTime
-  user User @relation(fields: [token], references: [id], onDelete: Cascade)
+  user User[]
 
   @@map("token")
 }
@@ -72,7 +72,7 @@ model User {
   avatar String? 
   invitationId String? @unique
   invitation Invitation? @relation( fields: [invitationId], references: [id])
-  token Token?
+  token Token[]
   role Role @default(user) 
   appointments Appointment[]
   createdAt DateTime @default(now())
