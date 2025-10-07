@@ -140,7 +140,6 @@ beforeAll(async () => {
       status: "scheduled",
     },
   });
-  console.error(appointment);
 
   const res = await request(app)
     .post("/users/sign-in")
