@@ -16,6 +16,9 @@ const languages = {
       "Authenticate token is stale or invalid. Please login again.",
     refresh_token_user_not_found: "User associated with token not found",
 
+    // JWT general errs
+    jwt_invalid_or_expired: "JWT token is expired or it is invalid",
+
     // Validation errs
     // Sign-up errs
     validator_email_invalid: "Please provide a valid email address",
@@ -87,6 +90,9 @@ const languages = {
     refresh_token_stale_or_invalid:
       "Token je ustajao ili nije validan. Molimo Vas prijavite se ponovo",
     refresh_token_user_not_found: "Korisnik čije je token nije pronađen",
+
+    // JWT general errs
+    jwt_invalid_or_expired: "JWT Token je nevažeći ili je istekao",
 
     // Validation errs
     // Sign-up errs
