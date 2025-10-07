@@ -219,6 +219,26 @@ describe("POST /users/sign-up", () => {
     );
   });
 
+  test("should update new ID but NOT call cloudinary destroy if no old avatar exists", async () => {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        avatar: null,
+      },
+    });
+    const newPublicId = "nails_salon_scheduler/avatars/999_avatar_NEW";
+
+    await request(app)
+      .post("/users/profile/avatar")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ publicId: newPublicId })
+      .expect(200);
+
+    expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
+  });
+
   test("should throw 401 err if the user password doesn't match with current password", async () => {
     const res = await request(app)
       .patch("/users/profile/change-password")
