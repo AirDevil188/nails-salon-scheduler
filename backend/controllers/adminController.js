@@ -31,7 +31,6 @@ const getInvitations = async (req, res, next) => {
       totalPages: Math.ceil(totalCount / safeLimit),
     });
   } catch (err) {
-    console.error(err);
     return next(err);
   }
 };
@@ -47,7 +46,6 @@ const deleteInvitation = async (req, res, next) => {
     );
     return res.status(204).end();
   } catch (err) {
-    console.error(err);
     return next(err);
   }
 };
