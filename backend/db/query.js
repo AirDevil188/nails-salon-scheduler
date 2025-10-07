@@ -412,6 +412,23 @@ const findRefreshTokenByUserId = async (userId) => {
   }
 };
 
+const updateRefreshToken = async (userId, token, expiresAt) => {
+  try {
+    return await prisma.token.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        token: token,
+        expiresAt: expiresAt,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 // INVITATION queries
 
 const createInvitationCode = async (token, code, expiresAt) => {
@@ -1055,6 +1072,7 @@ module.exports = {
   getAppointmentDetails,
   findRefreshTokenByUserId,
   createRefreshToken,
+  updateRefreshToken,
   invalidateRefreshToken,
   findInvitation,
   findInvitationByToken,
