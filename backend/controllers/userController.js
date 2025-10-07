@@ -11,6 +11,7 @@ const {
   createHashedPassword,
   oneWeekFromNow,
 } = require("@utils/utils");
+const { userSaveAvatar } = require("../db/query");
 
 const getUserProfile = async (req, res, next) => {
   try {
@@ -346,6 +347,51 @@ const getUploadSignature = async (req, res, next) => {
   }
 };
 
+const saveAvatar = async (req, res, next) => {
+  try {
+    const { publicId } = req.body;
+    const { id } = req.user;
+
+    // check if the publicId is present
+    if (!publicId) {
+      const error = new Error("validator_public_id_avatar");
+      error.status = 400;
+      return next(error);
+    }
+
+    // get the user old avatar publicId
+    const user = await db.getOldPublicAvatarId(id);
+    // assign user avatar publicId to oldPublicId
+    const oldPublicId = user?.avatar;
+
+    // main func if this fails exit the middleware
+    const avatar = await db.userSaveAvatar(id, publicId);
+
+    // if the avatar already exists delete it
+    if (oldPublicId && oldPublicId !== publicId) {
+      cloudinary.uploader.destroy(oldPublicId, (err, result) => {
+        if (err) {
+          console.error(
+            `Cloudinary cleanup failed for ${oldPublicId}. Error:`,
+            err
+          );
+        } else {
+          console.log(
+            `Cloudinary cleanup successful for ${oldPublicId}. Result:`,
+            result.result
+          );
+        }
+      });
+    }
+
+    res.status(200).json({
+      avatar: avatar,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 // TODO:
 // avatar upload middleware
 
@@ -353,6 +399,7 @@ module.exports = {
   getUserProfile,
   getUploadSignature,
   deleteProfile,
+  saveAvatar,
   updateProfile,
   changeUserPassword,
   signInUser,
