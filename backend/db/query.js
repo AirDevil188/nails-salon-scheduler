@@ -154,6 +154,22 @@ const userSaveAvatar = async (userId, publicId) => {
   }
 };
 
+const getOldPublicAvatarId = async (userId) => {
+  try {
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        avatar: true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const deleteUser = async (userId) => {
   try {
     return await prisma.user.delete({
@@ -1028,6 +1044,7 @@ module.exports = {
   findUserProfile,
   findUser,
   findUserById,
+  getOldPublicAvatarId,
   createUser,
   updateUserProfile,
   deleteUser,
