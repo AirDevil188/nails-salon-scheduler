@@ -6,6 +6,7 @@ const express = require("express");
 const request = require("supertest");
 const { execSync } = require("child_process");
 const { PrismaClient } = require("@prisma/client");
+const cloudinary = require("../config/cloudinary");
 
 const prisma = new PrismaClient();
 
@@ -22,6 +23,19 @@ jest.mock("../socket/services/socketManager.js", () => ({
   getIo: jest.fn(() => ({ to: mockTo })),
 }));
 
+// mock the cloudinary so that we can use uploader.destroy
+jest.mock("../config/cloudinary.js", () => ({
+  utils: {
+    api_sign_request: jest.fn(() => "mocked_signature_432"),
+  },
+  uploader: {
+    destroy: jest.fn((publicId, cb) => {
+      // simulate success
+      cb(null, { result: "ok" });
+    }),
+  },
+}));
+
 const app = express();
 app.use(express.json());
 
@@ -34,6 +48,7 @@ const testUser = {
   first_name: "Test",
   last_name: "Test",
   role: "user",
+  avatar: "nails_salon_scheduler/avatars/111_old_avatar",
 };
 
 let accessToken;
@@ -72,6 +87,7 @@ beforeAll(async () => {
       first_name: testUser.first_name,
       last_name: testUser.last_name,
       role: testUser.role,
+      avatar: testUser.avatar,
     },
   });
 
@@ -143,7 +159,7 @@ describe("POST /users/sign-up", () => {
       email: "test@email.com",
       first_name: "Test",
       last_name: "Test",
-      avatar: null,
+      avatar: testUser.avatar,
     };
     const res = await request(app)
       .get("/users/profile")
@@ -180,6 +196,27 @@ describe("POST /users/sign-up", () => {
     expect(mockTo.mock.calls[1][0]).toBe(`user:${res.body.profile.id}`);
     expect(mockEmit.mock.calls[1][0]).toBe("user:userProfileUpdated");
     expect(mockEmit.mock.calls[1][1]).toEqual(res.body);
+  });
+
+  test("should fetch old public ID, update it with new ID and call uploader.destroy for cleanup", async () => {
+    const newPublicId = `nails_salon_scheduler/avatars/999_new_avatar`;
+
+    expect(user.avatar).toBe(testUser.avatar);
+
+    const res = await request(app)
+      .post("/users/profile/avatar")
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({
+        publicId: newPublicId,
+      })
+      .expect(200);
+    expect(res.body.avatar.avatar).toBe(newPublicId);
+
+    expect(cloudinary.uploader.destroy).toHaveBeenCalledTimes(1);
+    expect(cloudinary.uploader.destroy).toHaveBeenCalledWith(
+      testUser.avatar,
+      expect.any(Function) // Checks it was called with the cleanup callback
+    );
   });
 
   test("should throw 401 err if the user password doesn't match with current password", async () => {
