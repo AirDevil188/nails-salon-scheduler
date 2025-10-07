@@ -42,6 +42,9 @@ const languages = {
     validator_external_client_userId_not_allowed:
       "Provided client ID can't be present if the external client is already defined",
 
+    // Avatar upload
+    validator_public_id_avatar: "Public ID is required",
+
     // Success messages
 
     // User Controller
@@ -103,6 +106,9 @@ const languages = {
     validator_appointment_status_not_empty: "Status termina je obavezan",
     validator_external_client_userId_not_allowed:
       "ID klijenta ne može biti prisutan, ako je eksterni klijent zadat",
+
+    // Avatar upload
+    validator_public_id_avatar: "ID avatara je obavezan",
 
     // Success messages
 
