@@ -26,6 +26,12 @@ userRouter.patch(
   userController.changeUserPassword
 );
 
+userRouter.get(
+  "/profile/upload/signature",
+  authenticate,
+  userController.getUploadSignature
+);
+
 // :TODO:
 // user route for forgotten password
 module.exports = userRouter;
