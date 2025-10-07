@@ -12,6 +12,7 @@ const {
   oneWeekFromNow,
 } = require("@utils/utils");
 const { userSaveAvatar } = require("../db/query");
+const { addDays } = require("date-fns/addDays");
 
 const getUserProfile = async (req, res, next) => {
   try {
@@ -184,8 +185,13 @@ const signInUser = async (req, res, next) => {
       error.status = 500;
       return next(error);
     }
+    const hashedRefreshToken = await createHashedPassword(refreshTokenRaw);
     // push the token to the db
-    await db.createRefreshToken(refreshTokenRaw, user.id, oneWeekFromNow());
+    await db.createRefreshToken(
+      hashedRefreshToken,
+      user.id,
+      addDays(new Date(), 30)
+    );
 
     // sign the token
     const accessToken = await signToken(payload, "15m");
@@ -278,9 +284,15 @@ const signUpUser = [
         return next(error);
       }
 
+      const hashedRefreshToken = await createHashedPassword(refreshTokenRaw);
+
       // push the refreshToken in the db
-      const time = oneWeekFromNow();
-      await db.createRefreshToken(refreshTokenRaw, newUser.id, time);
+
+      await db.createRefreshToken(
+        hashedRefreshToken,
+        newUser.id,
+        addDays(new Date(), 30)
+      );
 
       // get the new UserInfo
       const { password: _, ...rest } = newUser;
