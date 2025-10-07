@@ -170,27 +170,25 @@ const signInUser = async (req, res, next) => {
       role: user.role,
     };
 
-    // check if user has the refresh token is in the db and invalidate it
-    const refreshToken = await db.findRefreshTokenByUserId(user.id);
-    if (refreshToken) {
-      await db.invalidateRefreshToken(user.id);
-      console.log("Refresh token successfully invalidated");
-    }
-
     //. create refreshToken
     const refreshTokenRaw = await generateRefreshToken();
+    console.error(refreshTokenRaw, "POKEMONS");
+    console.log(user.id);
     if (!refreshTokenRaw) {
       const error = new Error("general_server_err");
+      console.error(error);
       error.status = 500;
       return next(error);
     }
-    const hashedRefreshToken = await createHashedPassword(refreshTokenRaw);
+    console.log("SSUCC");
+
     // push the token to the db
-    await db.createRefreshToken(
-      hashedRefreshToken,
+    const tokens = await db.createRefreshToken(
+      refreshTokenRaw,
       user.id,
       addDays(new Date(), 30)
     );
+    console.error(tokens);
 
     // sign the token
     const accessToken = await signToken(payload, "15m");
@@ -283,12 +281,10 @@ const signUpUser = [
         return next(error);
       }
 
-      const hashedRefreshToken = await createHashedPassword(refreshTokenRaw);
-
       // push the refreshToken in the db
 
       await db.createRefreshToken(
-        hashedRefreshToken,
+        refreshTokenRaw,
         newUser.id,
         addDays(new Date(), 30)
       );
