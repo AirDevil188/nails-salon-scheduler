@@ -10,6 +10,12 @@ const languages = {
     general_validator_err:
       "Error with the provided data. Please check the details",
 
+    // Refresh token errs
+    refresh_token_session_expired: "Session expired token not found",
+    refresh_token_stale_or_invalid:
+      "Authenticate token is stale or invalid. Please login again.",
+    refresh_token_user_not_found: "User associated with token not found",
+
     // Validation errs
     // Sign-up errs
     validator_email_invalid: "Please provide a valid email address",
@@ -75,6 +81,12 @@ const languages = {
     authorization_err: "Nemate dozvolu za izvršenje ove radnje",
     authenticate_code_err: "Nepostojeći kod, molimm vas probajte ponovo",
     general_validator_err: "Greška u podacima. Proverite detalje",
+
+    // Refresh token errs
+    refresh_token_session_expired: "Sesija je istekla. Token nije pronađen",
+    refresh_token_stale_or_invalid:
+      "Token je ustajao ili nije validan. Molimo Vas prijavite se ponovo",
+    refresh_token_user_not_found: "Korisnik čije je token nije pronađen",
 
     // Validation errs
     // Sign-up errs
