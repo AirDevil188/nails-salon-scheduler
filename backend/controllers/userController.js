@@ -2,7 +2,7 @@ const { body, validationResult } = require("express-validator");
 const { languages } = require("@utils/language");
 const db = require("@db/query");
 const { getIo } = require("@socketServices/socketManager");
-const cloudinary = require("@config/config");
+const cloudinary = require("../config/cloudinary");
 const {
   verifyHash,
   signToken,
@@ -349,6 +349,7 @@ const getUploadSignature = async (req, res, next) => {
 
 const saveAvatar = async (req, res, next) => {
   try {
+    const io = getIo();
     const { publicId } = req.body;
     const { id } = req.user;
 
@@ -366,7 +367,8 @@ const saveAvatar = async (req, res, next) => {
 
     // main func if this fails exit the middleware
     const avatar = await db.userSaveAvatar(id, publicId);
-
+    io.to("admin-dashboard").emit("admin:userAvatarUpdated", publicId);
+    io.to(`user:${id}`).emit("user:userAvatarUpdated", publicId);
     // if the avatar already exists delete it
     if (oldPublicId && oldPublicId !== publicId) {
       cloudinary.uploader.destroy(oldPublicId, (err, result) => {
