@@ -217,6 +217,16 @@ describe("POST /users/sign-up", () => {
       testUser.avatar,
       expect.any(Function) // Checks it was called with the cleanup callback
     );
+
+    expect(mockTo).toHaveBeenCalledTimes(2);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:userAvatarUpdated");
+    expect(mockEmit.mock.calls[0][1]).toEqual(newPublicId);
+
+    expect(mockTo.mock.calls[1][0]).toBe(`user:${user.id}`);
+    expect(mockEmit.mock.calls[1][0]).toBe("user:userAvatarUpdated");
+    expect(mockEmit.mock.calls[1][1]).toEqual(newPublicId);
   });
 
   test("should update new ID but NOT call cloudinary destroy if no old avatar exists", async () => {
@@ -237,6 +247,16 @@ describe("POST /users/sign-up", () => {
       .expect(200);
 
     expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
+
+    expect(mockTo).toHaveBeenCalledTimes(2);
+
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:userAvatarUpdated");
+    expect(mockEmit.mock.calls[0][1]).toEqual(newPublicId);
+
+    expect(mockTo.mock.calls[1][0]).toBe(`user:${user.id}`);
+    expect(mockEmit.mock.calls[1][0]).toBe("user:userAvatarUpdated");
+    expect(mockEmit.mock.calls[1][1]).toEqual(newPublicId);
   });
 
   test("should throw a 400 err if publicId is not provided", async () => {
@@ -245,6 +265,8 @@ describe("POST /users/sign-up", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send({})
       .expect(400);
+
+    expect(mockTo).not.toHaveBeenCalled();
   });
 
   test("should throw 401 err if the user password doesn't match with current password", async () => {
