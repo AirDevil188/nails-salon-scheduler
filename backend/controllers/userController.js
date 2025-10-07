@@ -394,9 +394,6 @@ const saveAvatar = async (req, res, next) => {
   }
 };
 
-// TODO:
-// avatar upload middleware
-
 module.exports = {
   getUserProfile,
   getUploadSignature,
