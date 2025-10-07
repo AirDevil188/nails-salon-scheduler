@@ -32,6 +32,8 @@ userRouter.get(
   userController.getUploadSignature
 );
 
+userRouter.post("/profile/avatar", authenticate, userController.saveAvatar);
+
 // :TODO:
 // user route for forgotten password
 module.exports = userRouter;
