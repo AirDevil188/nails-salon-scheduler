@@ -15,6 +15,7 @@
     "@utils": "utils",
     "@middlewares": "middlewares",
     "@db": "db",
+    "@config": "config",
     "@socketServices": "./socket/services",
     "@socketMiddlewares": "./socket/middlewares",
     "@socketHandlers": "./socket/handlers"
@@ -27,6 +28,7 @@
       "^@utils(.*)$": "<rootDir>/utils$1",
       "^@middlewares(.*)$": "<rootDir>/middlewares$1",
       "^@db(.*)$": "<rootDir>/db$1",
+      "^@config(.*)$": "<rootDir>/config$1",
       "^@socketServices(.*)$": "<rootDir>/socket/services$1",
       "^@socketMiddlewares(.*)$": "<rootDir>/socket/middlewares$1",
       "^@socketHandlers(.*)$": "<rootDir>/socket/handlers$1"
@@ -45,6 +47,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
     "express": "^5.1.0",
     "express-jwt": "^8.5.1",
     "express-validator": "^7.2.1",
