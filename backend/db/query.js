@@ -40,6 +40,8 @@ const findUserById = async (userId) => {
       },
       select: {
         password: true,
+        id: true,
+        email: true,
       },
     });
   } catch (err) {
@@ -386,11 +388,11 @@ const createRefreshToken = async (token, userId, expiresAt) => {
     throw err;
   }
 };
-const invalidateRefreshToken = async (userId) => {
+const invalidateRefreshToken = async (id) => {
   try {
     return prisma.token.delete({
       where: {
-        userId: userId,
+        id: id,
       },
     });
   } catch (err) {
@@ -399,11 +401,11 @@ const invalidateRefreshToken = async (userId) => {
   }
 };
 
-const findRefreshTokenByUserId = async (userId) => {
+const findRefreshTokenByTokenValue = async (token) => {
   try {
-    return prisma.token.findUnique({
+    return await prisma.token.findUnique({
       where: {
-        userId: userId,
+        token: token,
       },
     });
   } catch (err) {
@@ -412,11 +414,11 @@ const findRefreshTokenByUserId = async (userId) => {
   }
 };
 
-const updateRefreshToken = async (userId, token, expiresAt) => {
+const updateRefreshToken = async (id, token, expiresAt) => {
   try {
     return await prisma.token.update({
       where: {
-        userId: userId,
+        id: id,
       },
       data: {
         token: token,
@@ -1070,7 +1072,7 @@ module.exports = {
   getUserAppointments,
   getMonthlyAppointments,
   getAppointmentDetails,
-  findRefreshTokenByUserId,
+  findRefreshTokenByTokenValue,
   createRefreshToken,
   updateRefreshToken,
   invalidateRefreshToken,
