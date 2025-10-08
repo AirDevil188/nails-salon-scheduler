@@ -107,6 +107,13 @@ adminRouter.get(
   noteController.getNoteDetails
 );
 
+adminRouter.patch(
+  "/notes/:noteId",
+  authenticate,
+  authorization,
+  noteController.updateNote
+);
+
 // :TODO:
 // admin PUT route to grant an admin to someone else
 
