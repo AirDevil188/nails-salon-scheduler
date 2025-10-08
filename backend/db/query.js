@@ -668,7 +668,9 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
 
       // prevent injection
       if (
-        ["first_name", "email", "last_name", "createdAt"].includes(field) &&
+        ["first_name", "email", "last_name", "createdAt", "deletedAt"].includes(
+          field
+        ) &&
         ["asc", "desc"].includes(directionOfTheOrder)
       ) {
         // sort based on user choice
@@ -684,11 +686,9 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
               field === "first_name" ? "last_name" : "first_name";
             break;
           case "email":
-            // If sorting by email, use a name field (firstName) as tie-breaker
-            secondaryField = "first_name";
-            break;
           case "createdAt":
-            secondaryField = "email";
+          case "deletedAt":
+            secondaryField = "first_name";
             break;
         }
 
@@ -701,7 +701,10 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
     const [users, totalCount] = await prisma.$transaction([
       prisma.user.findMany({
         where: {
-          NOT: { id: userId },
+          ...where,
+          NOT: {
+            id: userId,
+          },
         },
         skip: skipCount,
         take: pageSize,
