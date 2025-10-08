@@ -29,10 +29,12 @@ const deleteProfile = async (req, res, next) => {
   try {
     const io = getIo();
     const { id } = req.user;
-    await db.deleteUser(id);
+    const deleteResult = await db.deleteUser(id);
     // return 204 status because there is no content to return
-    io.to("admin-dashboard").emit("admin:userDeleted", id);
-    return res.status(204).end();
+    if (deleteResult.count > 0) {
+      io.to("admin-dashboard").emit("admin:userDeleted", id);
+      return res.status(204).end();
+    }
   } catch (err) {
     return next(err);
   }
