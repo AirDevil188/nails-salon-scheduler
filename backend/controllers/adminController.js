@@ -107,7 +107,14 @@ const deleteUser = async (req, res, next) => {
 const getAppointments = async (req, res, next) => {
   // set default if not provided to req query
   try {
-    const { status, limit = "25", page = "1", orderBy, timeScope } = req.query;
+    const {
+      status,
+      limit = "25",
+      page = "1",
+      orderBy,
+      timeScope,
+      search,
+    } = req.query;
 
     const safeLimit = parseInt(limit, 10) || 25;
     const safePage = parseInt(page, 10) || 1;
@@ -118,6 +125,7 @@ const getAppointments = async (req, res, next) => {
       page: safePage,
       orderBy,
       timeScope,
+      search,
     });
 
     return res.status(200).json({
