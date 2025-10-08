@@ -54,6 +54,10 @@ const languages = {
     // Avatar upload
     validator_public_id_avatar: "Public ID is required",
 
+    // Notes errs
+    validator_notes_title: "Note title is required",
+    validator_notes_content: "Note content is required",
+
     // Success messages
 
     // User Controller
@@ -127,6 +131,10 @@ const languages = {
 
     // Avatar upload
     validator_public_id_avatar: "ID avatara je obavezan",
+
+    // Notes errs
+    validator_notes_title: "Naziv beleške je obavezan",
+    validator_notes_content: "Sadržaj beleške je obavezan",
 
     // Success messages
 
