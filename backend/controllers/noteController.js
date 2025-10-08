@@ -72,6 +72,43 @@ const createNote = [
   },
 ];
 
+const updateNote = [
+  body("title").trim().notEmpty().withMessage("validator_notes_title").optional,
+  body("content").trim().notEmpty().withMessage("validator_notes_content")
+    .optional,
+
+  async (req, res, next) => {
+    const errs = validationResult(req);
+    const io = getIo();
+
+    if (!errs.isEmpty()) {
+      // map all messages
+      const validationErrors = errs.array().map((error) => error.msg);
+      // create error obj message
+      const error = new Error("Validation Error");
+      error.status = 400;
+      error.name = "ValidationError";
+      error.validationMessages = validationErrors;
+      return next(error);
+    }
+    try {
+      const { id } = req.user;
+      const { noteId } = req.params;
+      const { title, content } = req.body;
+      const note = await db.adminUpdateNote(title, content, noteId, id);
+      io.to("admin-dashboard").emit("admin:updatedNote", note);
+      console.log(
+        `Sent updated appointment alert to the 'admin-dashboard' room. for the note ${note.id}`
+      );
+      return res.status(200).json({
+        note: note,
+      });
+    } catch (err) {
+      return next(err);
+    }
+  },
+];
+
 const deleteNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;
@@ -93,5 +130,6 @@ module.exports = {
   getNotes,
   getNoteDetails,
   createNote,
+  updateNote,
   deleteNote,
 };
