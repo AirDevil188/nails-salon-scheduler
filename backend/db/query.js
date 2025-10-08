@@ -1227,6 +1227,89 @@ const adminCancelAppointment = async (id) => {
 
 // NOTES queries
 
+const adminGetNotes = async (limit, page, orderBy, search) => {
+  try {
+    const pageSize = parseInt(limit, 10) || 25;
+    const pageNumber = parseInt(page, 10) || 1;
+    const skipCount = (pageNumber - 1) * pageSize;
+    const where = {};
+
+    // search quey logic
+    if (search) {
+      where.OR = [
+        {
+          title: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          content: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ];
+    }
+
+    let orderCriteria = [{ createdAt: "desc" }]; // default option
+
+    if (orderBy) {
+      // split as first_name_asc
+      const [field, directionOfTheOrder] = orderBy.split("_");
+
+      // prevent injection
+      if (
+        ["title", "content", "createdAt", "updatedAt"].includes(field) &&
+        ["asc", "desc"].includes(directionOfTheOrder)
+      ) {
+        // sort based on user choice
+        orderCriteria = [{ [field]: directionOfTheOrder }];
+
+        // add a string tie break
+        let secondaryField = null;
+
+        switch (field) {
+          case "title":
+          case "content":
+          case "createdAt":
+          case "updatedAt":
+            secondaryField = "id";
+            break;
+        }
+
+        if (secondaryField) {
+          orderCriteria.push({ [secondaryField]: "asc" });
+        }
+      }
+    }
+
+    const [notes, totalCount] = await prisma.$transaction([
+      prisma.note.findMany({
+        where: where,
+        skip: skipCount,
+        take: pageSize,
+        orderBy: orderCriteria,
+        select: {
+          title: true,
+          id: true,
+          userId: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      prisma.note.count({
+        where: where,
+      }),
+    ]);
+    return { notes: notes, totalCount: totalCount };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const adminCreateNote = async (title, content, userId) => {
   try {
     return await prisma.note.create({
