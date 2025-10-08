@@ -92,7 +92,7 @@ const deleteUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
     // delete the user
-    const deleteResult = await db.adminDeleteUser(userId);
+    const deleteResult = await db.softAdminDeleteUser(userId);
     if (deleteResult.count > 0) {
       io.to("admin-dashboard").emit("admin:userDeleted", userId);
       console.log(
