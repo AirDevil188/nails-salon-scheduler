@@ -191,6 +191,8 @@ const softDeleteUser = async (userId) => {
     return;
   }
 
+  const deletedSuffix = `${userData.email}.deleted${date}`;
+
   try {
     return await prisma.user.update({
       where: {
@@ -199,7 +201,7 @@ const softDeleteUser = async (userId) => {
       data: {
         deletedAt: date,
         password: "",
-        email: `${userData.email}${date}`,
+        email: deletedSuffix,
       },
     });
   } catch (err) {
@@ -732,7 +734,7 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
 
 const softAdminDeleteUser = async (userId) => {
   const date = new Date();
-  const deletedSuffix = `.deleted${date}`;
+
   const userData = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -743,6 +745,8 @@ const softAdminDeleteUser = async (userId) => {
     console.error("Cannot soft delete the user with non-existent ID");
     return;
   }
+
+  const deletedSuffix = `${userData.email}.deleted${date}`;
 
   try {
     return await prisma.user.updateMany({
