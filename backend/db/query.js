@@ -174,7 +174,7 @@ const getOldPublicAvatarId = async (userId) => {
 
 const deleteUser = async (userId) => {
   try {
-    return await prisma.user.delete({
+    return await prisma.user.deleteMany({
       where: {
         id: userId,
       },
@@ -403,7 +403,7 @@ const createRefreshToken = async (token, userId, expiresAt) => {
 };
 const invalidateRefreshToken = async (id) => {
   try {
-    return prisma.token.delete({
+    return prisma.token.deleteMany({
       where: {
         id: id,
       },
@@ -566,7 +566,7 @@ const verifyInvitationStatus = async (token) => {
 
 const invalidateInvitation = async (token) => {
   try {
-    return await prisma.invitation.delete({
+    return await prisma.invitation.deleteMany({
       where: {
         token: token,
       },
@@ -708,7 +708,7 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
 
 const adminDeleteUser = async (userId) => {
   try {
-    return await prisma.user.delete({
+    return await prisma.user.deleteMany({
       where: {
         id: userId,
       },
@@ -800,7 +800,7 @@ const adminGetAllInvitations = async ({
 
 const adminDeleteInvitation = async (id) => {
   try {
-    return await prisma.invitation.delete({
+    return await prisma.invitation.deleteMany({
       where: {
         NOT: {
           invitationStatus: "accepted",
@@ -1048,11 +1048,26 @@ const adminNewAppointment = async (
 
 const adminDeleteAppointment = async (id) => {
   try {
-    return await prisma.appointment.delete({
+    const appointmentData = await prisma.appointment.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        userId: true,
+      },
+    });
+    if (!appointmentData) {
+      return { userId: null, count: 0 };
+    }
+    const appointment = await prisma.appointment.deleteMany({
       where: {
         id: id,
       },
     });
+    return {
+      count: appointment.count,
+      userId: appointmentData.userId,
+    };
   } catch (err) {
     console.error(err);
     throw err;
