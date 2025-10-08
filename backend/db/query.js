@@ -604,11 +604,36 @@ const findInvitationByToken = async (token) => {
 };
 
 // ADMIN queries
-const adminGetAllUsers = async (userId, { limit, page, orderBy }) => {
+const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
   try {
     const pageSize = parseInt(limit, 10) || 25;
     const pageNumber = parseInt(page, 10) || 1;
     const skipCount = (pageNumber - 1) * pageSize;
+    const where = {};
+
+    // search quey logic
+    if (search) {
+      where.OR = [
+        {
+          email: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          first_name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          last_name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ];
+    }
 
     let orderCriteria = [{ createdAt: "desc" }]; // default option
 
@@ -667,6 +692,7 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy }) => {
       }),
       prisma.user.count({
         where: {
+          ...where,
           NOT: {
             id: userId,
           },
