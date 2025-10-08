@@ -893,6 +893,7 @@ const adminGetAllAppointments = async ({
           "updatedAt",
           "title",
           "status",
+          "external_client",
         ].includes(field) &&
         ["desc", "asc"].includes(directionOfTheOrder)
       ) {
@@ -912,6 +913,7 @@ const adminGetAllAppointments = async ({
             break;
 
           case "title":
+          case "external_client":
             secondaryField = "status";
             break;
         }
