@@ -32,6 +32,24 @@ const createNote = [
   },
 ];
 
+const deleteNote = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const deleteResult = await db.adminDeleteNote(noteId);
+
+    if (deleteResult.count > 0) {
+      io.to("admin-dashboard").emit("admin:noteDeleted", noteId);
+      console.log(
+        `Sent note deletion alert for invitation: ${noteId} to the 'admin-dashboard' room.`
+      );
+    }
+    return res.status(204).end();
+  } catch (err) {
+    return next(err);
+  }
+};
+
 module.exports = {
   createNote,
+  deleteNote,
 };
