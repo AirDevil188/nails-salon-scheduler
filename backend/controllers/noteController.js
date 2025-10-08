@@ -66,6 +66,9 @@ const createNote = [
       // create note
       const note = await db.adminCreateNote(title, content, id);
       io.to("admin-dashboard").emit("admin:noteCreate", note.id);
+      return res.status(200).json({
+        note: note,
+      });
     } catch (err) {
       return next(err);
     }
