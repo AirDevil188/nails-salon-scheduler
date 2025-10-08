@@ -768,6 +768,7 @@ const adminGetAllAppointments = async ({
   page,
   orderBy,
   timeScope,
+  search,
 }) => {
   const now = new Date();
   const where = {};
@@ -781,6 +782,18 @@ const adminGetAllAppointments = async ({
   // sanitize time scope
   try {
     const validScopes = ["past", "upcoming", "all"];
+
+    // search quey logic
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { external_client: { contains: search, mode: "insensitive" } },
+        { status: { contains: search, mode: "insensitive" } },
+        { user: { first_name: { contains: search, mode: "insensitive" } } },
+        { user: { last_name: { contains: search, mode: "insensitive" } } },
+        { user: { email: { contains: search, mode: "insensitive" } } },
+      ];
+    }
 
     // prevent SQL injection
     const scope = validScopes.includes(timeScope) ? timeScope : "all";
