@@ -85,6 +85,7 @@ model User {
 model Appointment {
   id String @id @default(uuid())
   title String
+  description String? @db.Text
   status AppointmentStatus @default(scheduled)
   userId String?
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
