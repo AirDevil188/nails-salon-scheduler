@@ -37,6 +37,7 @@ const findUserById = async (userId) => {
     return await prisma.user.findUnique({
       where: {
         id: userId,
+        deletedAt: null,
       },
       select: {
         password: true,
@@ -55,6 +56,7 @@ const findUser = async (email) => {
     return await prisma.user.findUnique({
       where: {
         email: email,
+        deletedAt: null,
       },
     });
   } catch (err) {
@@ -92,6 +94,7 @@ const findUserProfile = async (userId) => {
   try {
     return await prisma.user.findUnique({
       where: {
+        id: userId,
         deletedAt: null,
       },
       select: {
