@@ -92,16 +92,18 @@ const deleteUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
     // delete the user
-    await db.adminDeleteUser(userId);
-    io.to("admin-dashboard").emit("admin:userDeleted", userId);
-    console.log(
-      `Sent user deletion alert for userId: ${userId} to the 'admin-dashboard' room.`
-    );
-    if (userId) {
-      io.to(`user:${userId}`).emit("user:deleted", userId);
+    const deleteResult = await db.adminDeleteUser(userId);
+    if (deleteResult.count > 0) {
+      io.to("admin-dashboard").emit("admin:userDeleted", userId);
       console.log(
-        `Sent user deletion confirmation to the 'user:${userId}' room.`
+        `Sent user deletion alert for userId: ${userId} to the 'admin-dashboard' room.`
       );
+      if (userId) {
+        io.to(`user:${userId}`).emit("user:deleted", userId);
+        console.log(
+          `Sent user deletion confirmation to the 'user:${userId}' room.`
+        );
+      }
     }
     // return 204 because we don't have any content to return
     return res.status(204).end();
