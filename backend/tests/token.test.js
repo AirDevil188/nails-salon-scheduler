@@ -53,6 +53,7 @@ beforeAll(async () => {
   await prisma.token.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.appointment.deleteMany({});
+  await prisma.user.deleteMany({});
 
   const generateRawToken = generateRefreshToken();
   const hashedPassword = await createHashedPassword(testUser.password);
@@ -87,10 +88,10 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await prisma.user.deleteMany({});
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
+  await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
 });

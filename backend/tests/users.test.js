@@ -61,10 +61,10 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
-  await prisma.user.deleteMany({});
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
+  await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
 });
@@ -72,10 +72,10 @@ afterAll(async () => {
 beforeAll(async () => {
   await prisma.$connect();
 
-  await prisma.user.deleteMany({});
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
+  await prisma.user.deleteMany({});
 
   // hash the password
   const hashedPassword = await createHashedPassword(testUser.password);
