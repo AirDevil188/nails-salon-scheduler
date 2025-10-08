@@ -688,6 +688,7 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
           email: true,
           avatar: true,
           role: true,
+          deletedAt: true,
         },
       }),
       prisma.user.count({
