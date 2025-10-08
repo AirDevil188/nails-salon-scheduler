@@ -153,9 +153,30 @@ describe("Test Note router", () => {
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
 
     // Check event name
-    expect(mockEmit.mock.calls[0][0]).toBe("admin:noteCreate");
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:noteCreated");
     expect(mockEmit.mock.calls[0][1].title).toBe("New Note");
     expect(mockEmit.mock.calls[0][1].content).toBe("Hello There");
+    expect(mockEmit.mock.calls[0][1].createdAt).toBeInstanceOf(Date);
+    expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
+  });
+
+  test("should update the note", async () => {
+    const noteId = note.id;
+    const res = await request(app)
+      .patch(`/admin/notes/${noteId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .send({ title: "Updated Title", content: "Rich Text" })
+      .expect(200);
+
+    expect(mockTo).toHaveBeenCalledTimes(1);
+
+    // Check room name
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    // Check event name
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:noteUpdated");
+    expect(mockEmit.mock.calls[0][1].title).toBe("Updated Title");
+    expect(mockEmit.mock.calls[0][1].content).toBe("Rich Text");
     expect(mockEmit.mock.calls[0][1].createdAt).toBeInstanceOf(Date);
     expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
   });
