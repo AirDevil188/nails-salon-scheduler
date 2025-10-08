@@ -41,11 +41,13 @@ const deleteInvitation = async (req, res, next) => {
   const io = getIo();
   try {
     const { invitationId } = req.params;
-    await db.adminDeleteInvitation(invitationId);
-    io.to("admin-dashboard").emit("admin:invitationDelete", invitationId);
-    console.log(
-      `Sent user deletion alert for invitation: ${invitationId} to the 'admin-dashboard' room.`
-    );
+    const deleteResult = await db.adminDeleteInvitation(invitationId);
+    if (deleteResult.count > 0) {
+      io.to("admin-dashboard").emit("admin:invitationDelete", invitationId);
+      console.log(
+        `Sent user deletion alert for invitation: ${invitationId} to the 'admin-dashboard' room.`
+      );
+    }
     return res.status(204).end();
   } catch (err) {
     return next(err);
