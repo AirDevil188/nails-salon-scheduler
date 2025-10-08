@@ -207,7 +207,8 @@ const getUserAppointments = async (
   limit,
   page,
   orderBy,
-  timeScope
+  timeScope,
+  search
 ) => {
   const now = new Date();
   const where = { userId: userId };
@@ -219,6 +220,18 @@ const getUserAppointments = async (
 
   try {
     const validScopes = ["past", "upcoming", "all"];
+
+    // search quey logic
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { external_client: { contains: search, mode: "insensitive" } },
+        { status: { contains: search, mode: "insensitive" } },
+        { user: { first_name: { contains: search, mode: "insensitive" } } },
+        { user: { last_name: { contains: search, mode: "insensitive" } } },
+        { user: { email: { contains: search, mode: "insensitive" } } },
+      ];
+    }
 
     // prevent SQL injection
     const scope = validScopes.includes(timeScope) ? timeScope : "all";
