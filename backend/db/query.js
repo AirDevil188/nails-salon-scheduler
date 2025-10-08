@@ -1377,6 +1377,7 @@ module.exports = {
   adminUpdateAppointment,
   adminDeleteAppointment,
   adminCancelAppointment,
+  adminGetNotes,
   adminCreateNote,
   adminDeleteNote,
 };
