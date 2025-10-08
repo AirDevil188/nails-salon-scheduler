@@ -75,6 +75,7 @@ model User {
   token Token[]
   role Role @default(user) 
   appointments Appointment[]
+  notes Note[]
   createdAt DateTime @default(now())
   is_online Boolean?
   last_seen DateTime?
@@ -98,3 +99,11 @@ model Appointment {
   @@map("appointment")
 } 
 
+model Note {
+  id String @id @default(uuid())
+  title String
+  content String @db.Text
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+}
