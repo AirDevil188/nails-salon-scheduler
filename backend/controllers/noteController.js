@@ -114,6 +114,7 @@ const updateNote = [
 
 const deleteNote = async (req, res, next) => {
   try {
+    const io = getIo();
     const { noteId } = req.params;
     const deleteResult = await db.adminDeleteNote(noteId);
 
