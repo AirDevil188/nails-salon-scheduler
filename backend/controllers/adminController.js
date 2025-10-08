@@ -293,14 +293,16 @@ const deleteAppointment = async (req, res, next) => {
   try {
     const io = getIo();
     const { appointmentId } = req.params;
-    const appointment = await db.adminDeleteAppointment(appointmentId);
-    const userId = appointment?.userId;
+    const deleteResult = await db.adminDeleteAppointment(appointmentId);
+    const userId = deleteResult?.userId;
 
-    io.to("admin-dashboard").emit("admin:appointment:deleted", appointmentId);
-    console.log(`Sent new appointment alert to the 'admin-dashboard' room.`);
-    if (userId) {
-      io.to(`user:${userId}`).emit("user:appointment:deleted", appointmentId);
-      console.log(`Sent new appointment alert to the 'user:${userId}' room.`);
+    if (deleteResult.count > 0) {
+      io.to("admin-dashboard").emit("admin:appointment:deleted", appointmentId);
+      console.log(`Sent new appointment alert to the 'admin-dashboard' room.`);
+      if (userId) {
+        io.to(`user:${userId}`).emit("user:appointment:deleted", appointmentId);
+        console.log(`Sent new appointment alert to the 'user:${userId}' room.`);
+      }
     }
     return res.status(204).end();
   } catch (err) {
