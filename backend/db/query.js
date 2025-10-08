@@ -1242,6 +1242,19 @@ const adminCreateNote = async (title, content, userId) => {
   }
 };
 
+const adminDeleteNote = async (id) => {
+  try {
+    return await prisma.note.deleteMany({
+      where: {
+        id: id,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 module.exports = {
   updateUserOnlineStatus,
   findUserProfile,
@@ -1282,4 +1295,5 @@ module.exports = {
   adminDeleteAppointment,
   adminCancelAppointment,
   adminCreateNote,
+  adminDeleteNote,
 };
