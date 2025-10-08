@@ -5,6 +5,7 @@ const { authorization } = require("@middlewares/authorization");
 const adminRouter = Router();
 
 const adminController = require("@controllers/adminController");
+const noteController = require("@controllers/noteController");
 
 adminRouter.get(
   "/users",
@@ -82,6 +83,8 @@ adminRouter.post(
   authorization,
   adminController.cancelAppointment
 );
+
+adminRouter.get("/notes", authenticate, authorization, noteController.getNotes);
 
 // :TODO:
 // admin PUT route to grant an admin to someone else
