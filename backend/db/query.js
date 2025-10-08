@@ -176,7 +176,7 @@ const getOldPublicAvatarId = async (userId) => {
 };
 
 const softDeleteUser = async (userId) => {
-  const date = new Date();
+  const date = Date.now();
   const userData = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -194,12 +194,12 @@ const softDeleteUser = async (userId) => {
   const deletedSuffix = `${userData.email}.deleted${date}`;
 
   try {
-    return await prisma.user.update({
+    return await prisma.user.updateMany({
       where: {
         id: userId,
       },
       data: {
-        deletedAt: date,
+        deletedAt: new Date(),
         password: "",
         email: deletedSuffix,
       },
@@ -733,7 +733,7 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
 };
 
 const softAdminDeleteUser = async (userId) => {
-  const date = new Date();
+  const date = Date.now();
 
   const userData = await prisma.user.findUnique({
     where: {
@@ -756,7 +756,7 @@ const softAdminDeleteUser = async (userId) => {
       data: {
         email: deletedSuffix,
         password: "",
-        deletedAt: date,
+        deletedAt: new Date(),
       },
     });
   } catch (err) {
