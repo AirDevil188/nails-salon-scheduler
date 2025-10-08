@@ -172,23 +172,19 @@ const signInUser = async (req, res, next) => {
 
     //. create refreshToken
     const refreshTokenRaw = await generateRefreshToken();
-    console.error(refreshTokenRaw, "POKEMONS");
-    console.log(user.id);
     if (!refreshTokenRaw) {
       const error = new Error("general_server_err");
       console.error(error);
       error.status = 500;
       return next(error);
     }
-    console.log("SSUCC");
 
     // push the token to the db
-    const tokens = await db.createRefreshToken(
+    await db.createRefreshToken(
       refreshTokenRaw,
       user.id,
       addDays(new Date(), 30)
     );
-    console.error(tokens);
 
     // sign the token
     const accessToken = await signToken(payload, "15m");
