@@ -1003,6 +1003,7 @@ const adminGetAppointmentDetails = async (id) => {
 
 const adminNewAppointment = async (
   title,
+  description,
   status,
   startDateTime,
   endDateTime,
@@ -1030,6 +1031,7 @@ const adminNewAppointment = async (
     return await prisma.appointment.create({
       data: {
         title: title,
+        description: description,
         status: status,
         startDateTime: startDateTime,
         endDateTime: endDateTime || addMinutes(now, 45),
@@ -1079,6 +1081,7 @@ const adminDeleteAppointment = async (id) => {
 const adminUpdateAppointment = async (
   id,
   title,
+  description,
   startDateTime,
   endDateTime,
   userId,
@@ -1089,6 +1092,9 @@ const adminUpdateAppointment = async (
     let updateData = {};
     if (title !== undefined) {
       updateData.title = title;
+    }
+    if (description === undefined) {
+      updateData.description = description;
     }
     if (startDateTime !== undefined) {
       updateData.startDateTime = startDateTime;
