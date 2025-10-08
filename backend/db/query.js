@@ -931,6 +931,23 @@ const adminGetAllAppointments = async ({
         orderBy: orderCriteria,
         skip: skipCount,
         take: pageSize,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          external_client: true,
+          startDateTime: true,
+          endDateTime: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              email: true,
+            },
+          },
+        },
       }),
       prisma.appointment.count({
         where: where,
