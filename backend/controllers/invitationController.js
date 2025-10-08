@@ -81,15 +81,17 @@ const validateInvitation = async (req, res, next) => {
     if (!invitation || invitation.expiresAt < now) {
       // if the invitation was found but expired invalidate/delete it
       if (invitation && invitation.expiresAt < now) {
-        await db.invalidateInvitation(invitation);
-        io.to("admin-dashboard").emit("admin:invalidatedInvitation", {
-          email: invitation.email,
-          id: invitation.id,
-        });
-        console.log(
-          `Sent new invitation invalidation alert to the 'admin-dashboard' room for email: ${invitation.email}.`
-        );
-        console.log("Deleted expired invitation");
+        const deleteResult = await db.invalidateInvitation(invitation);
+        if (deleteResult.count > 0) {
+          io.to("admin-dashboard").emit("admin:invalidatedInvitation", {
+            email: invitation.email,
+            id: invitation.id,
+          });
+          console.log(
+            `Sent new invitation invalidation alert to the 'admin-dashboard' room for email: ${invitation.email}.`
+          );
+          console.log("Deleted expired invitation");
+        }
       }
       const error = new Error("authorization_err");
       error.status = 401;
