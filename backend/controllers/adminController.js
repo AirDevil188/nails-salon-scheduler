@@ -10,6 +10,7 @@ const getInvitations = async (req, res, next) => {
       limit: limitString = "25",
       page: pageString = "1",
       orderBy,
+      search,
     } = req.query;
 
     const safeLimit = parseInt(limitString, 10) || 25;
@@ -21,6 +22,7 @@ const getInvitations = async (req, res, next) => {
       limit: safeLimit,
       page: safePage,
       orderBy,
+      search,
     });
 
     return res.status(200).json({
