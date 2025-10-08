@@ -65,7 +65,7 @@ const createNote = [
       const { title, content } = req.body;
       // create note
       const note = await db.adminCreateNote(title, content, id);
-      io.to("admin-dashboard").emit("admin:noteCreate", note);
+      io.to("admin-dashboard").emit("admin:noteCreated", note);
       return res.status(200).json({
         note: note,
       });
@@ -76,9 +76,16 @@ const createNote = [
 ];
 
 const updateNote = [
-  body("title").trim().notEmpty().withMessage("validator_notes_title").optional,
-  body("content").trim().notEmpty().withMessage("validator_notes_content")
-    .optional,
+  body("title")
+    .trim()
+    .notEmpty()
+    .withMessage("validator_notes_title")
+    .optional(),
+  body("content")
+    .trim()
+    .notEmpty()
+    .withMessage("validator_notes_content")
+    .optional(),
 
   async (req, res, next) => {
     const errs = validationResult(req);
@@ -99,7 +106,7 @@ const updateNote = [
       const { noteId } = req.params;
       const { title, content } = req.body;
       const note = await db.adminUpdateNote(title, content, noteId, id);
-      io.to("admin-dashboard").emit("admin:updatedNote", note);
+      io.to("admin-dashboard").emit("admin:noteUpdated", note);
       console.log(
         `Sent updated appointment alert to the 'admin-dashboard' room. for the note ${note.id}`
       );
