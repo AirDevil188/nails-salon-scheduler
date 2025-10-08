@@ -261,6 +261,7 @@ const newAppointment = [
       const io = getIo();
       const {
         title,
+        description,
         startDateTime,
         endDateTime,
         status,
@@ -270,6 +271,7 @@ const newAppointment = [
 
       const appointment = await db.adminNewAppointment(
         title,
+        description,
         status,
         startDateTime,
         endDateTime,
@@ -404,6 +406,7 @@ const updateAppointment = [
 
       const {
         title,
+        description,
         startDateTime,
         endDateTime,
         status,
@@ -414,6 +417,7 @@ const updateAppointment = [
       const appointment = await db.adminUpdateAppointment(
         appointmentId,
         title,
+        description,
         startDateTime,
         endDateTime,
         userId,
