@@ -56,6 +56,7 @@ const getUsers = async (req, res, next) => {
       limit: limitString = "25",
       page: pageString = "1",
       orderBy,
+      search,
     } = req.query;
     const { id } = req.user;
 
@@ -67,6 +68,7 @@ const getUsers = async (req, res, next) => {
       limit: safeLimit,
       page: safePage,
       orderBy,
+      search,
     });
 
     return res.status(200).json({
