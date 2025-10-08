@@ -92,7 +92,7 @@ const findUserProfile = async (userId) => {
   try {
     return await prisma.user.findUnique({
       where: {
-        id: userId,
+        deletedAt: null,
       },
       select: {
         email: true,
@@ -172,11 +172,31 @@ const getOldPublicAvatarId = async (userId) => {
   }
 };
 
-const deleteUser = async (userId) => {
+const softDeleteUser = async (userId) => {
+  const date = new Date();
+  const userData = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      email: true,
+    },
+  });
+
+  if (!userData) {
+    console.error("Cannot soft delete the user on non-existent ID");
+    return;
+  }
+
   try {
-    return await prisma.user.deleteMany({
+    return await prisma.user.update({
       where: {
         id: userId,
+      },
+      data: {
+        deletedAt: date,
+        password: "",
+        email: `${userData.email}${date}`,
       },
     });
   } catch (err) {
@@ -1185,7 +1205,7 @@ module.exports = {
   getOldPublicAvatarId,
   createUser,
   updateUserProfile,
-  deleteUser,
+  softDeleteUser,
   changeUserPassword,
   userSaveAvatar,
   getUserAppointments,
