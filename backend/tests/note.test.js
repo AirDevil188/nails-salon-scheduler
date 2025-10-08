@@ -41,8 +41,7 @@ let users;
 let testAdmin;
 let testUser;
 let invitations;
-let appointments;
-let appointment;
+let note;
 const now = new Date();
 
 afterAll(async () => {
@@ -92,6 +91,14 @@ beforeAll(async () => {
     },
   });
 
+  note = await prisma.note.create({
+    data: {
+      title: "Test Note",
+      content: "Hello World",
+      userId: testAdmin.id,
+    },
+  });
+
   const userData = Array.from({ length: 50 }).map((_, i) => ({
     email: faker.internet.email(),
     password: hashedPassword,
@@ -118,31 +125,6 @@ beforeAll(async () => {
   });
 
   invitations = await Promise.all(fakeInvitations);
-
-  const appointmentStatuses = ["no_show", "completed", "canceled", "scheduled"];
-
-  const appointmentData = Array.from({ length: 50 }).map((_, i) => ({
-    userId: users[i].id,
-    title: "Test title",
-    status:
-      appointmentStatuses[Math.floor(Math.random() * appointmentStatuses)],
-    startDateTime: new Date(),
-    endDateTime: addMinutes(new Date(), 30),
-  }));
-
-  appointments = await prisma.appointment.createManyAndReturn({
-    data: appointmentData,
-  });
-
-  appointment = await prisma.appointment.create({
-    data: {
-      title: "Generic Title",
-      userId: users[5].id,
-      startDateTime: new Date(),
-      endDateTime: addMinutes(new Date(), 30),
-      status: "scheduled",
-    },
-  });
 
   const res = await request(app)
     .post("/users/sign-in")
@@ -176,5 +158,22 @@ describe("Test Note router", () => {
     expect(mockEmit.mock.calls[0][1].content).toBe("Hello There");
     expect(mockEmit.mock.calls[0][1].createdAt).toBeInstanceOf(Date);
     expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
+  });
+
+  test("should delete the note", async () => {
+    const noteId = note.id;
+    const res = await request(app)
+      .delete(`/admin/notes/${noteId}`)
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .expect(204);
+
+    expect(mockTo).toHaveBeenCalledTimes(1);
+
+    // Check room name
+    expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
+
+    // Check event name
+    expect(mockEmit.mock.calls[0][0]).toBe("admin:noteDeleted");
+    expect(mockEmit.mock.calls[0][1]).toBe(noteId);
   });
 });
