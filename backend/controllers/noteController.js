@@ -28,6 +28,20 @@ const getNotes = async (req, res, next) => {
   }
 };
 
+const getNoteDetails = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const { noteId } = req.params;
+    const note = await db.adminGetNoteDetails(noteId, id);
+
+    return res.status(200).json({
+      note: note,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
+
 const createNote = [
   body("title").trim().notEmpty().withMessage("validator_notes_title"),
   body("content").trim().notEmpty().withMessage("validator_notes_content"),
@@ -77,6 +91,7 @@ const deleteNote = async (req, res, next) => {
 
 module.exports = {
   getNotes,
+  getNoteDetails,
   createNote,
   deleteNote,
 };
