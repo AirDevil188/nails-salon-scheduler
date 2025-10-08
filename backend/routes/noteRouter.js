@@ -13,4 +13,11 @@ noteRouter.post(
   noteController.createNote
 );
 
+noteRouter.delete(
+  "/notes/:noteId",
+  authenticate,
+  authorization,
+  noteController.deleteNote
+);
+
 module.exports = noteRouter;
