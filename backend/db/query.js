@@ -1310,6 +1310,28 @@ const adminGetNotes = async (limit, page, orderBy, search) => {
   }
 };
 
+const adminGetNoteDetails = async (id, userId) => {
+  try {
+    return await prisma.note.findFirst({
+      where: {
+        id: id,
+        userId: userId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+        title: true,
+        content: true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const adminCreateNote = async (title, content, userId) => {
   try {
     return await prisma.note.create({
@@ -1378,6 +1400,7 @@ module.exports = {
   adminDeleteAppointment,
   adminCancelAppointment,
   adminGetNotes,
+  adminGetNoteDetails,
   adminCreateNote,
   adminDeleteNote,
 };
