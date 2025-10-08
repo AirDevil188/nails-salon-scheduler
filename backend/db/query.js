@@ -1347,6 +1347,28 @@ const adminCreateNote = async (title, content, userId) => {
   }
 };
 
+const adminUpdateNote = async (title, content, id, userId) => {
+  try {
+    const updateData = {};
+    if (title !== undefined) {
+      updateData.title = title;
+    }
+    if (content !== undefined) {
+      updateData.content = content;
+    }
+    return await prisma.note.update({
+      where: {
+        id: id,
+        userId: userId,
+      },
+      data: updateData,
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 const adminDeleteNote = async (id) => {
   try {
     return await prisma.note.deleteMany({
@@ -1402,5 +1424,6 @@ module.exports = {
   adminGetNotes,
   adminGetNoteDetails,
   adminCreateNote,
+  adminUpdateNote,
   adminDeleteNote,
 };
