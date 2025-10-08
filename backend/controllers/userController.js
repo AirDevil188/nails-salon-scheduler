@@ -33,8 +33,8 @@ const deleteProfile = async (req, res, next) => {
     // return 204 status because there is no content to return
     if (deleteResult.count > 0) {
       io.to("admin-dashboard").emit("admin:userDeleted", id);
-      return res.status(204).end();
     }
+    return res.status(204).end();
   } catch (err) {
     return next(err);
   }
@@ -251,6 +251,7 @@ const signUpUser = [
     try {
       // check if the user already exists
       const user = await db.findUser(invitation.email);
+      console.error(user);
 
       // if the user exists throw an validation err
       if (user) {
