@@ -22,7 +22,7 @@ const createNote = [
     }
     try {
       const { id } = req.user;
-      const { title, content, userId } = req.body;
+      const { title, content } = req.body;
       // create note
       const note = await db.adminCreateNote(title, content, id);
       io.to("admin-dashboard").emit("admin:noteCreate", note.id);
