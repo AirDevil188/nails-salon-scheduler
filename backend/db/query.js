@@ -730,11 +730,29 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
   }
 };
 
-const adminDeleteUser = async (userId) => {
+const softAdminDeleteUser = async (userId) => {
+  const date = new Date();
+  const deletedSuffix = `.deleted${date}`;
+  const userData = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!userData) {
+    console.error("Cannot soft delete the user with non-existent ID");
+    return;
+  }
+
   try {
-    return await prisma.user.deleteMany({
+    return await prisma.user.updateMany({
       where: {
         id: userId,
+      },
+      data: {
+        email: deletedSuffix,
+        password: "",
+        deletedAt: date,
       },
     });
   } catch (err) {
@@ -1229,7 +1247,7 @@ module.exports = {
   acceptInvitationStatus,
   verifyInvitationStatus,
   adminGetAllUsers,
-  adminDeleteUser,
+  softAdminDeleteUser,
   adminGetAllAppointments,
   adminGetMonthlyAppointments,
   adminGetAppointmentDetails,
