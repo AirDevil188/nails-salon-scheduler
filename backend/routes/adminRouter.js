@@ -86,6 +86,13 @@ adminRouter.post(
 
 adminRouter.get("/notes", authenticate, authorization, noteController.getNotes);
 
+adminRouter.post(
+  "/notes/new",
+  authenticate,
+  authorization,
+  noteController.createNote
+);
+
 // :TODO:
 // admin PUT route to grant an admin to someone else
 
