@@ -181,6 +181,22 @@ describe("Test Note router", () => {
     expect(mockEmit.mock.calls[0][1].updatedAt).toBeInstanceOf(Date);
   });
 
+  test("should throw 401 err if the user is not admin for updating the  note", async () => {
+    const noteId = note.id;
+    const res = await request(app)
+      .patch(`/admin/notes/${noteId}`)
+      .send({ title: "Updated Title", content: "Rich Text" })
+      .expect(401);
+  });
+
+  test("should throw 401 err if the user is not admin for updating the  note", async () => {
+    const noteId = note.id;
+    const res = await request(app)
+      .delete(`/admin/notes/${noteId}`)
+      .send({ title: "Updated Title", content: "Rich Text" })
+      .expect(401);
+  });
+
   test("should delete the note", async () => {
     const noteId = note.id;
     const res = await request(app)
@@ -196,5 +212,12 @@ describe("Test Note router", () => {
     // Check event name
     expect(mockEmit.mock.calls[0][0]).toBe("admin:noteDeleted");
     expect(mockEmit.mock.calls[0][1]).toBe(noteId);
+  });
+
+  test("should throw 401 err if the user is not admin for creating note", async () => {
+    const res = await request(app)
+      .post(`/admin/notes/new`)
+      .send({ title: "Updated Title", content: "Rich Text" })
+      .expect(401);
   });
 });
