@@ -29,7 +29,7 @@ const deleteProfile = async (req, res, next) => {
   try {
     const io = getIo();
     const { id } = req.user;
-    const deleteResult = await db.deleteUser(id);
+    const deleteResult = await db.softDeleteUser(id);
     // return 204 status because there is no content to return
     if (deleteResult.count > 0) {
       io.to("admin-dashboard").emit("admin:userDeleted", id);
