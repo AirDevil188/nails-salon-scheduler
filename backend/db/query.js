@@ -724,6 +724,7 @@ const adminGetAllInvitations = async ({
   limit,
   page,
   orderBy,
+  search,
 }) => {
   // Sanitize inputs for safety
   const pageSize = parseInt(limit, 10) || 25;
@@ -751,6 +752,31 @@ const adminGetAllInvitations = async ({
     }
   }
   const where = {};
+
+  if (search) {
+    where.OR = [
+      {
+        email: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      {
+        token: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      {
+        code: {
+          contains: search,
+          mode: "insensitive",
+        },
+      },
+      { user: { first_name: { contains: search, mode: "insensitive" } } },
+      { user: { last_name: { contains: search, mode: "insensitive" } } },
+    ];
+  }
   if (invitationStatus) {
     where.invitationStatus = invitationStatus;
   }
