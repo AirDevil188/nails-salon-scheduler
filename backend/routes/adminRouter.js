@@ -93,6 +93,13 @@ adminRouter.post(
   noteController.createNote
 );
 
+adminRouter.delete(
+  "/notes/:noteId",
+  authenticate,
+  authorization,
+  noteController.deleteNote
+);
+
 // :TODO:
 // admin PUT route to grant an admin to someone else
 
