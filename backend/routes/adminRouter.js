@@ -100,6 +100,13 @@ adminRouter.delete(
   noteController.deleteNote
 );
 
+adminRouter.get(
+  "/notes/:noteId",
+  authenticate,
+  authorization,
+  noteController.getNoteDetails
+);
+
 // :TODO:
 // admin PUT route to grant an admin to someone else
 
