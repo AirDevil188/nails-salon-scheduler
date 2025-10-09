@@ -40,6 +40,7 @@ const app = express();
 app.use(express.json());
 
 app.use("/users", userRouter);
+const MOCK_PUSH_TOKEN = "ExponentPushToken[mocked-device-id-1234]";
 
 const testUser = {
   email: "test@email.com",
@@ -65,6 +66,7 @@ afterAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
@@ -77,6 +79,7 @@ beforeAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   // hash the password
@@ -149,13 +152,11 @@ describe("POST /users/sign-up", () => {
         invitationToken: testInvitation.token,
       })
       .expect(200);
-
     expect(res.body.success).toBe(true);
     expect(res.body.accessToken).toBeDefined();
     expect(res.body.refreshToken).toBeDefined();
     expect(res.body.expiresAt).toBeDefined();
   });
-
   test("should fetch user profile", async () => {
     const expectedPayload = {
       email: "test@email.com",
@@ -166,71 +167,60 @@ describe("POST /users/sign-up", () => {
     const res = await request(app)
       .get("/users/profile")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(200);
-
     expect(res.body.profile).toBeDefined();
     expect(res.body.profile).toEqual(expectedPayload);
   });
-
   test("should throw 401 err if the  unauthenticated user tries to fetch a profile", async () => {
     const res = await request(app).get("/users/profile").expect(401);
   });
-
   test("should update the profile first name", async () => {
     const res = await request(app)
       .patch("/users/profile")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         first_name: "Kengur",
       })
       .expect(200);
-
     expect(mockTo).toHaveBeenCalledTimes(2);
     expect(res.body.profile.first_name).toEqual("Kengur");
-
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
     expect(mockEmit.mock.calls[0][0]).toBe("admin:userProfileUpdated");
     expect(mockEmit.mock.calls[0][1]).toEqual({
       email: res.body.profile.email,
       id: res.body.profile.id,
     });
-
     expect(mockTo.mock.calls[1][0]).toBe(`user:${res.body.profile.id}`);
     expect(mockEmit.mock.calls[1][0]).toBe("user:userProfileUpdated");
     expect(mockEmit.mock.calls[1][1]).toEqual(res.body);
   });
-
   test("should fetch old public ID, update it with new ID and call uploader.destroy for cleanup", async () => {
     const newPublicId = `nails_salon_scheduler/avatars/999_new_avatar`;
-
     expect(user.avatar).toBe(testUser.avatar);
-
     const res = await request(app)
       .post("/users/profile/avatar")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         publicId: newPublicId,
       })
       .expect(200);
     expect(res.body.avatar.avatar).toBe(newPublicId);
-
     expect(cloudinary.uploader.destroy).toHaveBeenCalledTimes(1);
     expect(cloudinary.uploader.destroy).toHaveBeenCalledWith(
       testUser.avatar,
       expect.any(Function) // Checks it was called with the cleanup callback
     );
-
     expect(mockTo).toHaveBeenCalledTimes(2);
-
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
     expect(mockEmit.mock.calls[0][0]).toBe("admin:userAvatarUpdated");
     expect(mockEmit.mock.calls[0][1]).toEqual(newPublicId);
-
     expect(mockTo.mock.calls[1][0]).toBe(`user:${user.id}`);
     expect(mockEmit.mock.calls[1][0]).toBe("user:userAvatarUpdated");
     expect(mockEmit.mock.calls[1][1]).toEqual(newPublicId);
   });
-
   test("should update new ID but NOT call cloudinary destroy if no old avatar exists", async () => {
     await prisma.user.update({
       where: {
@@ -241,36 +231,30 @@ describe("POST /users/sign-up", () => {
       },
     });
     const newPublicId = "nails_salon_scheduler/avatars/999_avatar_NEW";
-
     await request(app)
       .post("/users/profile/avatar")
       .set("Authorization", `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({ publicId: newPublicId })
       .expect(200);
-
     expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
-
     expect(mockTo).toHaveBeenCalledTimes(2);
-
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
     expect(mockEmit.mock.calls[0][0]).toBe("admin:userAvatarUpdated");
     expect(mockEmit.mock.calls[0][1]).toEqual(newPublicId);
-
     expect(mockTo.mock.calls[1][0]).toBe(`user:${user.id}`);
     expect(mockEmit.mock.calls[1][0]).toBe("user:userAvatarUpdated");
     expect(mockEmit.mock.calls[1][1]).toEqual(newPublicId);
   });
-
   test("should throw a 400 err if publicId is not provided", async () => {
     await request(app)
       .post("/users/profile/avatar")
       .set("Authorization", `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({})
       .expect(400);
-
     expect(mockTo).not.toHaveBeenCalled();
   });
-
   test("should throw 401 err if the user password doesn't match with current password", async () => {
     const res = await request(app)
       .patch("/users/profile/change-password")
@@ -281,7 +265,6 @@ describe("POST /users/sign-up", () => {
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(401);
   });
-
   test("should change user password", async () => {
     const res = await request(app)
       .patch("/users/profile/change-password")
@@ -290,17 +273,16 @@ describe("POST /users/sign-up", () => {
         new_password: "Kengur123!",
       })
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(204);
   });
-
   test("should delete a user profile", async () => {
     const res = await request(app)
       .delete("/users/profile")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(204);
-
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
-
     // Check event name
     expect(mockEmit.mock.calls[0][0]).toBe("admin:userDeleted");
     expect(mockEmit.mock.calls[0][1]).toBe(user.id);
