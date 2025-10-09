@@ -43,12 +43,14 @@ let testUser;
 let invitations;
 let appointments;
 const now = new Date();
+const MOCK_PUSH_TOKEN = "ExponentPushToken[mocked-device-id-1234]";
 
 afterAll(async () => {
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
@@ -65,6 +67,7 @@ beforeAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   const hashedPassword = await createHashedPassword(adminPassword);
@@ -145,6 +148,7 @@ describe("appointments router", () => {
     const res = await request(app)
       .get("/appointments/calendar?month=2025-10-01T12:00:00.000Z")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(200);
 
     expect(res.body.appointments).toHaveLength(50);
@@ -155,6 +159,7 @@ describe("appointments router", () => {
     const res = await request(app)
       .get(`/appointments/${appointmentId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(200);
 
     expect(res.body.appointment).toBeDefined();
@@ -165,6 +170,7 @@ describe("appointments router", () => {
     const res = await request(app)
       .get("/appointments")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(200);
 
     expect(res.body.appointments).toHaveLength(25);
