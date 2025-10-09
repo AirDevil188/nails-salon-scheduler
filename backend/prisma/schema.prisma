@@ -80,6 +80,7 @@ model User {
   is_online Boolean?
   last_seen DateTime?
   deletedAt DateTime?
+  preferredLanguage String
   @@map("user")
 }
 
