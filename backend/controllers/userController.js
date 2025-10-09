@@ -170,6 +170,7 @@ const signInUser = async (req, res, next) => {
     const payload = {
       id: user.id,
       role: user.role,
+      preferredLanguage: newUser.preferredLanguage,
     };
 
     //. create refreshToken
@@ -228,8 +229,8 @@ const signUpUser = [
   body("last_name").notEmpty().withMessage("validator_last_name"),
 
   async (req, res, next) => {
-    const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
-    const type = languages[languageKey];
+    const resolvedLanguage = req.resolvedLanguage;
+    const type = languages[resolvedLanguage];
 
     const invitation = req.invitation;
     // validate errs
@@ -246,7 +247,7 @@ const signUpUser = [
       return next(error);
     }
 
-    const { email, password, first_name, last_name, avatar } = req.body;
+    const { email, password, first_name, last_name, language } = req.body;
 
     try {
       // check if the user already exists
@@ -263,15 +264,34 @@ const signUpUser = [
       // hash the password
       const hashedPassword = await createHashedPassword(password);
 
-      // create the new user
-      const newUser = await db.createUser(
-        invitation.email,
-        hashedPassword,
-        first_name,
-        last_name,
-        null,
-        invitation.id
-      );
+      let newUser;
+
+      if (language) {
+        // create the new user
+        // with language from the body dropdown
+        newUser = await db.createUser(
+          invitation.email,
+          hashedPassword,
+          first_name,
+          last_name,
+          null,
+          invitation.id,
+          language
+        );
+      } else {
+        // create the new user
+        // if the dropdown is null use value from the header
+        newUser = await db.createUser(
+          invitation.email,
+          hashedPassword,
+          first_name,
+          last_name,
+          null,
+          invitation.id,
+          resolvedLanguage
+        );
+      }
+
       const refreshTokenRaw = generateRefreshToken();
 
       if (!refreshTokenRaw) {
@@ -297,6 +317,7 @@ const signUpUser = [
       const payload = {
         id: newUser.id,
         role: newUser.role,
+        preferredLanguage: newUser.preferredLanguage,
       };
 
       // create accessToken
