@@ -7,12 +7,14 @@ const adminRouter = Router();
 const adminController = require("@controllers/adminController");
 const noteController = require("@controllers/noteController");
 const { languagePrefer } = require("@middlewares/language");
+const { managePushToken } = require("@middlewares/pushToken");
 
 adminRouter.get(
   "/users",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.getUsers
 );
 
@@ -20,7 +22,8 @@ adminRouter.get(
   "/invitations",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.getInvitations
 );
 
@@ -28,7 +31,8 @@ adminRouter.delete(
   "/invitations/:invitationId",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.deleteInvitation
 );
 
@@ -36,7 +40,8 @@ adminRouter.delete(
   "/users/:userId",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.deleteUser
 );
 
@@ -44,7 +49,8 @@ adminRouter.get(
   "/appointments/calendar",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.getMonthlyAppointments
 );
 
@@ -52,7 +58,8 @@ adminRouter.get(
   "/appointments",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.getAppointments
 );
 
@@ -60,7 +67,8 @@ adminRouter.post(
   "/appointments/new",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.newAppointment
 );
 
@@ -68,7 +76,8 @@ adminRouter.get(
   "/appointments/:appointmentId",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.getAppointmentDetails
 );
 
@@ -76,7 +85,8 @@ adminRouter.delete(
   "/appointments/:appointmentId",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.deleteAppointment
 );
 
@@ -84,7 +94,8 @@ adminRouter.patch(
   "/appointments/:appointmentId",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.updateAppointment
 );
 
@@ -92,7 +103,8 @@ adminRouter.post(
   "/appointments/:appointmentId/cancel",
   authenticate,
   authorization,
-  languagePrefer,
+  // languagePrefer,
+  // managePushToken,
   adminController.cancelAppointment
 );
 
@@ -101,6 +113,7 @@ adminRouter.get(
   authenticate,
   authorization,
   languagePrefer,
+  managePushToken,
   noteController.getNotes
 );
 
@@ -109,6 +122,7 @@ adminRouter.post(
   authenticate,
   authorization,
   languagePrefer,
+  managePushToken,
   noteController.createNote
 );
 
@@ -117,6 +131,7 @@ adminRouter.delete(
   authenticate,
   authorization,
   languagePrefer,
+  managePushToken,
   noteController.deleteNote
 );
 
@@ -125,6 +140,7 @@ adminRouter.get(
   authenticate,
   authorization,
   languagePrefer,
+  managePushToken,
   noteController.getNoteDetails
 );
 
@@ -133,6 +149,7 @@ adminRouter.patch(
   authenticate,
   authorization,
   languagePrefer,
+  managePushToken,
   noteController.updateNote
 );
 
