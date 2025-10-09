@@ -37,6 +37,7 @@ const testUser = {
   role: "admin",
 };
 
+const MOCK_PUSH_TOKEN = "ExponentPushToken[mocked-device-id-1234]";
 let accessToken;
 let invitation;
 let mockVerificationCode;
@@ -54,6 +55,7 @@ beforeAll(async () => {
   await prisma.user.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   const generateRawToken = generateRefreshToken();
@@ -93,6 +95,7 @@ afterAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
@@ -103,6 +106,7 @@ describe("POST /invitations", () => {
     const res = await request(app)
       .post("/invitations/generate")
       .set("Authorization", `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({ email: "testing3@email.com" })
       .expect(200);
     expect(res.body.success).toBe(true);
@@ -118,6 +122,7 @@ describe("POST /invitations", () => {
     });
 
     invitation = res.body.invitationLink;
+    console.error(invitation);
   });
   test("should successfully test validation of the token", async () => {
     const res = await request(app)
