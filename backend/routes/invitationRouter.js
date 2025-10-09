@@ -3,6 +3,7 @@ const { Router } = require("express");
 const { authenticate } = require("@middlewares/authenticate");
 const { authorization } = require("@middlewares/authorization");
 const { languagePrefer } = require("@middlewares/language");
+const { managePushToken } = require("@middlewares/pushToken");
 const invitationController = require("@controllers/invitationController");
 
 const invitationRouter = Router();
@@ -12,6 +13,7 @@ invitationRouter.post(
   authenticate,
   authorization,
   languagePrefer,
+  managePushToken,
   invitationController.generateInvitation
 );
 
