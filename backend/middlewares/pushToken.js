@@ -2,7 +2,7 @@ const db = require("@db/query");
 
 const managePushToken = async (req, res, next) => {
   const deviceToken = req.headers["x-push-token"];
-  const id = req?.user;
+  const id = req?.user.id;
 
   if (!deviceToken || !id) {
     console.error(
