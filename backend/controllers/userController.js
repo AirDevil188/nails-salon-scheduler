@@ -138,6 +138,7 @@ const signInUser = async (req, res, next) => {
   }
 
   const { email, password } = req.body;
+  const deviceToken = req.headers["x-push-token"] || req.body.pushToken;
 
   try {
     // find the user in the DB
@@ -176,20 +177,26 @@ const signInUser = async (req, res, next) => {
     const refreshTokenRaw = await generateRefreshToken();
     if (!refreshTokenRaw) {
       const error = new Error("general_server_err");
-      console.error(error);
       error.status = 500;
       return next(error);
     }
 
     // push the token to the db
-    await db.createRefreshToken(
+    const newRefreshToken = await db.createRefreshToken(
       refreshTokenRaw,
       user.id,
       addDays(new Date(), 30)
     );
 
-    // sign the token
-    const accessToken = await signToken(payload, "15m");
+    // refresh token payload
+    const refreshPayload = {
+      id: newRefreshToken.id,
+      userId: newRefreshToken.userId,
+    };
+
+    // sign the  access token
+    const accessToken = await signToken(payload, "15m", "access");
+    const refreshToken = await signToken(refreshPayload, "30d", "refresh");
 
     // create new refreshToken
 
@@ -197,17 +204,21 @@ const signInUser = async (req, res, next) => {
     const decodedToken = decodeToken(accessToken);
     const expiresAt = decodedToken.exp;
 
+    // create/update expo-push token
+    if (deviceToken && user?.id) {
+      await db.upsertPushToken(user.id, deviceToken);
+    }
+
     res.status(200).json({
       // return successful response
       success: true,
       message: type.success_sign_in,
       accessToken,
-      refreshToken: refreshTokenRaw,
+      refreshToken: refreshToken, // or should i pass refreshTokenRaw
       userInfo,
       expiresAt,
     });
   } catch (err) {
-    console.error(err);
     return next(err); // catch any unexpected errs and pass it to the errorHandler
   }
 };
@@ -228,6 +239,9 @@ const signUpUser = [
   body("last_name").notEmpty().withMessage("validator_last_name"),
 
   async (req, res, next) => {
+    console.log("--- RECEIVED HEADERS ---");
+    console.log(req.headers);
+    console.log("------------------------");
     const resolvedLanguage = req.resolvedLanguage;
     const type = languages[resolvedLanguage];
 
@@ -247,12 +261,11 @@ const signUpUser = [
     }
 
     const { email, password, first_name, last_name, language } = req.body;
+    const deviceToken = req.headers["x-push-token"] || req.body.pushToken;
 
     try {
       // check if the user already exists
       const user = await db.findUser(invitation.email);
-      console.error(user);
-
       // if the user exists throw an validation err
       if (user) {
         const error = new Error("validator_email");
@@ -291,6 +304,10 @@ const signUpUser = [
         );
       }
 
+      // create expo-push token
+      if (deviceToken && newUser?.id) {
+        await db.upsertPushToken(newUser.id, deviceToken);
+      }
       const refreshTokenRaw = generateRefreshToken();
 
       if (!refreshTokenRaw) {
@@ -301,7 +318,7 @@ const signUpUser = [
 
       // push the refreshToken in the db
 
-      await db.createRefreshToken(
+      const newRefreshToken = await db.createRefreshToken(
         refreshTokenRaw,
         newUser.id,
         addDays(new Date(), 30)
@@ -318,8 +335,14 @@ const signUpUser = [
         role: newUser.role,
       };
 
+      const refreshPayload = {
+        id: newRefreshToken.id,
+        userId: newRefreshToken.userId,
+      };
+
       // create accessToken
-      const accessToken = await signToken(payload, "15m");
+      const accessToken = await signToken(payload, "15m", "access");
+      const refreshToken = await signToken(refreshPayload, "30d", "refresh");
       const decodedToken = await decodeToken(accessToken);
       const expiresAt = decodedToken.exp;
 
@@ -330,7 +353,7 @@ const signUpUser = [
         success: true,
         message: type.success_sign_up,
         accessToken: accessToken,
-        refreshToken: refreshTokenRaw,
+        refreshToken: refreshToken,
         userInfo: userInfo,
         expiresAt: expiresAt,
       });
