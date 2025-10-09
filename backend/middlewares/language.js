@@ -1,13 +1,62 @@
-const languagePrefer = (req, res, next) => {
+const db = require("@db/query");
+
+const supportedLanguages = ["en", "sr"];
+
+const sanitizeHeader = async (value) => {
+  if (!value || typeof value !== "string") {
+    return null;
+  }
+  const primaryValue = value.split("-")[0].toLowerCase().trim();
+
+  if (!supportedLanguages.includes(primaryValue)) {
+    return null;
+  }
+  return primaryValue;
+};
+
+const languagePrefer = async (req, res, next) => {
+  const defaultLanguage = "sr";
+  let resolvedLanguage = null;
+  let languageSource = null;
+
+  const explicitAppHeader = req.headers["x-app-language"];
+
+  const sanitizedHeader = sanitizeHeader(explicitAppHeader);
+
   // check for the client header
-  // if it is null or undefined set sr as preferred language
-  const clientHeader = req.headers["accept-language"] || "sr";
+  if (sanitizedHeader) {
+    resolvedLanguage = sanitizedHeader;
+    languageSource = "Header";
+  }
 
-  // split the string example en-US
-  const resolvedLanguage = clientHeader.split(",")[0].trim();
+  // check the db presence
+  if (!resolvedLanguage && req.user && req.user.id) {
+    // Assuming a previous auth middleware attached req.user with a valid ID
+    try {
+      const { id } = req.user;
+      const user = await db.findUserById(id);
 
-  // attach the req reserved language to req object
+      if (user && user.preferredLanguage) {
+        const sanitizedHeader = sanitizeHeader(user.preferredLanguage);
+
+        if (sanitizedHeader) {
+          resolvedLanguage = sanitizedHeader;
+          req.languageSource = "Database";
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching user language preference:", err);
+    }
+  }
+
+  // fallback to default
+  if (!resolvedLanguage) {
+    resolvedLanguage = defaultLanguage;
+    req.languageSource = "Default";
+  }
+
   req.resolvedLanguage = resolvedLanguage;
+  req.languageSource = languageSource;
 
   next();
 };
