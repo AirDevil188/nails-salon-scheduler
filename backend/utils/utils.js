@@ -8,19 +8,34 @@ const verifyHash = async (value, hashedValue) => {
   return await bcrypt.compare(value, hashedValue);
 };
 
-const signToken = (credentials, expiresIn) => {
-  const payload = {
-    id: credentials.id,
-    role: credentials.role,
-  };
-  return jsonwebtoken.sign(payload, process.env.JWT_SECRET, {
-    algorithm: "HS256",
-    expiresIn: expiresIn,
-  });
+const signToken = (credentials, expiresIn, type) => {
+  if (type === "access") {
+    const payload = {
+      id: credentials.id,
+      role: credentials.role,
+    };
+    return jsonwebtoken.sign(payload, process.env.ACCESS_SECRET, {
+      algorithm: "HS256",
+      expiresIn: expiresIn,
+    });
+  } else if (type === "refresh") {
+    const payload = {
+      id: credentials.id,
+      userId: credentials.userId,
+    };
+    return jsonwebtoken.sign(payload, process.env.REFRESH_SECRET, {
+      algorithm: "HS256",
+      expiresIn: expiresIn,
+    });
+  }
 };
 
-const verifyToken = (token) => {
-  return jsonwebtoken.verify(token, process.env.JWT_SECRET);
+const verifyToken = (token, secret) => {
+  if (secret === "access") {
+    return jsonwebtoken.verify(token, process.env.ACCESS_SECRET);
+  } else if (secret === "refresh") {
+    return jsonwebtoken.verify(token, process.env.REFRESH_SECRET);
+  }
 };
 
 const createHashedPassword = async (value) => {
