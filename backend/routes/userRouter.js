@@ -5,6 +5,8 @@ const {
 } = require("@middlewares/authenticate");
 const { languagePrefer } = require("@middlewares/language");
 
+const { managePushToken } = require("@middlewares/pushToken");
+
 const userController = require("@controllers/userController");
 
 const userRouter = Router();
@@ -22,6 +24,7 @@ userRouter.get(
   "/profile",
   authenticate,
   languagePrefer,
+  managePushToken,
   userController.getUserProfile
 );
 
@@ -29,6 +32,7 @@ userRouter.delete(
   "/profile",
   authenticate,
   languagePrefer,
+  managePushToken,
   userController.deleteProfile
 );
 
@@ -38,12 +42,15 @@ userRouter.patch(
   "/profile",
   authenticate,
   languagePrefer,
+  managePushToken,
   userController.updateProfile
 );
 
 userRouter.patch(
   "/profile/change-password",
   authenticate,
+  languagePrefer,
+  managePushToken,
   userController.changeUserPassword
 );
 
@@ -51,6 +58,7 @@ userRouter.get(
   "/profile/upload/signature",
   authenticate,
   languagePrefer,
+  managePushToken,
   userController.getUploadSignature
 );
 
@@ -58,6 +66,7 @@ userRouter.post(
   "/profile/avatar",
   authenticate,
   languagePrefer,
+  managePushToken,
   userController.saveAvatar
 );
 
