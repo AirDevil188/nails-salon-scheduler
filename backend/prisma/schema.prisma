@@ -16,6 +16,11 @@ datasource db {
 
 // ENUMS
 
+enum Language {
+  sr
+  en
+}
+
 enum Role {
   user
   admin
@@ -80,7 +85,7 @@ model User {
   is_online Boolean?
   last_seen DateTime?
   deletedAt DateTime?
-  preferredLanguage String
+  preferredLanguage Language @default(sr)
   @@map("user")
 }
 
