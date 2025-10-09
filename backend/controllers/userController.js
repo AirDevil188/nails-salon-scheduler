@@ -170,7 +170,6 @@ const signInUser = async (req, res, next) => {
     const payload = {
       id: user.id,
       role: user.role,
-      preferredLanguage: newUser.preferredLanguage,
     };
 
     //. create refreshToken
@@ -317,7 +316,6 @@ const signUpUser = [
       const payload = {
         id: newUser.id,
         role: newUser.role,
-        preferredLanguage: newUser.preferredLanguage,
       };
 
       // create accessToken
