@@ -43,6 +43,7 @@ const findUserById = async (userId) => {
         password: true,
         id: true,
         email: true,
+        preferredLanguage: true,
       },
     });
   } catch (err) {
