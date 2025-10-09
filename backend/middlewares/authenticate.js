@@ -38,7 +38,7 @@ const authenticate = async (req, res, next) => {
 
   // verify the token
   try {
-    const decodedPayload = verifyToken(token);
+    const decodedPayload = verifyToken(token, "access");
     req.user = decodedPayload;
     return next();
   } catch (err) {
@@ -46,7 +46,29 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+const validateRefreshToken = (req, res, next) => {
+  const token = req.headers["x-refresh-token"];
+
+  if (!token) {
+    console.warn("Refresh token missing in request body.");
+    const error = new Error("authorization_err");
+    error.status = 401;
+    return next(error);
+  }
+  try {
+    const decodedPayload = verifyToken(token, "refresh");
+    req.refreshToken = decodedPayload;
+    req.user = decodedPayload.userId;
+    return next();
+  } catch (err) {
+    const error = new Error("authorization_err");
+    error.status = 401;
+    return next(error);
+  }
+};
+
 module.exports = {
   checkInvitationStatus,
   authenticate,
+  validateRefreshToken,
 };
