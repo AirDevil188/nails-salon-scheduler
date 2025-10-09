@@ -442,29 +442,12 @@ const invalidateRefreshToken = async (id) => {
   }
 };
 
-const findRefreshTokenByTokenValue = async (token) => {
+const findRefreshTokenByTokenValue = async (id) => {
   try {
     return await prisma.token.findUnique({
       where: {
-        token: token,
-      },
-    });
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-};
-
-const updateRefreshToken = async (id, token, expiresAt) => {
-  try {
-    return await prisma.token.update({
-      where: {
         id: id,
       },
-      data: {
-        token: token,
-        expiresAt: expiresAt,
-      },
     });
   } catch (err) {
     console.error(err);
@@ -472,6 +455,58 @@ const updateRefreshToken = async (id, token, expiresAt) => {
   }
 };
 
+const updateRefreshToken = async (id, token, expiresAt, userId) => {
+  try {
+    const [findUser, updateToken] = await prisma.$transaction([
+      prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+      }),
+      prisma.token.upsert({
+        where: {
+          id: id,
+        },
+        update: {
+          token: token,
+          expiresAt: expiresAt,
+        },
+        create: {
+          token: token,
+          userId: userId,
+          expiresAt: expiresAt,
+        },
+      }),
+    ]);
+    return { findUser, updateToken };
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const upsertPushToken = async (userId, token) => {
+  try {
+    return await prisma.expoPushToken.upsert({
+      where: {
+        token: token,
+      },
+      update: {
+        updatedAt: new Date(),
+      },
+      create: {
+        token: token,
+        userId: userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
 // INVITATION queries
 
 const createInvitationCode = async (token, code, expiresAt) => {
@@ -1403,6 +1438,7 @@ module.exports = {
   createRefreshToken,
   updateRefreshToken,
   invalidateRefreshToken,
+  upsertPushToken,
   findInvitation,
   findInvitationByToken,
   createInvitation,
