@@ -58,8 +58,6 @@ const languagePrefer = async (req, res, next) => {
   req.resolvedLanguage = resolvedLanguage;
   req.languageSource = languageSource;
 
-  console.error(req.resolvedLanguage);
-
   return next();
 };
 
