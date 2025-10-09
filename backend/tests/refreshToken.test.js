@@ -47,12 +47,14 @@ let invitations;
 let appointments;
 let token;
 const now = new Date();
+const MOCK_PUSH_TOKEN = "ExponentPushToken[mocked-device-id-1234]";
 
 afterAll(async () => {
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
@@ -69,6 +71,7 @@ beforeAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   const hashedPassword = await createHashedPassword(adminPassword);
@@ -149,7 +152,8 @@ describe("refresh token route test", () => {
   test("should test if the /token/refresh is going to assign new refresh token, access token and invalidate the old one", async () => {
     const res = await request(app)
       .post("/token/refresh")
-      .set(`Authorization`, `Bearer ${refreshToken}`)
+      .set("X-Refresh-Token", refreshToken)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(200);
 
     expect(res.body.accessToken).toBeDefined();
