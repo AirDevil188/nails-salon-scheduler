@@ -43,12 +43,14 @@ let testUser;
 let invitations;
 let note;
 const now = new Date();
+const MOCK_PUSH_TOKEN = "ExponentPushToken[mocked-device-id-1234]";
 
 afterAll(async () => {
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
@@ -66,6 +68,7 @@ beforeAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   const hashedPassword = await createHashedPassword(adminPassword);
@@ -139,6 +142,7 @@ describe("Test Note router", () => {
     const res = await request(app)
       .post("/admin/notes/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "New Note",
         content: "Hello There",
@@ -165,6 +169,7 @@ describe("Test Note router", () => {
     const res = await request(app)
       .patch(`/admin/notes/${noteId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({ title: "Updated Title", content: "Rich Text" })
       .expect(200);
 
@@ -202,6 +207,7 @@ describe("Test Note router", () => {
     const res = await request(app)
       .delete(`/admin/notes/${noteId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(204);
 
     expect(mockTo).toHaveBeenCalledTimes(1);
