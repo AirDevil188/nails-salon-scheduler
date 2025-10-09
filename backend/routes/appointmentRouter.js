@@ -3,6 +3,7 @@ const { authenticate } = require("@middlewares/authenticate");
 
 const appointmentRouter = Router();
 
+const { languagePrefer } = require("@middlewares/language");
 const appointmentController = require("@controllers/appointmentController");
 
 appointmentRouter.get(
