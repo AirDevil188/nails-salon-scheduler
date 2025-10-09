@@ -71,7 +71,8 @@ const createUser = async (
   first_name,
   last_name,
   avatar,
-  invitation
+  invitation,
+  language
 ) => {
   try {
     return await prisma.user.create({
@@ -82,6 +83,7 @@ const createUser = async (
         last_name: last_name,
         avatar: avatar,
         invitationId: invitation,
+        preferredLanguage: language,
       },
     });
   } catch (err) {
