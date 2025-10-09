@@ -6,8 +6,17 @@ const { languages } = require("@utils/language");
 const errorHandler = (err, req, res, next) => {
   console.log(err.stack); // Log all errs for debugging purposes
 
-  const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
-  const type = languages[languageKey];
+  const supportedLanguages = ["sr", "en"];
+  const defaultLanguage = "sr";
+  let type = null;
+
+  const languageKey =
+    req.get("x-app-language")?.split("-").toLowerCase().trim()[0] || "sr";
+
+  if (!supportedLanguages.includes(languageKey)) {
+    type = languages[defaultLanguage];
+  }
+  type = languages[languageKey];
 
   let statusErrCode = err.status || 500;
   let statusErrMessage = type.general_server_err;
