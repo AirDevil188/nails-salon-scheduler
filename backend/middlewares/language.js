@@ -2,7 +2,7 @@ const db = require("@db/query");
 
 const supportedLanguages = ["en", "sr"];
 
-const sanitizeHeader = async (value) => {
+const sanitizeHeader = (value) => {
   if (!value || typeof value !== "string") {
     return null;
   }
@@ -19,7 +19,7 @@ const languagePrefer = async (req, res, next) => {
   let resolvedLanguage = null;
   let languageSource = null;
 
-  const explicitAppHeader = req.headers["x-app-language"];
+  const explicitAppHeader = req.get("x-app-language");
 
   const sanitizedHeader = sanitizeHeader(explicitAppHeader);
 
@@ -58,7 +58,9 @@ const languagePrefer = async (req, res, next) => {
   req.resolvedLanguage = resolvedLanguage;
   req.languageSource = languageSource;
 
-  next();
+  console.error(req.resolvedLanguage);
+
+  return next();
 };
 
 module.exports = { languagePrefer };
