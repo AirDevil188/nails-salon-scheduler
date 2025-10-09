@@ -44,12 +44,14 @@ let invitations;
 let appointments;
 let appointment;
 const now = new Date();
+const MOCK_PUSH_TOKEN = "ExponentPushToken[mocked-device-id-1234]";
 
 afterAll(async () => {
   await prisma.token.deleteMany({});
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   await prisma.$disconnect();
@@ -67,6 +69,7 @@ beforeAll(async () => {
   await prisma.invitation.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
+  await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   const hashedPassword = await createHashedPassword(adminPassword);
@@ -156,6 +159,7 @@ describe("GET /admin", () => {
   test("should fetch the first 25 users", async () => {
     const res = await request(app)
       .get("/admin/users")
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .set(`Authorization`, `Bearer ${accessToken}`)
 
       .expect(200);
@@ -167,6 +171,7 @@ describe("GET /admin", () => {
   test("should fetch the first 50 users", async () => {
     const res = await request(app)
       .get("/admin/users?limit=50&page=1")
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .set(`Authorization`, `Bearer ${accessToken}`)
 
       .expect(200);
@@ -178,6 +183,7 @@ describe("GET /admin", () => {
   test("should get all appointments in october", async () => {
     const res = await request(app)
       .get("/admin/appointments/calendar?month=2025-10-01T12:00:00.000Z")
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(200);
 
@@ -188,6 +194,7 @@ describe("GET /admin", () => {
     const userId = users[1].id;
     const res = await request(app)
       .delete(`/admin/users/${userId}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(204);
 
@@ -204,6 +211,7 @@ describe("GET /admin", () => {
   test("should fetch all of the invitations in the db", async () => {
     const res = await request(app)
       .get("/admin/invitations")
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .set(`Authorization`, `Bearer ${accessToken}`);
     expect(200);
 
@@ -215,7 +223,8 @@ describe("GET /admin", () => {
     const invitationId = invitations[1].id;
     const res = await request(app)
       .delete(`/admin/invitations/${invitationId}`)
-      .set(`Authorization`, `Bearer ${accessToken}`);
+      .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN);
     expect(204);
 
     expect(mockTo.mock.calls[0][0]).toBe("admin-dashboard");
@@ -228,6 +237,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .get("/admin/appointments")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(200);
 
     expect(res.body.appointments).toHaveLength(25);
@@ -236,6 +246,7 @@ describe("GET /admin", () => {
   test("should fetch 50 appointments on the second page", async () => {
     const res = await request(app)
       .get("/admin/appointments?limit=50&page=1")
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .set(`Authorization`, `Bearer ${accessToken}`)
       .expect(200);
 
@@ -246,6 +257,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Generic Title",
         status: "scheduled",
@@ -253,8 +265,7 @@ describe("GET /admin", () => {
         endDateTime: "2050-10-30T09:00:00.000Z",
         userId: `${users[5].id}`,
       })
-      .expect(201)
-      .set(`Authorization`, `Bearer ${accessToken}`);
+      .expect(201);
 
     // --- ASSERT SOCKET.IO CALLS ---
     expect(mockTo).toHaveBeenCalledTimes(2);
@@ -281,6 +292,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         status: "scheduled",
         startDateTime: "2050-10-30T08:00:00.000Z",
@@ -298,6 +310,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Generic Title",
         status: "scheduled",
@@ -318,6 +331,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Generic Title",
         status: "scheduled",
@@ -337,6 +351,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Generic Title",
         startDateTime: "2050-10-05T08:00:00.000Z",
@@ -354,6 +369,7 @@ describe("GET /admin", () => {
   test("should not allow for appointment status to be empty", async () => {
     const res = await request(app)
       .post("/admin/appointments/new")
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .set(`Authorization`, `Bearer ${accessToken}`)
       .send({
         title: "Generic Title",
@@ -372,6 +388,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Generic Title",
         startDateTime: "2050-10-05T08:00:00.000Z",
@@ -393,6 +410,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Generic Title",
         startDateTime: "2050-10-05T08:00:00.000Z",
@@ -407,6 +425,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .delete(`/admin/appointments/${appointmentId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(204);
 
     expect(mockTo).toHaveBeenCalledTimes(2);
@@ -433,6 +452,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .patch(`/admin/appointments/${appointmentId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Updated Title",
       })
@@ -464,6 +484,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .patch(`/admin/appointments/${appointmentId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .send({
         title: "Updated Title",
         external_client: "Kate Perry",
@@ -490,6 +511,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post(`/admin/appointments/${appointmentId}/cancel`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(200);
 
     expect(mockTo).toHaveBeenCalledTimes(2);
@@ -517,6 +539,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .delete(`/admin/users/${userId}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(403);
   });
 
@@ -524,6 +547,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .get("/admin/invitations")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(403);
   });
 
@@ -532,6 +556,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .delete(`/admin/invitations/${invitation}`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(403);
   });
 
@@ -539,6 +564,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .get("/admin/appointments?limit=50&page=1")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(403);
   });
 
@@ -547,6 +573,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post(`/admin/appointments/${appointmentId}/cancel`)
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(403);
   });
 
@@ -554,6 +581,7 @@ describe("GET /admin", () => {
     const res = await request(app)
       .post("/admin/appointments/new")
       .set(`Authorization`, `Bearer ${accessToken}`)
+      .set("X-Push-Token", MOCK_PUSH_TOKEN)
       .expect(403);
   });
 });
