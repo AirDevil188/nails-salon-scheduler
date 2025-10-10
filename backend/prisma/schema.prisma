@@ -86,6 +86,7 @@ model NotificationRecipes {
   sentAt DateTime @default(now())
   expoTicketId String?
   isProcessed Boolean @default(false)
+  recipeDetails String?
 
   @@map("notification_receipt")
 }
