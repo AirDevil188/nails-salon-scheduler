@@ -591,6 +591,19 @@ const findPushToken = async (expoTicketId) => {
   }
 };
 
+const getPushTokensUser = async (userId) => {
+  try {
+    return await prisma.expoPushToken.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 // INVITATION queries
 
 const createInvitationCode = async (token, code, expiresAt) => {
@@ -1524,6 +1537,7 @@ module.exports = {
   invalidateRefreshToken,
   upsertPushToken,
   findPushToken,
+  getPushTokensUser,
   deletePushToken,
   createNotificationReceipt,
   pendingTickets,
