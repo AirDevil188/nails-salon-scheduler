@@ -32,7 +32,8 @@
       "^@config(.*)$": "<rootDir>/config$1",
       "^@socketServices(.*)$": "<rootDir>/socket/services$1",
       "^@socketMiddlewares(.*)$": "<rootDir>/socket/middlewares$1",
-      "^@socketHandlers(.*)$": "<rootDir>/socket/handlers$1"
+      "^@socketHandlers(.*)$": "<rootDir>/socket/handlers$1",
+      "^@services(.*)$": "<rootDir>/services$1"
     },
     "testEnvironment": "node",
     "setupFilesAfterEnv": []
@@ -57,6 +58,7 @@
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",
     "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
     "resend": "^6.1.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
