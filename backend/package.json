@@ -19,7 +19,8 @@
     "@socketServices": "./socket/services",
     "@socketMiddlewares": "./socket/middlewares",
     "@socketHandlers": "./socket/handlers",
-    "@services": "./services"
+    "@services": "./services",
+    "@scheduler": "./scheduler/"
   },
   "jest": {
     "moduleNameMapper": {
