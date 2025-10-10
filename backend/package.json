@@ -18,7 +18,8 @@
     "@config": "config",
     "@socketServices": "./socket/services",
     "@socketMiddlewares": "./socket/middlewares",
-    "@socketHandlers": "./socket/handlers"
+    "@socketHandlers": "./socket/handlers",
+    "@services": "./services"
   },
   "jest": {
     "moduleNameMapper": {
