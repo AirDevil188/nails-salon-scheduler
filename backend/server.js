@@ -3,6 +3,7 @@ const { httpServer } = require("@root/app");
 const { authenticateSocketToken } = require("@socketMiddlewares/socketAuth");
 const { serverHandler } = require("@socketHandlers/serverHandler");
 const { getIo } = require("@socketServices/socketManager");
+const { startReceiptScheduler } = require("@scheduler/receiptProcessor");
 
 const io = getIo();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,8 @@ io.on("connection", (socket) => {
 
   serverHandler(socket);
 });
+
+startReceiptScheduler();
 
 httpServer.listen(PORT, HOST, () => {
   console.log(`Socket.IO Server listening on http://localhost:${PORT}`);
