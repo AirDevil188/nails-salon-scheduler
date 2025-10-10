@@ -507,6 +507,90 @@ const upsertPushToken = async (userId, token) => {
     throw err;
   }
 };
+
+const deletePushToken = async (id) => {
+  try {
+    return await prisma.expoPushToken.deleteMany({
+      where: {
+        token: id,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+// NOTIFICATION queries
+const createNotificationReceipt = async (
+  ticketId,
+  userId,
+  pushToken,
+  status
+) => {
+  try {
+    return await prisma.notificationRecipes.create({
+      data: {
+        userId: userId,
+        pushToken: pushToken,
+        expoTicketId: ticketId,
+        status: status,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const pendingTickets = async () => {
+  try {
+    return await prisma.notificationRecipes.findMany({
+      where: {
+        status: "PENDING",
+      },
+      select: {
+        id: true,
+        expoTicketId: true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const updateTicket = async (expoTicketId, details, status) => {
+  try {
+    return await prisma.notificationRecipes.update({
+      where: {
+        expoTicketId: expoTicketId,
+      },
+      data: {
+        status: status,
+        recipeDetails: details,
+        isProcessed: true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
+const findPushToken = async (expoTicketId) => {
+  try {
+    return await prisma.notificationRecipes.findUnique({
+      where: {
+        expoTicketId: expoTicketId,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+};
+
 // INVITATION queries
 
 const createInvitationCode = async (token, code, expiresAt) => {
@@ -1439,6 +1523,11 @@ module.exports = {
   updateRefreshToken,
   invalidateRefreshToken,
   upsertPushToken,
+  findPushToken,
+  deletePushToken,
+  createNotificationReceipt,
+  pendingTickets,
+  updateTicket,
   findInvitation,
   findInvitationByToken,
   createInvitation,
