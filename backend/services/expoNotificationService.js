@@ -4,6 +4,11 @@ const expo = new Expo();
 
 const db = require("@db/query");
 
+const sendSingleNotification = async (notification, prisma) => {
+  // We wrap the single notification in an array to use the existing batch function
+  return sendNotificationBatch([notification], expo, prisma);
+};
+
 const sendNotificationBatch = async (notifications, expoClient, prisma) => {
   if (notifications.length === 0) {
     console.log("No notifications were sent");
@@ -143,4 +148,5 @@ const processReceipts = async (ticketIds) => {
 module.exports = {
   sendNotificationBatch,
   processReceipts,
+  sendSingleNotification,
 };
