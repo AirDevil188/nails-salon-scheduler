@@ -76,6 +76,13 @@ const languages = {
       "Invitation code resented successfully",
     success_invitation_and_code_already_verified:
       "Invitation and the code has already been verified",
+
+    // Admin Controller
+    // appointments
+    appointment_created_notification_title: "Appointment Confirmed!",
+    appointment_created_notification_body: "Your appointment is scheduled for ",
+    appointment_created_notification_message:
+      "New appointment created with ID ",
   },
 
   sr: {
@@ -153,6 +160,12 @@ const languages = {
     success_invitation_verification_code_resend: "Kod uspešno reizdat",
     success_invitation_and_code_already_verified:
       "Pozivnica i verifikacioni kod su već verifikovani",
+
+    // Admin Controller
+    // appointments
+    appointment_created_notification_title: "Termin Potvrđen!",
+    appointment_created_notification_body: "Vaš termin je zakazan za  ",
+    appointment_created_notification_message: "Novi termin kreiran sa ID ",
   },
 };
 module.exports = {
