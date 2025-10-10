@@ -2,6 +2,12 @@ const db = require("@db/query");
 const { isUUID } = require("@utils/utils");
 const { body, validationResult } = require("express-validator");
 const { getIo } = require("../socket/services/socketManager");
+const { getLocalizedNotificationText } = require("@utils/language");
+const prisma = require("@prisma/client"); // Your ORM client
+const {
+  sendNotificationBatch,
+  expo,
+} = require("@services/expoNotificationService");
 
 const getInvitations = async (req, res, next) => {
   try {
@@ -278,9 +284,35 @@ const newAppointment = [
         external_client,
         userId
       );
+
       io.to("admin-dashboard").emit("admin:appointment:created", appointment);
       console.log(`Sent new appointment alert to the 'admin-dashboard' room.`);
       if (userId) {
+        // get push tokens from the user
+        const recipientTokens = await db.getPushTokensUser(userId);
+        // check if there are tokens for that user
+        if (recipientTokens && recipientTokens.length > 0) {
+          // get the message base on preferred language
+          const { title, body, message } = getLocalizedNotificationText(
+            recipientTokens.user?.preferredLanguage,
+            "appointment_new"
+          );
+
+          const finalBody = `${body} ${new Date(newAppointment.startDateTime).toLocaleString(recipientTokens.user?.preferredLanguage, { dateStyle: "short", timeStyle: "short" })}`;
+
+          const finalMessage = `${message}${newAppointment.id}`;
+
+          // build the object
+          const notificationsToSend = recipientTokens.map((tokenRecord) => ({
+            pushToken: tokenRecord.token,
+            userId: newAppointment.userId,
+            title: title,
+            message: finalMessage,
+            body: finalBody,
+          }));
+
+          await sendNotificationBatch(notificationsToSend, expo, prisma);
+        }
         io.to(`user:${userId}`).emit("appointment:created", appointment);
         console.log(`Sent new appointment alert to the 'user:${userId}' room.`);
       }
@@ -429,6 +461,32 @@ const updateAppointment = [
         `Sent updated appointment alert to the 'admin-dashboard' room.`
       );
       if (appointment?.userId) {
+        // get push tokens from the user
+        const recipientTokens = await db.getPushTokensUser(userId);
+        // check if there are tokens for that user
+        if (recipientTokens && recipientTokens.length > 0) {
+          // get the message base on preferred language
+          const { title, body, message } = getLocalizedNotificationText(
+            recipientTokens.user?.preferredLanguage,
+            "appointment_update"
+          );
+
+          const finalBody = `${body} ${new Date(appointment.startDateTime).toLocaleString(recipientTokens.user?.preferredLanguage, { dateStyle: "short", timeStyle: "short" })}`;
+
+          const finalMessage = `${message}${appointmentId.id}`;
+
+          // build the object
+          const notificationsToSend = recipientTokens.map((tokenRecord) => ({
+            pushToken: tokenRecord.token,
+            userId: appointment.userId,
+            title: title,
+            message: finalMessage,
+            body: finalBody,
+          }));
+
+          await sendNotificationBatch(notificationsToSend, expo, prisma);
+        }
+
         io.to(`user:${appointment.userId}`).emit(
           "user:appointment:updated",
           appointment
