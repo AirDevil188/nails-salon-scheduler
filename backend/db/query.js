@@ -597,6 +597,14 @@ const getPushTokensUser = async (userId) => {
       where: {
         userId: userId,
       },
+      select: {
+        token: true,
+        user: {
+          select: {
+            preferredLanguage: true,
+          },
+        },
+      },
     });
   } catch (err) {
     console.error(err);
