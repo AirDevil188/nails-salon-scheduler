@@ -83,6 +83,11 @@ const languages = {
     appointment_created_notification_body: "Your appointment is scheduled for ",
     appointment_created_notification_message:
       "New appointment created with ID ",
+    appointment_updated_notification_message:
+      "New appointment updated with ID ",
+    appointment_updated_notification_body:
+      "Your appointment is rescheduled for ",
+    appointment_updated_notification_title: "Appointment Updated!",
   },
 
   sr: {
@@ -168,6 +173,40 @@ const languages = {
     appointment_created_notification_message: "Novi termin kreiran sa ID ",
   },
 };
+
+const getLocalizedNotificationText = (language, type) => {
+  // check the type of the notification
+  if (type === "appoitment_new") {
+    const notificationKeys = {
+      title: "appointment_created_notification_title:",
+      body: "appointment_created_notification_body",
+      message: "appointment_created_notification_message",
+    };
+    const resolvedLanguage = languages[language];
+
+    return {
+      title: resolvedLanguage[notificationKeys.title],
+      body: resolvedLanguage[notificationKeys.body],
+      message: resolvedLanguage[notificationKeys.message],
+    };
+  }
+  if (type === "appoitment_update") {
+    const notificationKeys = {
+      title: "appointment_updated_notification_title:",
+      body: "appointment_updated_notification_body",
+      message: "appointment_updated_notification_message",
+    };
+    const resolvedLanguage = languages[language];
+
+    return {
+      title: resolvedLanguage[notificationKeys.title],
+      body: resolvedLanguage[notificationKeys.body],
+      message: resolvedLanguage[notificationKeys.message],
+    };
+  }
+  return;
+};
 module.exports = {
   languages,
+  getLocalizedNotificationText,
 };
