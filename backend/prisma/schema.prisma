@@ -79,10 +79,12 @@ model ExpoPushToken {
 }
 
 model NotificationRecipes {
-  id String @id 
+  id String @id  @default(uuid())
   pushToken String 
+  status String
   userId String?
   sentAt DateTime @default(now())
+  expoTicketId String?
   isProcessed Boolean @default(false)
 
   @@map("notification_receipt")
