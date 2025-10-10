@@ -8,3 +8,6 @@
 
 # EsLint
 .eslintcache
+
+# seed.js
+/db/seed.js
