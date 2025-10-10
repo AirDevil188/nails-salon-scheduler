@@ -88,6 +88,8 @@ model NotificationRecipes {
   isProcessed Boolean @default(false)
   recipeDetails String?
 
+  @@unique([expoTicketId]) 
+
   @@map("notification_receipt")
 }
 
