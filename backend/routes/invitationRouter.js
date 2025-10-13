@@ -17,7 +17,7 @@ invitationRouter.post(
   invitationController.generateInvitation
 );
 
-invitationRouter.post(
+invitationRouter.get(
   "/validate-token",
   languagePrefer,
   invitationController.validateInvitation
