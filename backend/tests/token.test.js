@@ -1,6 +1,8 @@
 const {
   createHashedPassword,
   generateRefreshToken,
+  verifyToken,
+  signToken,
 } = require("../utils/utils");
 const express = require("express");
 const request = require("supertest");
@@ -21,6 +23,7 @@ const prisma = new PrismaClient();
 const userRouter = require("../routes/userRouter");
 const invitationRouter = require("../routes/invitationRouter");
 const { addHours } = require("date-fns/addHours");
+const { addMinutes } = require("date-fns/addMinutes");
 
 const app = express();
 app.use(express.json());
@@ -42,6 +45,10 @@ let accessToken;
 let invitation;
 let mockVerificationCode;
 let verifiedInvitation;
+let signVerifiedInvitation;
+let signPendingInvitation;
+let verifyCode;
+let pendingInvitation;
 
 beforeEach(async () => {
   jest.clearAllMocks();
@@ -52,14 +59,15 @@ beforeAll(async () => {
 
   await prisma.invitation.deleteMany({});
   await prisma.token.deleteMany({});
-  await prisma.user.deleteMany({});
   await prisma.appointment.deleteMany({});
   await prisma.note.deleteMany({});
   await prisma.expoPushToken.deleteMany({});
   await prisma.user.deleteMany({});
 
   const generateRawToken = generateRefreshToken();
+
   const hashedPassword = await createHashedPassword(testUser.password);
+
   const now = new Date();
 
   await prisma.user.create({
@@ -81,6 +89,31 @@ beforeAll(async () => {
       code: 123456,
     },
   });
+  pendingInvitation = await prisma.invitation.create({
+    data: {
+      email: "test6@email.com",
+      token: generateRefreshToken(),
+      expiresAt: addHours(now, 8),
+      invitationStatus: "pending",
+      code: 654321,
+      codeExpiresAt: addMinutes(now, 5),
+    },
+  });
+
+  const verifiedPayload = {
+    id: verifiedInvitation.id,
+    email: verifiedInvitation.email,
+    jti: verifiedInvitation.token,
+  };
+
+  const verifiedPendingPayload = {
+    id: pendingInvitation.id,
+    email: pendingInvitation.email,
+    jti: pendingInvitation.token,
+  };
+
+  signVerifiedInvitation = signToken(verifiedPayload, "8h", "invitation");
+  signPendingInvitation = signToken(verifiedPendingPayload, "8h", "invitation");
 
   const res = await request(app)
     .post("/users/sign-in")
@@ -103,6 +136,7 @@ afterAll(async () => {
 
 describe("POST /invitations", () => {
   test("should successfully generate a new invitation link", async () => {
+    // PASS
     const res = await request(app)
       .post("/invitations/generate")
       .set("Authorization", `Bearer ${accessToken}`)
@@ -122,16 +156,17 @@ describe("POST /invitations", () => {
     });
 
     invitation = res.body.invitationLink;
-    console.error(invitation);
   });
+
   test("should successfully test validation of the token", async () => {
+    // PASS
+
     const res = await request(app)
-      .post("/invitations/validate-token")
-      .send({ token: invitation.token })
+      .get(`/invitations/validate-token?token=${invitation}`)
       .expect(200);
+
     expect(res.body.success).toBe(true);
-    expect(res.body.invitationToken).toBe(invitation.token);
-    expect(res.body.code).toBeDefined();
+    expect(res.body.invitationToken).toBe(invitation);
 
     expect(mockTo).toHaveBeenCalledTimes(1);
 
@@ -143,25 +178,21 @@ describe("POST /invitations", () => {
       email: res.body.invitation.email,
       id: res.body.invitation.id,
     });
-    mockVerificationCode = res.body.code;
   });
   test("should redirect if the invitation status is code_verified", async () => {
+    // PASS
     const res = await request(app)
-      .post("/invitations/validate-token")
-      .send({
-        token: verifiedInvitation.token,
-      })
+      .get(`/invitations/validate-token?token=${signVerifiedInvitation}`)
       .expect(200);
     expect(res.body.success).toBe(true);
     expect(res.body.redirect).toBe(true);
-    expect(res.body.invitationToken).toBe(verifiedInvitation.token);
+    expect(res.body.invitationToken).toBe(signVerifiedInvitation);
   });
   test("should resend a new verification code", async () => {
     const res = await request(app)
-      .post("/invitations/resend-verification-code")
-      .send({ token: invitation.token })
+      .post(`/invitations/resend-verification-code?token=${invitation}`)
       .expect(200);
-    mockVerificationCode = res.body.code;
+    mockVerificationCode = res.body.invitation.code;
 
     expect(mockTo).toHaveBeenCalledTimes(1);
 
@@ -177,7 +208,7 @@ describe("POST /invitations", () => {
   test("should verify verification code", async () => {
     const res = await request(app)
       .post("/invitations/validate-verification-code")
-      .send({ code: mockVerificationCode, token: invitation.token })
+      .send({ code: 654321, token: signPendingInvitation })
       .expect(200);
     expect(res.body.success).toBe(true);
     expect(res.body.email).toBeDefined();
