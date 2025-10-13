@@ -1,5 +1,10 @@
 const db = require("@db/query");
-const { generateRefreshToken, sendVerificationCode } = require("@utils/utils");
+const {
+  generateRefreshToken,
+  sendVerificationCode,
+  signToken,
+  verifyToken,
+} = require("@utils/utils");
 const { addHours } = require("date-fns/addHours");
 const crypto = require("crypto");
 const { addMinutes } = require("date-fns/addMinutes");
@@ -44,6 +49,16 @@ const generateInvitation = async (req, res, next) => {
         email,
         addHours(new Date(), 8)
       );
+
+      const invitationPayload = {
+        email: email,
+        id: invitation.id,
+        jti: invitation.token,
+      };
+
+      // sign invitation token
+      invitation = signToken(invitationPayload, "8h", "invitation");
+
       io.to("admin-dashboard").emit("admin:createdInvitation", {
         email: invitation.email,
         id: invitation.id,
@@ -71,12 +86,24 @@ const validateInvitation = async (req, res, next) => {
   const type = languages[languageKey];
   // get the token from params from URL
   const now = new Date();
-  const { token } = req.body;
+  const { token } = req.query;
+
+  let validatedPayload;
+
+  try {
+    // validate token
+    validatedPayload = verifyToken(token, "invitation");
+  } catch (err) {
+    const error = new Error("authorization_err");
+    error.status = 401;
+    return next(error);
+  }
+  const rawInvitationToken = validatedPayload.jti;
 
   let invitation;
   try {
     // find the invitation based on the token
-    invitation = await db.findInvitationByToken(token);
+    invitation = await db.findInvitationByToken(rawInvitationToken);
     // check if the invitation is not found OR expired
     if (!invitation || invitation.expiresAt < now) {
       // if the invitation was found but expired invalidate/delete it
@@ -132,7 +159,6 @@ const validateInvitation = async (req, res, next) => {
       success: true,
       invitation: invitation,
       invitationToken: token,
-      code: randomCode,
       message: type.success_invitation_verification_code_sent,
     });
   } catch (err) {
@@ -145,12 +171,31 @@ const verifyInvitationCode = async (req, res, next) => {
   const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
   const type = languages[languageKey];
   const { code, token } = req.body;
-  let validateCode;
+
   const now = new Date();
 
-  // find the code in the db
+  let validatedPayload;
+  let rawInvitationToken;
+  let validateCode;
+
   try {
-    validateCode = await db.findInvitationCode(token, Number(code), now);
+    // security measure verify the token
+    validatedPayload = verifyToken(token, "invitation");
+
+    rawInvitationToken = validatedPayload.jti;
+  } catch (err) {
+    const error = new Error("authorization_err");
+    error.status = 401;
+    return next(error);
+  }
+
+  try {
+    // find the code in the db
+    validateCode = await db.findInvitationCode(
+      rawInvitationToken,
+      Number(code),
+      now
+    );
 
     // check if the code is not found OR expired
     if (!validateCode) {
@@ -160,7 +205,7 @@ const verifyInvitationCode = async (req, res, next) => {
     }
 
     // change the status of the invitation to the code_verified
-    await db.verifyInvitationStatus(token, "code_verified");
+    await db.verifyInvitationStatus(rawInvitationToken, "code_verified");
     io.to("admin-dashboard").emit("admin:invitationVerified", {
       email: validateCode.email,
       id: validateCode.id,
@@ -183,12 +228,20 @@ const resendVerificationCode = async (req, res, next) => {
   const io = getIo();
   const languageKey = req.get("Accept-Language")?.split("-")[0] || "sr";
   const type = languages[languageKey];
-  const { token } = req.body;
+  const { token } = req.query;
   const now = new Date();
 
+  let validatedPayload;
   try {
+    // validate token
+    validatedPayload = verifyToken(token, "invitation");
+
+    const rawInvitationToken = validatedPayload.jti;
+
+    let invitation;
+
     // find the code by invitation token
-    const invitation = await db.findInvitationByToken(token);
+    invitation = await db.findInvitationByToken(rawInvitationToken);
     if (!invitation) {
       // if the invitation by token was not found
       const error = new Error("authorization_err");
@@ -204,7 +257,7 @@ const resendVerificationCode = async (req, res, next) => {
     }
     const randomCode = crypto.randomInt(100000, 999999 + 1);
     await db.updateInvitationCode(
-      token,
+      rawInvitationToken,
       Number(randomCode),
       addMinutes(new Date(), 5)
     );
@@ -230,7 +283,6 @@ const resendVerificationCode = async (req, res, next) => {
       message: type.success_invitation_verification_code_resend,
       invitationToken: token,
       invitation: invitation,
-      code: randomCode,
     });
   } catch (err) {
     return next(err);
