@@ -9,24 +9,38 @@ const verifyHash = async (value, hashedValue) => {
 };
 
 const signToken = (credentials, expiresIn, type) => {
-  if (type === "access") {
-    const payload = {
-      id: credentials.id,
-      role: credentials.role,
-    };
-    return jsonwebtoken.sign(payload, process.env.ACCESS_SECRET, {
-      algorithm: "HS256",
-      expiresIn: expiresIn,
-    });
-  } else if (type === "refresh") {
-    const payload = {
-      id: credentials.id,
-      userId: credentials.userId,
-    };
-    return jsonwebtoken.sign(payload, process.env.REFRESH_SECRET, {
-      algorithm: "HS256",
-      expiresIn: expiresIn,
-    });
+  try {
+    if (type === "access") {
+      const payload = {
+        id: credentials.id,
+        role: credentials.role,
+      };
+      return jsonwebtoken.sign(payload, process.env.ACCESS_SECRET, {
+        algorithm: "HS256",
+        expiresIn: expiresIn,
+      });
+    } else if (type === "refresh") {
+      const payload = {
+        id: credentials.id,
+        userId: credentials.userId,
+      };
+      return jsonwebtoken.sign(payload, process.env.REFRESH_SECRET, {
+        algorithm: "HS256",
+        expiresIn: expiresIn,
+      });
+    } else if (type === "invitation") {
+      const payload = {
+        id: credentials.id,
+        email: credentials.email,
+        jti: credentials.jti,
+      };
+      return jsonwebtoken.sign(payload, process.env.INVITATION_SECRET, {
+        algorithm: "HS256",
+        expiresIn: expiresIn,
+      });
+    }
+  } catch (err) {
+    console.error(err);
   }
 };
 
@@ -35,6 +49,8 @@ const verifyToken = (token, secret) => {
     return jsonwebtoken.verify(token, process.env.ACCESS_SECRET);
   } else if (secret === "refresh") {
     return jsonwebtoken.verify(token, process.env.REFRESH_SECRET);
+  } else if (secret === "invitation") {
+    return jsonwebtoken.verify(token, process.env.INVITATION_SECRET);
   }
 };
 
