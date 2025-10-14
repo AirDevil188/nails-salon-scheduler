@@ -22,7 +22,7 @@ export default function AppButton({ children, style, ...otherProps }) {
 }
 const styles = StyleSheet.create({
   defaultButton: {
-    backgroundColor: theme.colorPink,
+    backgroundColor: theme.colorBlue,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
