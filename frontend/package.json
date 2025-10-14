@@ -9,6 +9,13 @@
     "web": "expo start --web",
     "lint": "expo lint"
   },
+  "_moduleAliases": {
+    "@root": ".",
+    "@components": "./src/components",
+    "@utils": "./src/utils",
+    "@stores": "./src/stores",
+    "@hooks": "./src/hooks"
+  },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "axios": "^1.12.2",
