@@ -60,7 +60,7 @@ const useAuthStore = create((set, get) => ({
     set({
       isLoggedIn: false,
       accessToken: null,
-      referrerToken: null,
+      refreshToken: null,
       isSigningUp: false,
       invitationToken: null,
       userInfo: {},
