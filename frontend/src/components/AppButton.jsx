@@ -1,4 +1,5 @@
 import { Pressable, Text, StyleSheet } from "react-native";
+import { theme } from "../theme";
 
 export default function AppButton({ children, style, ...otherProps }) {
   return (
@@ -7,7 +8,7 @@ export default function AppButton({ children, style, ...otherProps }) {
         styles.defaultButton,
         style,
 
-        pressed && style.pressed,
+        pressed && styles.pressed,
       ]}
       {...otherProps}
     >
@@ -21,7 +22,7 @@ export default function AppButton({ children, style, ...otherProps }) {
 }
 const styles = StyleSheet.create({
   defaultButton: {
-    backgroundColor: "#007AFF", // A standard blue color
+    backgroundColor: theme.colorPink,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
@@ -29,11 +30,12 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   text: {
-    color: "#fff", // White text color
+    fontFamily: "Inter-Bold",
+    color: theme.colorWhite,
     fontSize: 18,
     fontWeight: "600",
   },
   pressed: {
-    opacity: 0.85, // Simple visual feedback when pressed
+    opacity: 0.85,
   },
 });
