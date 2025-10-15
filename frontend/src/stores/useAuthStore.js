@@ -25,12 +25,17 @@ const useAuthStore = create((set, get) => ({
   // Signup flow
   invitationToken: null,
   isSigningUp: false,
+  isOtpVerified: false,
 
   // ACTIONS
   setIsLoading: (loading) => set({ isLoading: loading }),
 
   startSignUp: (token) => {
     set({ isSigningUp: true, invitationToken: token });
+  },
+
+  completeOtpStep: () => {
+    set({ isOtpVerified: true });
   },
 
   // language change user
@@ -63,6 +68,7 @@ const useAuthStore = create((set, get) => ({
       refreshToken: null,
       isSigningUp: false,
       invitationToken: null,
+      isOtpVerified: false,
       userInfo: {},
       preferredLanguage: resolveLanguage(),
     });
