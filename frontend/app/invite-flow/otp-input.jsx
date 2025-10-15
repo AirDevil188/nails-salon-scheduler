@@ -18,7 +18,8 @@ import AppButton from "../../src/components/AppButton";
 import { Link } from "expo-router";
 
 export default function OtpInputScreen() {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
+  console.log(currentLanguage === "sr");
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -38,7 +39,12 @@ export default function OtpInputScreen() {
           />
         </View>
         <View style={styles.mainHeadingContainer}>
-          <AppText style={(AppTextStyle.h1, styles.heading)}>
+          <AppText
+            style={[
+              AppTextStyle.h1,
+              currentLanguage === "sr" ? styles.heading_sr : styles.heading,
+            ]}
+          >
             {t("mainHeading")}
           </AppText>
         </View>
@@ -48,7 +54,7 @@ export default function OtpInputScreen() {
             multiline={true}
             numberOfLines={2}
           >
-            Enter the verification code sent to
+            {t("informationText")}
           </AppText>
           <AppText
             style={[AppTextStyle.h3, styles.instructionEmail]}
@@ -69,13 +75,13 @@ export default function OtpInputScreen() {
           />
         </View>
         <View style={styles.forgotPasswordContainer}>
-          <AppText style={styles.forgotPasswordText}>
-            Didn't get a code?
-          </AppText>
-          <AppText style={styles.link}>resend</AppText>
+          <AppText style={styles.forgotPasswordText}>{t("codeText")}</AppText>
+          <Link href={"/final-registration"} style={styles.link}>
+            {t("resendLink")}
+          </Link>
         </View>
         <View style={styles.buttonContainer}>
-          <AppButton>Verify Invitation</AppButton>
+          <AppButton>{t("verifyInvitationButton")}</AppButton>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -84,19 +90,20 @@ export default function OtpInputScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
 
     alignItems: "center",
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
 
     alignItems: "center",
-    paddingTop: 90,
+    paddingTop: 45,
     gap: 5,
   },
   iconWrapper: {
+    marginVertical: 10,
     borderRadius: 100,
     alignSelf: "center",
     padding: 10,
@@ -104,18 +111,18 @@ const styles = StyleSheet.create({
   },
   emailIcon: {},
   mainHeadingContainer: {
-    height: 100,
-
+    paddingVertical: 20,
     flex: 0,
   },
   instructionContainer: {
     fontSize: 20,
+    paddingVertical: 12,
     padding: 12,
     textAlignVertical: "top",
   },
   instructionText: {
     fontFamily: "Inter-Light",
-    fontSize: 24,
+    fontSize: 23,
   },
   instructionEmail: {
     fontFamily: "Inter-Bold",
@@ -125,8 +132,12 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Bold",
     fontSize: 35,
   },
+  heading_sr: {
+    fontSize: 30,
+  },
   otpInputContainer: {
     flex: 1,
+    paddingVertical: 10,
   },
   forgotPasswordContainer: {
     paddingTop: 15,
@@ -134,16 +145,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   forgotPasswordText: {
-    fontSize: 20,
+    fontSize: 18,
   },
   link: {
     color: theme.colorBlue,
-    fontSize: 20,
+    fontSize: 18,
     textDecorationLine: "underline",
   },
   buttonContainer: {
     alignSelf: "stretch",
     padding: 20,
-    marginBottom: 40,
+    marginBottom: 30,
   },
 });
