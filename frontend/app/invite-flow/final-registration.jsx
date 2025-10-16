@@ -23,7 +23,7 @@ export default function SignIn() {
         >
           <View style={styles.inputContainer}>
             <AppText style={[AppTextStyle.h1, styles.logoHeading]}>
-              Login to your account
+              {t("signUpHeading")}
             </AppText>
             <AppTextInput
               placeholder={t("firstNamePlaceholder")}
