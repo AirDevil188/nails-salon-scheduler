@@ -14,12 +14,18 @@ import AppOtpInput from "../../src/components/AppOtpInput";
 
 import { theme } from "../../src/theme";
 import { useTranslation } from "../../src/hooks/useTranslation";
-import AppButton from "../../src/components/AppButton";
 import { Link } from "expo-router";
+import { usePostOtpVerify } from "../../src/hooks/usePostOtpVerify";
 
 export default function OtpInputScreen() {
   const { t, currentLanguage } = useTranslation();
-  console.log(currentLanguage === "sr");
+  const { mutate, error, isPending } = usePostOtpVerify();
+
+  const handleOtpFilled = (otpCode) => {
+    if (!isPending) {
+      mutate(otpCode);
+    }
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -72,6 +78,7 @@ export default function OtpInputScreen() {
             slotStyles={{ borderColor: theme.colorLightGrey }}
             focusedSlotStyles={{ borderColor: theme.colorBlue }}
             focusedSlotTextStyles={{ color: theme.colorBlack }}
+            onFilled={handleOtpFilled}
           />
         </View>
         <View style={styles.forgotPasswordContainer}>
@@ -79,9 +86,6 @@ export default function OtpInputScreen() {
           <Link href={"/final-registration"} style={styles.link}>
             {t("resendLink")}
           </Link>
-        </View>
-        <View style={styles.buttonContainer}>
-          <AppButton>{t("verifyInvitationButton")}</AppButton>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
   },
   instructionText: {
     fontFamily: "Inter-Light",
-    fontSize: 23,
+    fontSize: 22,
   },
   instructionEmail: {
     fontFamily: "Inter-Bold",
@@ -133,7 +137,7 @@ const styles = StyleSheet.create({
     fontSize: 35,
   },
   heading_sr: {
-    fontSize: 30,
+    fontSize: 28,
   },
   otpInputContainer: {
     flex: 1,
@@ -151,10 +155,5 @@ const styles = StyleSheet.create({
     color: theme.colorBlue,
     fontSize: 18,
     textDecorationLine: "underline",
-  },
-  buttonContainer: {
-    alignSelf: "stretch",
-    padding: 20,
-    marginBottom: 30,
   },
 });
