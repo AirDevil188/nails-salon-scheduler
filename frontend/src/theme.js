@@ -5,4 +5,5 @@ export const theme = {
   colorBlack: "#000",
   colorLightBlue: "#BFD7FF",
   colorRedError: "#a6192e",
+  disabledInput: "'#f0f0f0'",
 };
