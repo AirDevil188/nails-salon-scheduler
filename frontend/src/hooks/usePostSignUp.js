@@ -21,7 +21,6 @@ export default function usePostSignUp() {
         confirm_password,
         preferred_language,
       } = payload;
-      console.log(invitationToken);
 
       const response = await api.post("api/users/sign-up", {
         first_name: first_name,
