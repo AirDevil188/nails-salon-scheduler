@@ -2,10 +2,19 @@ import { TextInput } from "react-native";
 import { StyleSheet } from "react-native";
 import { theme } from "../theme";
 
-export default function AppTextInput({ style, ...otherProps }) {
+export default function AppTextInput({
+  style,
+  value,
+  onChange,
+  onBlur,
+  ...otherProps
+}) {
   return (
     <TextInput
       underlineColorAndroid={"transparent"}
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
       style={[styles.input, style]}
       {...otherProps}
       multiline={false}
@@ -27,7 +36,5 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
-
-    elevation: 5,
   },
 });
