@@ -25,6 +25,28 @@ export const translations = {
     passwordPlaceholder: "Password",
     confirmPasswordPlaceholder: "Confirm Password",
     signUpButton: "Sign Up",
+    languageSelectLabel: "Jezik",
+    languageSelectLabelSerbian: "🇷🇸 Serbian ",
+    languageSelectLabelEnglish: "🇬🇧 English",
+    languageSelectPlaceholder: "Select language",
+
+    // Validator msgs
+    firstNameRequiredSignUp: "First Name is required",
+    lastNameRequiredSignUp: "Last Name is required",
+    passwordRequiredMinLengthSignUp: "Password must be at least 8 characters",
+    passwordRequiredLowerCaseSignUp:
+      "Password must contain at least one lowercase letter",
+    passwordRequiredUpperCaseSignUp:
+      "Password must contain at least one uppercase letter",
+    passwordRequiredNumberSignUp: "Password must contain at least one number",
+    passwordRequiredSymbolSignUp:
+      "Password must contain at least one special character",
+    passwordRequiredSignUp: "Password is required",
+    passwordMinRequiredSignUp:
+      "Your password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one symbol",
+    confirmPasswordRequiredSignUp: "Confirm password is required",
+    confirmPasswordMatchSignUp: "Passwords must match",
+    languageRequiredSignUp: "Language is required",
   },
   sr: {
     // public routes
@@ -52,5 +74,25 @@ export const translations = {
     passwordPlaceholder: "Lozinka",
     confirmPasswordPlaceholder: "Potvrdi lozinku",
     signUpButton: "Registruj se",
+    languageSelectLabel: "Jezik",
+    languageSelectLabelSerbian: "🇷🇸 Srpski",
+    languageSelectLabelEnglish: "🇬🇧 Englekski",
+    languageSelectPlaceholder: "Odaberite jezik",
+
+    // Validator msgs
+    firstNameRequiredSignUp: "Ime je obavezno",
+    lastNameRequiredSignUp: "Prezime je obavezno",
+    passwordRequiredMinLengthSignUp: "Lozinka mora imati najmanje 8 karaktera",
+    passwordRequiredLowerCaseSignUp:
+      "Lozinka mora sadržati najmanje jedno malo slovo",
+    passwordRequiredUpperCaseSignUp:
+      "Lozinka mora sadržati najmanje jedno veliko slovo",
+    passwordRequiredNumberSignUp: "Lozinka mora sadržati najmanje jedan broj",
+    passwordRequiredSymbolSignUp:
+      "Lozinka mora sadržati najmanje jedan specijalni karakter",
+    passwordRequiredSignUp: "Lozinka je obavezna",
+    confirmPasswordRequiredSignUp: "Potvrda lozinke je obavezna",
+    confirmPasswordMatchSignUp: "Lozinke se moraju podudarati",
+    languageRequiredSignUp: "Jezik je obavezan",
   },
 };
