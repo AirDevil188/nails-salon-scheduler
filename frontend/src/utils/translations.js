@@ -6,6 +6,11 @@ export const translations = {
     emailPlaceholder: "Email",
     singInButton: "Sign In",
 
+    // Validator msgs
+    emailFormatSignIn: "Invalid email format",
+    emailRequiredSignIn: "Email is required",
+    passwordRequiredSignIn: "Password is required",
+
     // Invite Flow
 
     // [token].jsx
@@ -54,6 +59,11 @@ export const translations = {
     signInHeading: "Prijavite se na svoj nalog",
     emailPlaceholder: "Mejl",
     singInButton: "Prijavi se",
+
+    // Validator msgs
+    emailFormatSignIn: "Neispravan format mejl adrese",
+    emailRequiredSignIn: "Mejl je obavezan",
+    passwordRequiredSignIn: "Lozinka je obavezna",
 
     // Invite Flow
 
