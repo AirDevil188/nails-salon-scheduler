@@ -26,12 +26,13 @@ const useAuthStore = create((set, get) => ({
   invitationToken: null,
   isSigningUp: false,
   isOtpVerified: false,
+  invitationEmail: null,
 
   // ACTIONS
   setIsLoading: (loading) => set({ isLoading: loading }),
 
-  startSignUp: (token) => {
-    set({ isSigningUp: true, invitationToken: token });
+  startSignUp: (token, email) => {
+    set({ isSigningUp: true, invitationToken: token, invitationEmail: email });
   },
 
   completeOtpStep: () => {
