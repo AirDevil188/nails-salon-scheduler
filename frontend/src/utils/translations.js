@@ -52,6 +52,12 @@ export const translations = {
     confirmPasswordRequiredSignUp: "Confirm password is required",
     confirmPasswordMatchSignUp: "Passwords must match",
     languageRequiredSignUp: "Language is required",
+
+    // profile.jsx
+    createdPlaceholder: "Created at: ",
+    rolePlaceholder: "Role",
+    changePasswordPlaceholder: "Change password",
+    logutPlaceholder: "Logout",
   },
   sr: {
     // public routes
@@ -104,5 +110,11 @@ export const translations = {
     confirmPasswordRequiredSignUp: "Potvrda lozinke je obavezna",
     confirmPasswordMatchSignUp: "Lozinke se moraju podudarati",
     languageRequiredSignUp: "Jezik je obavezan",
+
+    // profile.jsx
+    createdPlaceholder: "Kreiran: ",
+    rolePlaceholder: "Uloga",
+    changePasswordPlaceholder: "Promena lozinke",
+    logutPlaceholder: "Odjavi se",
   },
 };
