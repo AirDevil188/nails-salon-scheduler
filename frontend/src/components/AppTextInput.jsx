@@ -24,11 +24,11 @@ export default function AppTextInput({
 const styles = StyleSheet.create({
   input: {
     shadowColor: theme.colorLightGrey,
+    color: theme.colorBlack,
     height: 50,
     backgroundColor: theme.colorWhite,
     borderRadius: 6,
     padding: 20,
-    overflow: "hidden",
     marginBottom: 10,
     shadowOffset: {
       width: 0,
