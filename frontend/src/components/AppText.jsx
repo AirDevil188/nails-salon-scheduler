@@ -1,4 +1,5 @@
 import { Text, StyleSheet } from "react-native";
+import { theme } from "../theme";
 
 export default function AppText({ children, style, ...otherProps }) {
   return (
@@ -10,8 +11,8 @@ export default function AppText({ children, style, ...otherProps }) {
 
 export const AppTextStyle = StyleSheet.create({
   defaultText: {
-    fontSize: 16,
-    color: "#333",
+    fontSize: 15,
+    color: theme.colorBlack,
     fontFamily: "Inter-Regular",
   },
   h1: {
