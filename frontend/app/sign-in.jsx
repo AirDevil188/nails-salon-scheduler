@@ -4,6 +4,7 @@ import {
   ScrollView,
   StatusBar,
   Pressable,
+  TextInput,
 } from "react-native";
 import Logo from "../assets/logo.svg";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -94,7 +95,11 @@ export default function SignIn() {
                       ? styles.errorInputBorder
                       : null,
                   ]}
-                  placeholderTextColor={theme.colorLightGrey}
+                  placeholderTextColor={
+                    touched.email && errors.email
+                      ? theme.colorBlack
+                      : theme.colorLightGrey
+                  }
                   keyboardType={"email-address"}
                   autoCapitalize="none"
                   onChangeText={handleChange("email")}
@@ -110,7 +115,11 @@ export default function SignIn() {
                       : null,
                   ]}
                   inputMode={"password"}
-                  placeholderTextColor={theme.colorLightGrey}
+                  placeholderTextColor={
+                    touched.password && errors.password
+                      ? theme.colorBlack
+                      : theme.colorLightGrey
+                  }
                   secureTextEntry={true}
                   autoCapitalize="none"
                   onChangeText={handleChange("password")}
