@@ -1,12 +1,14 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useEffect } from "react";
 import useAuthStore from "../src/stores/useAuthStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ActivityIndicator } from "react-native";
 import { theme } from "../src/theme";
+import { setAuthHeader } from "../src/utils/axiosInstance";
+import { clearSecureStorage, getToken } from "../src/utils/secureStore";
 
 const queryClient = new QueryClient();
 
@@ -22,9 +24,37 @@ export default function RootLayout() {
     "Inter-BoldItalic": require("../assets/fonts/Inter-BoldItalic.ttf"),
     // Add any other weights you plan to use
   });
-  const { isLoggedIn, isSigningUp } = useAuthStore();
+  const { isLoggedIn, isSigningUp, isLoading } = useAuthStore();
 
-  if (!fontsLoaded) {
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const { login, logout, setIsLoading } = useAuthStore.getState();
+      setIsLoading(true);
+      try {
+        // get tokens from expo-secure store
+        const storedAccessToken = await getToken("accessToken");
+        const storedRefreshToken = await getToken("refreshToken");
+        const storedUserInfo = await getToken("userInfo");
+
+        const userInfo = JSON.parse(storedUserInfo);
+
+        setAuthHeader(storedAccessToken);
+
+        // if storedAccessToken is present
+        if (storedAccessToken) {
+          login(storedAccessToken, storedRefreshToken, userInfo);
+        }
+      } catch (err) {
+        logout();
+        console.log(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initializeAuth();
+  }, []);
+
+  if (!fontsLoaded || isLoading) {
     return (
       <ActivityIndicator
         animating={true}
