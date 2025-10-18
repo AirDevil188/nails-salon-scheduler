@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import api from "../utils/axiosInstance";
+import api, { setExpoPushHeader } from "../utils/axiosInstance";
 import useAuthStore from "../stores/useAuthStore";
 import { router } from "expo-router";
-import { saveToken } from "../utils/secureStore";
+import { saveToken, saveUserInfo } from "../utils/secureStore";
+import { getDevicePushToken } from "../utils/notifications";
 
 export default function usePostSignUp() {
   const { invitationToken, invitationEmail } = useAuthStore.getState();
@@ -41,6 +42,13 @@ export default function usePostSignUp() {
           // save accessToken and the refreshToken to the expo-secure storage
           await saveToken("accessToken", data.accessToken);
           await saveToken("refreshToken", data.refreshToken);
+          await saveUserInfo("userInfo", data.userInfo);
+
+          // generate the expo device push token
+          const expoPushToken = await getDevicePushToken();
+
+          // set expo push header
+          setExpoPushHeader(expoPushToken);
           // set isLoggedIn to true isSigningUp to false and initialize tokens in the store
           login(data.accessToken, data.refreshToken, data.userInfo);
           // navigate to the root of the project
