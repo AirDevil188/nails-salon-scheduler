@@ -71,6 +71,14 @@ export default function RootLayout() {
           <Stack>
             <Stack.Protected guard={isLoggedIn}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="edit-profile"
+                options={{
+                  title: "Edit Profile",
+                  presentation: "modal",
+                  headerShown: true,
+                }}
+              />
             </Stack.Protected>
             <Stack.Protected guard={!isLoggedIn && !isSigningUp}>
               <Stack.Screen name="sign-in" options={{ headerShown: false }} />
