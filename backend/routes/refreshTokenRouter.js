@@ -14,4 +14,11 @@ refreshTokenRouter.post(
   refreshTokenController.generateNewRefreshToken
 );
 
+refreshTokenRouter.delete(
+  "/refresh/invalidate",
+  languagePrefer,
+  validateRefreshToken,
+  refreshTokenController.revokeOnLogout
+);
+
 module.exports = refreshTokenRouter;
