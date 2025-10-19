@@ -1,6 +1,7 @@
 const { adminHandler } = require("@socketHandlers/adminHandler");
 const { userHandler } = require("@socketHandlers/userHandler");
 const db = require("@db/query");
+const { getIo } = require("../services/socketManager");
 
 const serverHandler = (socket, next) => {
   const user = socket.user;
@@ -21,10 +22,15 @@ const serverHandler = (socket, next) => {
     await db.updateUserOnlineStatus(user.id, false, new Date());
 
     // 2. Broadcast status change (e.g., to the admin dashboard)
-    io.to("admin-dashboard").emit("user.offline", {
-      userId: user.id,
-      timestamp: new Date(),
-    });
+    const io = getIo();
+
+    if (io) {
+      // 4. Broadcast status change (e.g., to the admin dashboard)
+      io.to("admin-dashboard").emit("user.offline", {
+        userId: user.id,
+        timestamp: new Date(),
+      });
+    }
   });
 };
 

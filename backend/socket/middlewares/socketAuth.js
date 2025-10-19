@@ -18,7 +18,7 @@ const authenticateSocketToken = async (socket, next) => {
   }
   // verify the token
   try {
-    const user = await verifyToken(token);
+    const user = await verifyToken(token, "access");
 
     // if the token is not valid throw an error
     if (!user) {
