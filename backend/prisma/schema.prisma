@@ -63,6 +63,7 @@ model Token {
   token String @unique @db.Text
   userId String
   expiresAt DateTime
+  isRevoked Boolean @default(false)
   user User[]
 
   @@map("token")
