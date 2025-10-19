@@ -39,11 +39,7 @@ const generateNewRefreshToken = async (req, res, next) => {
       return next(error);
     }
 
-    const {
-      password: _,
-
-      ...rest
-    } = findUser;
+    const { password: _, ...rest } = findUser;
     const userInfo = Object.assign({}, rest);
 
     // access token payload
@@ -77,6 +73,35 @@ const generateNewRefreshToken = async (req, res, next) => {
     return next(internalError);
   }
 };
+
+const revokeOnLogout = async (req, res, next) => {
+  const { id } = req?.refreshToken;
+
+  if (!id) {
+    const error = new Error("refresh_token_user_not_found");
+    error.status = 401;
+    return next(error);
+  }
+  try {
+    await db.invalidateRefreshToken(id);
+
+    return res.status(200).json({ message: "Logout successful." });
+  } catch (err) {
+    console.error("Error revoking token during logout:", err);
+
+    // Check for specific error status from the helper function
+    if (err.status) {
+      return next(err);
+    }
+
+    const internalError = new Error(
+      "An internal server error occurred during logout."
+    );
+    internalError.status = 500;
+    return next(internalError);
+  }
+};
 module.exports = {
   generateNewRefreshToken,
+  revokeOnLogout,
 };
