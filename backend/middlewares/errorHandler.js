@@ -10,8 +10,7 @@ const errorHandler = (err, req, res, next) => {
   const defaultLanguage = "sr";
   let type = null;
 
-  const languageKey =
-    req.get("x-app-language")?.split("-").toLowerCase().trim()[0] || "sr";
+  const languageKey = req?.resolvedLanguage ? req.resolvedLanguage : "sr";
 
   if (!supportedLanguages.includes(languageKey)) {
     type = languages[defaultLanguage];
