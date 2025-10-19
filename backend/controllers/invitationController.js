@@ -130,6 +130,7 @@ const validateInvitation = async (req, res, next) => {
       return res.status(200).json({
         success: true,
         message: type.success_invitation_and_code_already_verified,
+        invitation: invitation,
         invitationToken: token,
         redirect: true,
       });
