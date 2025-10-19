@@ -3,22 +3,34 @@ const { generateRefreshToken, signToken } = require("@utils/utils");
 const { addDays } = require("date-fns/addDays");
 const generateNewRefreshToken = async (req, res, next) => {
   /// get from validateRefreshToken middleware
-  const { id, userId } = req?.refreshToken;
+  const { id, userId, isRevoked } = req?.refreshToken;
+
+  if (isRevoked === true) {
+    // Revoke all refresh tokens for this user and log them out.
+    await db.revokeAllRefreshTokensFromUser(userId);
+    const error = new Error("token_stolen_revoked_all");
+    error.status = 401; // Unauthorized
+    return next(error);
+  }
 
   try {
+    // invalidate the old token
+    await db.invalidateRefreshToken(id);
     // generate new raw token value
     const newRefreshRawToken = generateRefreshToken();
 
     // create new refresh token expiration
     const newExpiresAt = addDays(new Date(), 30);
 
-    // update the token value in db with new one
-    const { findUser, updateToken } = await db.updateRefreshToken(
-      id,
+    // create the token in db
+    const newRefreshToken = await db.createRefreshToken(
       newRefreshRawToken,
-      newExpiresAt,
-      userId
-    ); // this is upsert method i think that is better than update
+      userId,
+      newExpiresAt
+    );
+
+    // see if the user is present with the id in db
+    const findUser = await db.findUserById(userId);
 
     // if the user is not found throw 401 err
     if (!findUser) {
@@ -27,7 +39,11 @@ const generateNewRefreshToken = async (req, res, next) => {
       return next(error);
     }
 
-    const { password: _, ...rest } = findUser;
+    const {
+      password: _,
+
+      ...rest
+    } = findUser;
     const userInfo = Object.assign({}, rest);
 
     // access token payload
@@ -37,12 +53,12 @@ const generateNewRefreshToken = async (req, res, next) => {
     };
     // refresh token payload
     const refreshPayload = {
-      id: updateToken.id,
-      userId: updateToken.userId,
+      id: newRefreshToken.id,
+      userId: newRefreshToken.userId,
     };
 
     // new access token
-    const accessToken = signToken(newPayload, "15m", "access");
+    const accessToken = signToken(newPayload, "20sec", "access");
     // new refresh token
     const refreshToken = signToken(refreshPayload, "30d", "refresh");
 
