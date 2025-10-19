@@ -52,12 +52,26 @@ export const translations = {
     confirmPasswordRequiredSignUp: "Confirm password is required",
     confirmPasswordMatchSignUp: "Passwords must match",
     languageRequiredSignUp: "Language is required",
+    languageInvalid: "Language that you have selected is invalid",
 
     // profile.jsx
     createdPlaceholder: "Created at: ",
     rolePlaceholder: "Role",
     changePasswordPlaceholder: "Change password",
     logutPlaceholder: "Logout",
+    logoutAlert: "Are you sure that you want to logout?",
+    deleteProfilePlaceholder: "Delete account",
+    deleteProfileAlert: "Are you sure that you want to delete your account?",
+
+    // profile-edit.jsx
+    firstNameLabel: "First Name",
+    lastNameLabel: "Last Name",
+    languageLabel: "Language",
+    editButtonProfileUpdate: "Update",
+
+    // alert general
+    yesPlaceholder: "Yes",
+    noPlaceholder: "Cancel",
   },
   sr: {
     // public routes
@@ -110,11 +124,25 @@ export const translations = {
     confirmPasswordRequiredSignUp: "Potvrda lozinke je obavezna",
     confirmPasswordMatchSignUp: "Lozinke se moraju podudarati",
     languageRequiredSignUp: "Jezik je obavezan",
+    languageInvalid: "Jezik koji ste odabrali nije podržan",
 
     // profile.jsx
     createdPlaceholder: "Kreiran: ",
     rolePlaceholder: "Uloga",
     changePasswordPlaceholder: "Promena lozinke",
     logutPlaceholder: "Odjavi se",
+    logoutAlert: "Da li ste sigurni da želite da se odjavite?",
+    deleteProfilePlaceholder: "Obriši nalog",
+    deleteProfileAlert: "Da li ste sigurni da želite da obrišete vaš nalog?",
+
+    // profile-edit.jsx
+    firstNameLabel: "Ime",
+    lastNameLabel: "Prezime",
+    languageLabel: "Jezik",
+    editButtonProfileUpdate: "Ažuriraj",
+
+    // alert general
+    yesPlaceholder: "Da",
+    noPlaceholder: "Otkaži",
   },
 };
