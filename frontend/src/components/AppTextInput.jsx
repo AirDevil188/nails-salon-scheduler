@@ -1,26 +1,42 @@
+import React from "react";
 import { TextInput } from "react-native";
 import { StyleSheet } from "react-native";
 import { theme } from "../theme";
 
-export default function AppTextInput({
-  style,
-  value,
-  onChange,
-  onBlur,
-  ...otherProps
-}) {
-  return (
-    <TextInput
-      underlineColorAndroid={"transparent"}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      style={[styles.input, style]}
-      {...otherProps}
-      multiline={false}
-    ></TextInput>
-  );
-}
+const AppTextInput = React.forwardRef(
+  (
+    {
+      style,
+      value,
+      onChange,
+      onBlur,
+      onSubmitEditing,
+      onChangeText,
+      ...otherProps
+    },
+    ref
+  ) => {
+    // 👈 'ref' is the second argument, no semicolon needed here
+    return (
+      <TextInput
+        ref={ref}
+        underlineColorAndroid={"transparent"}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        onSubmitEditing={onSubmitEditing}
+        style={[styles.input, style]}
+        {...otherProps}
+        onChangeText={onChangeText}
+        multiline={false}
+      />
+    );
+  }
+); // 👈 Semicolon should be here
+
+AppTextInput.displayName = "AppTextInput";
+export default AppTextInput;
+
 const styles = StyleSheet.create({
   input: {
     shadowColor: theme.colorLightGrey,
