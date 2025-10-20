@@ -3,6 +3,7 @@ import api from "../utils/axiosInstance";
 import useAuthStore from "../stores/useAuthStore";
 import { router } from "expo-router";
 import { saveToken, saveUserInfo } from "../utils/secureStore";
+import { connectSocket } from "../utils/socket";
 
 export default function usePostSignIn() {
   return useMutation({
@@ -27,6 +28,8 @@ export default function usePostSignIn() {
         await saveUserInfo("userInfo", data.userInfo);
         // save tokens and userInfo to the auth store
         login(data.accessToken, data.refreshToken, data.userInfo);
+        // connect the socket
+        connectSocket(data.accessToken);
         return router.replace("/");
       }
     },
