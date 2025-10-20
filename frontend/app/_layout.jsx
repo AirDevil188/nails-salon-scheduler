@@ -9,6 +9,7 @@ import { ActivityIndicator } from "react-native";
 import { theme } from "../src/theme";
 import { setAuthHeader } from "../src/utils/axiosInstance";
 import { clearSecureStorage, getToken } from "../src/utils/secureStore";
+import { connectSocket } from "../src/utils/socket";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +29,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const { login, logout, setIsLoading } = useAuthStore.getState();
+      const { login, setIsLoading } = useAuthStore.getState();
       setIsLoading(true);
       try {
         // get tokens from expo-secure store
@@ -36,16 +37,18 @@ export default function RootLayout() {
         const storedRefreshToken = await getToken("refreshToken");
         const storedUserInfo = await getToken("userInfo");
 
-        const userInfo = JSON.parse(storedUserInfo);
-
-        setAuthHeader(storedAccessToken);
+        const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
 
         // if storedAccessToken is present
-        if (storedAccessToken) {
+        if (storedAccessToken && storedRefreshToken && userInfo) {
+          setAuthHeader(storedAccessToken);
+
           login(storedAccessToken, storedRefreshToken, userInfo);
+          connectSocket(storedAccessToken);
         }
       } catch (err) {
-        logout();
+        useAuthStore.getState().logout();
+        await clearSecureStorage();
         console.log(err);
       } finally {
         setIsLoading(false);
@@ -70,7 +73,7 @@ export default function RootLayout() {
           <StatusBar style="auto" />
           <Stack>
             <Stack.Protected guard={isLoggedIn}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(main)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="edit-profile"
                 options={{
