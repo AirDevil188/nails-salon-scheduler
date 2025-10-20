@@ -1,22 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "../utils/axiosInstance";
+import { userKeys } from "../utils/queryKeys";
 
 export default function useGetUserProfile() {
   return useQuery({
-    queryKey: ["userProfile"],
+    queryKey: userKeys.profile,
 
     queryFn: async () => {
       try {
         const response = await api.get("/api/users/profile");
-        console.log(response);
         return response.data;
       } catch (err) {
-        const errors = err.response;
-        console.log(err.response);
         console.log("Error inside a queryFn", err);
         throw err;
       }
     },
     staleTime: Infinity,
+    cacheTim: 10 * 60 * 1000,
   });
 }
