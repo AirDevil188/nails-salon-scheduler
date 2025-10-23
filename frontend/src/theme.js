@@ -1,5 +1,6 @@
 export const theme = {
   colorLightGrey: "#888",
+  colorDarkPink: "#DC166E",
   colorBlue: "#5465FF",
   colorWhite: "#FFF",
   colorBlack: "#000",
@@ -7,4 +8,13 @@ export const theme = {
   colorRedError: "#a6192e",
   colorRedBorderError: "#c25a5a",
   disabledInput: "'#f0f0f0'",
+  scheduled: "orange",
+  completed: "green",
+  noShow: "grey",
+  canceled: "red",
+  gradientScheduled: ["#ffe9d6", "#ffc7a3"],
+  gradientCompleted: ["#d5f5d5", "#b3e8b3"],
+  gradientNoShow: ["#fceeee", "#f7d6d6"],
+  gradientCanceled: ["#e8e8e8", "#d0d0d0"],
+  default: ["white", "white"],
 };
