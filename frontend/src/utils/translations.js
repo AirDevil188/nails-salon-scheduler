@@ -1,3 +1,5 @@
+import { LocaleConfig } from "react-native-calendars";
+
 export const translations = {
   en: {
     // public routes
@@ -72,6 +74,13 @@ export const translations = {
     // alert general
     yesPlaceholder: "Yes",
     noPlaceholder: "Cancel",
+
+    // appointment cards
+    scheduleStatus: "Scheduled",
+    completeStatus: "Completed",
+    cancelStatus: "Canceled",
+    noShowStatus: "No-Show",
+    noAppointments: "No appointments scheduled for",
   },
   sr: {
     // public routes
@@ -144,5 +153,100 @@ export const translations = {
     // alert general
     yesPlaceholder: "Da",
     noPlaceholder: "Otkaži",
+
+    // appointment cards
+    scheduleStatus: "Zakazan",
+    completeStatus: "Završen",
+    cancelStatus: "Otkazan",
+    noShowStatus: "Nije došao",
+    noAppointments: "Nema termina za",
   },
+};
+LocaleConfig.locales["sr"] = {
+  monthNames: [
+    "Januar",
+    "Februar",
+    "Mart",
+    "April",
+    "Maj",
+    "Jun",
+    "Jul",
+    "Avgust",
+    "Septembar",
+    "Oktobar",
+    "Novembar",
+    "Decembar",
+  ],
+  monthNamesShort: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "Maj",
+    "Jun",
+    "Jul",
+    "Avg",
+    "Sep",
+    "Okt",
+    "Nov",
+    "Dec",
+  ],
+  dayNames: [
+    "Nedelja",
+    "Ponedeljak",
+    "Utorak",
+    "Sreda",
+    "Četvrtak",
+    "Petak",
+    "Subota",
+  ],
+  dayNamesShort: ["Ned", "Pon", "Uto", "Sre", "Čet", "Pet", "Sub"],
+  today: "Danas",
+};
+
+// 2. Define English (en) - For completeness and to ensure it's available
+LocaleConfig.locales["en"] = {
+  monthNames: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
+  monthNamesShort: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ],
+  dayNames: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ],
+  dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  today: "Today",
+};
+
+export const setCalendarLocale = (locale = "en") => {
+  LocaleConfig.defaultLocale = locale;
 };
