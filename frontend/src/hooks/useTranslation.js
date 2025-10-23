@@ -11,12 +11,10 @@ export const useTranslation = () => {
 
   // get active translation key
   const tKey = getTranslationKey(preferredLanguage);
-  console.log(tKey);
 
   const t = (key) => {
     return tKey[key] || key;
   };
-  console.log(t, "hello");
 
   const setLanguage = useAuthStore((state) => state.setLanguage);
 
