@@ -20,8 +20,12 @@ import { useTranslation } from "../../../src/hooks/useTranslation";
 import AppText from "../../../src/components/AppText";
 import { srLatn } from "date-fns/locale";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import useAppointmentStore from "../../../src/stores/useAppointmentStore";
+import React, { useEffect } from "react";
 
 const CalendarView = () => {
+  const router = useRouter();
   const { preferredLanguage } = useAuthStore.getState();
   const { t } = useTranslation();
 
@@ -66,20 +70,18 @@ const CalendarView = () => {
     true
   );
 
-  console.log(fetchedData);
+  const stableDataToProcess = fetchedData; // Use the raw fetchedData now
 
-  const stableFetchedDataRef = useRef(fetchedData);
-  const lastApptCountRef = useRef(fetchedData?.appointments?.length || 0);
+  const setMonthlyAppointments = useAppointmentStore(
+    (state) => state.setMonthlyAppointments
+  ); // Get setter
 
-  // check if the new count of fetched date matches the ref if not then update
-  if (
-    fetchedData &&
-    fetchedData.appointments?.length !== lastApptCountRef.current
-  ) {
-    stableFetchedDataRef.current = fetchedData;
-    lastApptCountRef.current = fetchedData.appointments.length;
-  }
-  const stableDataToProcess = stableFetchedDataRef.current;
+  // 💡 NEW: Push the data into Zustand when it successfully loads
+  useEffect(() => {
+    if (fetchedData?.appointments) {
+      setMonthlyAppointments(fetchedData.appointments);
+    }
+  }, [fetchedData, setMonthlyAppointments]);
 
   function processMarkDates(data) {
     if (!data || !data.appointments || data.appointments.length === 0) {
@@ -187,6 +189,13 @@ const CalendarView = () => {
     setCurrentMonth(incomingDate);
   }, []);
 
+  const handleCardPress = useCallback(
+    (item) => {
+      return router.push(`/${item.id}`);
+    },
+    [router]
+  );
+
   const renderItem = useCallback(
     ({ item }) => {
       if (isLoading) {
@@ -196,7 +205,7 @@ const CalendarView = () => {
           </View>
         );
       }
-      return <AppointmentCard item={item} />;
+      return <AppointmentCard item={item} handleOnPress={handleCardPress} />;
     },
     [isLoading]
   );
