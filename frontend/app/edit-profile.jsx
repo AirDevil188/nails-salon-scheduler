@@ -57,7 +57,6 @@ export default function EditProfileScreen() {
                   const profile = data.profile || data;
 
                   const { setLanguage } = useAuthStore.getState();
-                  console.warn(data);
                   setLanguage(data.preferredLanguage);
 
                   router.back();
