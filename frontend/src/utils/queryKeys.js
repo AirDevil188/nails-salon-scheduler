@@ -13,3 +13,11 @@ export const userKeys = {
 
   profile: ["user", "profile"],
 };
+
+export const appointmentKeys = {
+  all: ["appointments"],
+
+  list: (params = {}) => {
+    return [...appointmentKeys.all, params];
+  },
+};
