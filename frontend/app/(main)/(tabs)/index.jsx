@@ -97,9 +97,15 @@ const CalendarView = () => {
       // the dots will be added only if the length is smaller than thgee
       if (markedDates[dateKey].dots.length < 3) {
         markedDates[dateKey].dots.push({
-          key: date.appNumber,
+          key: date.id,
           color:
-            date.status === "scheduled" ? theme.scheduled : theme.completed,
+            date.status === "scheduled"
+              ? theme.scheduled
+              : date.status === "completed"
+                ? theme.completed
+                : date.status === "no_show"
+                  ? theme.noShow
+                  : theme.canceled,
           selectedDotColor: "white",
         });
       }
@@ -191,7 +197,7 @@ const CalendarView = () => {
 
   const handleCardPress = useCallback(
     (item) => {
-      return router.push(`/${item.id}`);
+      router.push(`/${item.id}`);
     },
     [router]
   );
@@ -212,7 +218,7 @@ const CalendarView = () => {
 
   const appointmentKeyExtractor = useCallback((item) => {
     // Use the unique appNumber, converted to string for keyExtractor
-    return String(item.appNumber);
+    return item.id ? String(item.id) : String(item.appNumber);
   }, []);
 
   if (isListView) {
