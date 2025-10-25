@@ -1,15 +1,21 @@
-import { router, Stack } from "expo-router";
+import { Link, router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import useAuthStore from "../src/stores/useAuthStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { ActivityIndicator } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { theme } from "../src/theme";
 import { setAuthHeader } from "../src/utils/axiosInstance";
 import { clearSecureStorage, getToken } from "../src/utils/secureStore";
 import { connectSocket } from "../src/utils/socket";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +85,47 @@ export default function RootLayout() {
                 options={{
                   title: "Edit Profile",
                   presentation: "modal",
+                  headerShown: true,
+                }}
+              />
+              <Stack.Screen
+                name="[appointmentId]"
+                options={{
+                  headerRight: () => {
+                    return (
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 20,
+                          padding: 10,
+                          backgroundColor: "transparent",
+                          marginRight: 10,
+                        }}
+                      >
+                        <Link href={"/edit-profile"} asChild>
+                          <TouchableOpacity
+                            style={{ backgroundColor: "transparent" }}
+                          >
+                            <MaterialIcons
+                              name="edit"
+                              size={24}
+                              color={theme.colorDarkPink}
+                            />
+                          </TouchableOpacity>
+                        </Link>
+                        <Link href={"/edit-profile"} asChild>
+                          <TouchableOpacity style={{}}>
+                            <MaterialIcons
+                              name="delete"
+                              size={24}
+                              color={theme.colorDarkPink}
+                            />
+                          </TouchableOpacity>
+                        </Link>
+                      </View>
+                    );
+                  },
                   headerShown: true,
                 }}
               />
