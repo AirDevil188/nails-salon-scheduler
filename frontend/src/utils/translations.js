@@ -81,6 +81,13 @@ export const translations = {
     cancelStatus: "Canceled",
     noShowStatus: "No-Show",
     noAppointments: "No appointments scheduled for",
+
+    // appointment details
+    appointmentDetailsTitle: "Title",
+    appointmentDetailsStatus: "Status",
+    appointmentDetailsStartDateTime: "Starting",
+    appointmentDetailsEndDateTime: "Ending",
+    appointmentDetailsUser: "Client",
   },
   sr: {
     // public routes
@@ -160,6 +167,13 @@ export const translations = {
     cancelStatus: "Otkazan",
     noShowStatus: "Nije došao",
     noAppointments: "Nema termina za",
+
+    // appointment details
+    appointmentDetailsTitle: "Naslov",
+    appointmentDetailsStatus: "Status",
+    appointmentDetailsStartDateTime: "Počinje",
+    appointmentDetailsEndDateTime: "Završava",
+    appointmentDetailsUser: "Klijent",
   },
 };
 LocaleConfig.locales["sr"] = {
