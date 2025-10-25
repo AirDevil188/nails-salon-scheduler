@@ -20,4 +20,8 @@ export const appointmentKeys = {
   list: (params = {}) => {
     return [...appointmentKeys.all, params];
   },
+
+  detail: (id) => {
+    return [...appointmentKeys.all, "detail", id];
+  },
 };
