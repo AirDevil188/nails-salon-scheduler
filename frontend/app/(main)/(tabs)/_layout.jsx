@@ -8,19 +8,30 @@ import { theme } from "../../../src/theme";
 import DrawerToggle from "../../../src/components/DrawerToggle";
 import { useState } from "react";
 import useLayoutStore from "../../../src/stores/useLayoutStore";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import Fontisto from "@expo/vector-icons/Fontisto";
+import { useTranslation } from "../../../src/hooks/useTranslation";
 
 export default function TabsLayout() {
   const isListView = useLayoutStore((state) => state.isListView);
   const toggleListView = useLayoutStore((state) => state.toggleListView);
+  const { t } = useTranslation();
 
   return (
     <Tabs
-      screenOptions={{ headerShown: true, headerLeft: () => <DrawerToggle /> }}
+      screenOptions={{
+        tabBarActiveTintColor: theme.colorDarkPink,
+        headerShown: true,
+        headerLeft: () => <DrawerToggle />,
+      }}
     >
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          tabBarIcon: ({ color, size }) => (
+            <Fontisto name="female" size={size} color={color} />
+          ),
+          title: t("tabProfile"),
           headerRight: () => (
             <Link href={"/edit-profile"} asChild>
               <Pressable style={{ marginRight: 18 }}>
@@ -37,7 +48,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Calendar",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="calendar-month" size={size} color={color} />
+          ),
+          title: t("tabCalendar"),
           headerRight: () => (
             <Pressable style={{ marginRight: 18 }} onPress={toggleListView}>
               {isListView ? (
@@ -57,7 +71,15 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="notes" options={{ title: "Notes" }} />
+      <Tabs.Screen
+        name="notes"
+        options={{
+          title: t("tabNotes"),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="notebook" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
