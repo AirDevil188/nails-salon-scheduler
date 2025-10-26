@@ -56,6 +56,12 @@ export const translations = {
     languageRequiredSignUp: "Language is required",
     languageInvalid: "Language that you have selected is invalid",
 
+    // tabs navigation - main
+    tabProfile: "Profile",
+    tabCalendar: "Calendar",
+    tabNotes: "Notes",
+    tabNotifications: "Notifications",
+
     // profile.jsx
     createdPlaceholder: "Created at: ",
     rolePlaceholder: "Role",
@@ -141,6 +147,12 @@ export const translations = {
     confirmPasswordMatchSignUp: "Lozinke se moraju podudarati",
     languageRequiredSignUp: "Jezik je obavezan",
     languageInvalid: "Jezik koji ste odabrali nije podržan",
+
+    // tabs navigation - main
+    tabProfile: "Profil",
+    tabCalendar: "Kalendar",
+    tabNotes: "Beleške",
+    tabNotifications: "Notifikacije",
 
     // profile.jsx
     createdPlaceholder: "Kreiran: ",
