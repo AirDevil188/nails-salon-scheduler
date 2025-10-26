@@ -94,7 +94,26 @@ export const translations = {
     appointmentDetailsStartDateTime: "Starting",
     appointmentDetailsEndDateTime: "Ending",
     appointmentDetailsUser: "Client",
+
+    // appointment creation
+    appointmentDateTypeError: "Invalid date format",
+    appointmentTitleRequired: "Appointment title is required",
+    appointmentStartDateTimeRequired: "Appointment start date time is required",
+    appointmentStartDateTimePast:
+      "Appointment start time cannot be in the past. Please select a future time",
+    appointmentDescriptionMax:
+      "Appointment description cannot exceed 500 characters",
+    appointmentOneClientRequired:
+      "'An appointment must be linked to a registered user or include an external client name",
+
+    appointmentTitleLabel: "Title",
+    appointmentDescriptionLabel: "Description",
+    appointmentStartDateLabel: "Start Date and Time",
+    appointmentEndDateLabel: "End time",
+    appointmentUserLabel: "Client",
+    appointmentExternalClientLabel: "External client",
   },
+
   sr: {
     // public routes
     // sign-in.jsx
@@ -186,6 +205,24 @@ export const translations = {
     appointmentDetailsStartDateTime: "Počinje",
     appointmentDetailsEndDateTime: "Završava",
     appointmentDetailsUser: "Klijent",
+
+    // appointment creation
+    appointmentDateTypeError: "Neispravan format datuma",
+    appointmentTitleRequired: "Naziv termina je obavezan",
+    appointmentStartDateTimeRequired: "Početak termina je obavezan",
+    appointmentStartDateTimePast:
+      " Početak termina ne može biti u prošlom vremenu. Molim Vas selektujte buduće vreme",
+    appointmentDescriptionMax:
+      "Opis termina ne može biti duži od 500 karaktera",
+    appointmentOneClientRequired:
+      "'Termin mora biti vezan za registrovanog korisnika ili mora sadržati eksterno ime klijenta.",
+
+    appointmentTitleLabel: "Naslov",
+    appointmentDescriptionLabel: "Opis",
+    appointmentStartDateLabel: "Datum i Vreme",
+    appointmentEndDateLabel: "Završetak",
+    appointmentUserLabel: "Klijent",
+    appointmentExternalClientLabel: "Eksternii klijent",
   },
 };
 LocaleConfig.locales["sr"] = {
