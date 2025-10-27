@@ -17,6 +17,8 @@ export const userKeys = {
 export const appointmentKeys = {
   all: ["appointments"],
 
+  new: ["appointmentCreate"],
+
   list: (params = {}) => {
     return [...appointmentKeys.all, params];
   },
