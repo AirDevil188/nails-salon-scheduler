@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { theme } from "../theme";
 import AppText from "./AppText";
 import { LinearGradient } from "expo-linear-gradient";
@@ -8,7 +8,7 @@ import { useTranslation } from "../hooks/useTranslation";
 import { formatAppointmentNumber } from "../utils/formatAppointmentNumber";
 import React from "react";
 
-const AppointmentCard = React.memo(({ item }) => {
+const AppointmentCard = React.memo(({ item, handleOnPress }) => {
   const { t } = useTranslation();
 
   let gradientColors;
@@ -28,154 +28,156 @@ const AppointmentCard = React.memo(({ item }) => {
   }
   // Render individual appointment details
   return (
-    <View style={styles.itemCard}>
-      <View style={styles.itemBorderAndTime}>
-        <AppText style={styles.cardTimeHeader}>
-          {format(new Date(item.startDateTime), "HH:mm")}
-        </AppText>
-        <View style={styles.horizontalLine} />
+    <Pressable onPress={() => handleOnPress(item)}>
+      <View style={styles.itemCard}>
+        <View style={styles.itemBorderAndTime}>
+          <AppText style={styles.cardTimeHeader}>
+            {format(new Date(item.startDateTime), "HH:mm")}
+          </AppText>
+          <View style={styles.horizontalLine} />
+        </View>
+        <LinearGradient colors={gradientColors} style={[styles.cardInner]}>
+          <View style={styles.headingContainer}>
+            <View style={styles.cardTitleContainer}>
+              <AppText
+                style={[
+                  styles.itemTitle,
+                  item.status === "scheduled"
+                    ? { color: "#924f22" }
+                    : item.status === "completed"
+                      ? { color: "#1e4720" }
+                      : item.status === "canceled"
+                        ? { color: "#57212163" }
+                        : { color: theme.colorLightGrey },
+                ]}
+              >
+                {item.title}
+              </AppText>
+            </View>
+            <View style={styles.apptNumberContainer}>
+              <AppText
+                style={[
+                  styles.itemNumber,
+                  item.status === "scheduled"
+                    ? { color: "#924f22" }
+                    : item.status === "completed"
+                      ? { color: "#1e4720" }
+                      : item.status === "canceled"
+                        ? { color: "#57212163" }
+                        : { color: theme.colorLightGrey },
+                ]}
+              >
+                {formatAppointmentNumber(item.appNumber)}
+              </AppText>
+            </View>
+            <View style={styles.iconContainer}>
+              <Entypo
+                name="dots-three-horizontal"
+                size={24}
+                color={
+                  item.status === "scheduled"
+                    ? "#924f22"
+                    : item.status === "completed"
+                      ? "#1e4720"
+                      : item.status === "canceled"
+                        ? "#57212163"
+                        : theme.colorLightGrey
+                }
+              />
+            </View>
+          </View>
+          <View style={styles.cardStatusTimeContainer}>
+            <View style={styles.cardTime}>
+              <AppText
+                style={[
+                  styles.itemTime,
+                  item.status === "scheduled"
+                    ? { color: "#924f22" }
+                    : item.status === "completed"
+                      ? { color: "#1e4720" }
+                      : item.status === "canceled"
+                        ? { color: "#57212163" }
+                        : { color: theme.colorLightGrey },
+                ]}
+              >
+                {format(new Date(item.startDateTime), "HH:mm")} -
+                {format(new Date(item.endDateTime), "HH:mm")}
+              </AppText>
+            </View>
+            <View style={styles.iconContainer}>
+              <Entypo
+                name="dot-single"
+                size={24}
+                color={
+                  item.status === "scheduled"
+                    ? "#924f22"
+                    : item.status === "completed"
+                      ? "#1e4720"
+                      : item.status === "canceled"
+                        ? "#57212163"
+                        : theme.colorLightGrey
+                }
+              />
+            </View>
+            <View style={styles.cardStatus}>
+              <AppText
+                style={[
+                  styles.itemStatus,
+                  item.status === "scheduled"
+                    ? { color: "#924f22" }
+                    : item.status === "completed"
+                      ? { color: "#1e4720" }
+                      : item.status === "canceled"
+                        ? { color: "#57212163" }
+                        : { color: theme.colorLightGrey },
+                ]}
+              >
+                {item.status === "scheduled"
+                  ? t("scheduleStatus")
+                  : item.status === "completed"
+                    ? t("completeStatus")
+                    : item.status === "canceled"
+                      ? t("cancelStatus")
+                      : t("noShowStatus")}
+              </AppText>
+            </View>
+            <View style={styles.iconContainer}>
+              <Entypo
+                name="dot-single"
+                size={24}
+                color={
+                  item.status === "scheduled"
+                    ? "#924f22"
+                    : item.status === "completed"
+                      ? "#1e4720"
+                      : item.status === "canceled"
+                        ? "#57212163"
+                        : theme.colorLightGrey
+                }
+              />
+            </View>
+            <View>
+              <AppText
+                style={[
+                  styles.itemClient,
+                  item.status === "scheduled"
+                    ? { color: "#924f22" }
+                    : item.status === "completed"
+                      ? { color: "#1e4720" }
+                      : item.status === "canceled"
+                        ? { color: "#57212163" }
+                        : { color: theme.colorLightGrey },
+                ]}
+              >
+                {item.external_client
+                  ? item.external_client
+                  : item.user.first_name + " " + item.user.last_name}
+              </AppText>
+            </View>
+          </View>
+        </LinearGradient>
       </View>
-      <LinearGradient colors={gradientColors} style={[styles.cardInner]}>
-        <View style={styles.headingContainer}>
-          <View style={styles.cardTitleContainer}>
-            <AppText
-              style={[
-                styles.itemTitle,
-                item.status === "scheduled"
-                  ? { color: "#924f22" }
-                  : item.status === "completed"
-                    ? { color: "#1e4720" }
-                    : item.status === "canceled"
-                      ? { color: "#57212163" }
-                      : { color: theme.colorLightGrey },
-              ]}
-            >
-              {item.title}
-            </AppText>
-          </View>
-          <View style={styles.apptNumberContainer}>
-            <AppText
-              style={[
-                styles.itemNumber,
-                item.status === "scheduled"
-                  ? { color: "#924f22" }
-                  : item.status === "completed"
-                    ? { color: "#1e4720" }
-                    : item.status === "canceled"
-                      ? { color: "#57212163" }
-                      : { color: theme.colorLightGrey },
-              ]}
-            >
-              {formatAppointmentNumber(item.appNumber)}
-            </AppText>
-          </View>
-          <View style={styles.iconContainer}>
-            <Entypo
-              name="dots-three-horizontal"
-              size={24}
-              color={
-                item.status === "scheduled"
-                  ? "#924f22"
-                  : item.status === "completed"
-                    ? "#1e4720"
-                    : item.status === "canceled"
-                      ? "#57212163"
-                      : theme.colorLightGrey
-              }
-            />
-          </View>
-        </View>
-        <View style={styles.cardStatusTimeContainer}>
-          <View style={styles.cardTime}>
-            <AppText
-              style={[
-                styles.itemTime,
-                item.status === "scheduled"
-                  ? { color: "#924f22" }
-                  : item.status === "completed"
-                    ? { color: "#1e4720" }
-                    : item.status === "canceled"
-                      ? { color: "#57212163" }
-                      : { color: theme.colorLightGrey },
-              ]}
-            >
-              {format(new Date(item.startDateTime), "HH:mm")} -
-              {format(new Date(item.endDateTime), "HH:mm")}
-            </AppText>
-          </View>
-          <View style={styles.iconContainer}>
-            <Entypo
-              name="dot-single"
-              size={24}
-              color={
-                item.status === "scheduled"
-                  ? "#924f22"
-                  : item.status === "completed"
-                    ? "#1e4720"
-                    : item.status === "canceled"
-                      ? "#57212163"
-                      : theme.colorLightGrey
-              }
-            />
-          </View>
-          <View style={styles.cardStatus}>
-            <AppText
-              style={[
-                styles.itemStatus,
-                item.status === "scheduled"
-                  ? { color: "#924f22" }
-                  : item.status === "completed"
-                    ? { color: "#1e4720" }
-                    : item.status === "canceled"
-                      ? { color: "#57212163" }
-                      : { color: theme.colorLightGrey },
-              ]}
-            >
-              {item.status === "scheduled"
-                ? t("scheduleStatus")
-                : item.status === "completed"
-                  ? t("completeStatus")
-                  : item.status === "canceled"
-                    ? t("cancelStatus")
-                    : t("noShowStatus")}
-            </AppText>
-          </View>
-          <View style={styles.iconContainer}>
-            <Entypo
-              name="dot-single"
-              size={24}
-              color={
-                item.status === "scheduled"
-                  ? "#924f22"
-                  : item.status === "completed"
-                    ? "#1e4720"
-                    : item.status === "canceled"
-                      ? "#57212163"
-                      : theme.colorLightGrey
-              }
-            />
-          </View>
-          <View>
-            <AppText
-              style={[
-                styles.itemClient,
-                item.status === "scheduled"
-                  ? { color: "#924f22" }
-                  : item.status === "completed"
-                    ? { color: "#1e4720" }
-                    : item.status === "canceled"
-                      ? { color: "#57212163" }
-                      : { color: theme.colorLightGrey },
-              ]}
-            >
-              {item.external_client
-                ? item.external_client
-                : item.user.first_name + " " + item.user.last_name}
-            </AppText>
-          </View>
-        </View>
-      </LinearGradient>
-    </View>
+    </Pressable>
   );
 });
 
