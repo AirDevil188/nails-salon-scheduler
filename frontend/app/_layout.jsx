@@ -16,10 +16,12 @@ import { setAuthHeader } from "../src/utils/axiosInstance";
 import { clearSecureStorage, getToken } from "../src/utils/secureStore";
 import { connectSocket } from "../src/utils/socket";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useTranslation } from "../src/hooks/useTranslation";
 
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
+  const { t } = useTranslation();
   const [fontsLoaded] = useFonts({
     // 💡 Map the font family name (your choice) to the local file path
     "Inter-Light": require("../assets/fonts/Inter-Light.ttf"),
@@ -126,6 +128,14 @@ export default function RootLayout() {
                       </View>
                     );
                   },
+                  headerShown: true,
+                }}
+              />
+              <Stack.Screen
+                name="new-appointment"
+                options={{
+                  headerTitle: t("appointmentModalTitle"),
+                  presentation: "modal",
                   headerShown: true,
                 }}
               />
