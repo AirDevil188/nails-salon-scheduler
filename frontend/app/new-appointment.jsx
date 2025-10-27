@@ -175,7 +175,9 @@ export default function NewAppointmentScreen() {
                       value={values.title}
                     />
 
-                    <AppText>{t("appointmentDescriptionLabel")}</AppText>
+                    <AppText style={styles.labelText}>
+                      {t("appointmentDescriptionLabel")}
+                    </AppText>
                     <AppTextInput
                       style={[
                         styles.input,
