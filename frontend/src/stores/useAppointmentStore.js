@@ -7,12 +7,6 @@ const useAppointmentStore = create((set, get) => ({
     // Ensure we only store the raw array of appointments
     set({ monthlyAppointments: appointments });
   },
-
-  getAppointmentById: (id) => {
-    const { monthlyAppointments } = get(); // Get the current state
-
-    return monthlyAppointments.find((appt) => String(appt.id) === String(id));
-  },
 }));
 
 export default useAppointmentStore;
