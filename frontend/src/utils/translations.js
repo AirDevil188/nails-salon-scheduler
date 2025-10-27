@@ -96,6 +96,7 @@ export const translations = {
     appointmentDetailsUser: "Client",
 
     // appointment creation
+    appointmentModalTitle: "Schedule new appointment",
     appointmentDateTypeError: "Invalid date format",
     appointmentTitleRequired: "Appointment title is required",
     appointmentStartDateTimeRequired: "Appointment start date time is required",
@@ -211,6 +212,7 @@ export const translations = {
     appointmentDetailsUser: "Klijent",
 
     // appointment creation
+    appointmentModalTitle: "Zakaži novi termin",
     appointmentDateTypeError: "Neispravan format datuma",
     appointmentTitleRequired: "Naziv termina je obavezan",
     appointmentStartDateTimeRequired: "Početak termina je obavezan",
