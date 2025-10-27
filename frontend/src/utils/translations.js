@@ -111,7 +111,11 @@ export const translations = {
     appointmentStartDateLabel: "Start Date and Time",
     appointmentEndDateLabel: "End time",
     appointmentUserLabel: "Client",
-    appointmentExternalClientLabel: "External client",
+    appointmentExternalClientLabel: "External Client",
+    appointmentCloseBtn: "Close",
+    appointmentScheduleBtn: "Schedule",
+    selectUserPlaceholder: "Select the client",
+    searchUserPlaceholder: "Search...",
   },
 
   sr: {
@@ -222,7 +226,11 @@ export const translations = {
     appointmentStartDateLabel: "Datum i Vreme",
     appointmentEndDateLabel: "Završetak",
     appointmentUserLabel: "Klijent",
-    appointmentExternalClientLabel: "Eksternii klijent",
+    appointmentExternalClientLabel: "Eksterni Klijent",
+    appointmentCloseBtn: "Zatvori",
+    appointmentScheduleBtn: "Zakaži",
+    selectUserPlaceholder: "Odaberi klijenta",
+    searchUserPlaceholder: "Pretraži...",
   },
 };
 LocaleConfig.locales["sr"] = {
