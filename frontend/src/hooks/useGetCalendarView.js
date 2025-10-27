@@ -14,6 +14,7 @@ export default function useGetCalendarView(date, isListView) {
     queryKey: appointmentKeys.list({
       date: date,
       isListView: isListView ? true : false,
+      role: role,
     }),
     queryFn: async () => {
       if (!date) {
