@@ -21,7 +21,7 @@ export default function DrawerToggle() {
       <MaterialIcons
         name="admin-panel-settings"
         size={30}
-        color={theme.colorBlue}
+        color={theme.colorDarkPink}
       />
     </Pressable>
   );
