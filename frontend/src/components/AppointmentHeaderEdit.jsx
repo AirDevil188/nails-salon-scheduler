@@ -5,9 +5,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { theme } from "../theme";
 
 export function AppointmentEditHeader({ appointmentId }) {
-  console.error(appointmentId);
-  // 🔑 Access the ID via the route segment name
-
   if (!appointmentId) return null;
 
   return (
@@ -21,7 +18,6 @@ export function AppointmentEditHeader({ appointmentId }) {
       }}
     >
       <Link
-        // 🛑 Pass the ID as a query parameter named 'id' to the target screen
         href={{
           pathname: "/update-appointment",
           params: { id: appointmentId },
@@ -33,7 +29,6 @@ export function AppointmentEditHeader({ appointmentId }) {
         </TouchableOpacity>
       </Link>
 
-      {/* Delete button (static link, adjust href if necessary) */}
       <Link href={"/edit-profile"} asChild>
         <TouchableOpacity>
           <MaterialIcons name="delete" size={24} color={theme.colorDarkPink} />
