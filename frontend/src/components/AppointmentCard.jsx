@@ -171,7 +171,7 @@ const AppointmentCard = React.memo(({ item, handleOnPress }) => {
               >
                 {item.external_client
                   ? item.external_client
-                  : item.user.first_name + " " + item.user.last_name}
+                  : item.user?.first_name + " " + item.user?.last_name}
               </AppText>
             </View>
           </View>
