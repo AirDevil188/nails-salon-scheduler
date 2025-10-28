@@ -42,11 +42,11 @@ const getMyAppointments = async (req, res, next) => {
 };
 
 const getMonthlyAppointments = async (req, res, next) => {
-  const { month } = req.query;
+  const { month, view } = req.query;
 
   try {
     const { id } = req.user;
-    const appointments = await db.getMonthlyAppointments(id, month);
+    const appointments = await db.getMonthlyAppointments(id, month, view);
     res.status(200).json({
       appointments: appointments,
     });
