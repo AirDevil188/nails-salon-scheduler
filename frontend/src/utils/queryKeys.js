@@ -19,11 +19,15 @@ export const appointmentKeys = {
 
   new: ["appointmentCreate"],
 
+  update: ["appointmentUpdate"],
+
   list: (params = {}) => {
-    return [...appointmentKeys.all, params];
+    return [...appointmentKeys.all, "list", params];
   },
 
-  detail: (id) => {
-    return [...appointmentKeys.all, "detail", id];
+  detail: (id, role) => {
+    if (!id) return [...appointmentKeys.all, "detail"];
+
+    return [...appointmentKeys.all, "detail", id, role];
   },
 };
