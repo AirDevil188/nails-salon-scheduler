@@ -13,7 +13,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import useCreateNewAppointment from "../src/hooks/useCreateNewAppointment";
@@ -96,7 +96,7 @@ export default function NewAppointmentScreen() {
         translucent={Platform.OS === "android"}
       />
       <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView
+        <KeyboardAwareScrollView
           style={styles.container}
           keyboardShouldPersistTaps={"handled"}
           enableAutomaticScroll={true}
@@ -147,215 +147,205 @@ export default function NewAppointmentScreen() {
               handleChange,
               handleBlur,
             }) => (
-              <ScrollView
-                style={styles.scrollContent}
-                contentContainerStyle={styles.scrollContentContainer}
-                keyboardShouldPersistTaps="handled"
-              >
-                <View style={styles.inputContainer}>
-                  <View style={styles.labelContainer}>
-                    <AppText style={styles.labelText}>
-                      {t("appointmentTitleLabel")}
-                    </AppText>
-                    <AppTextInput
-                      style={[
-                        styles.input,
-                        touched.title && errors.title
-                          ? styles.errorInputBorder
-                          : null,
-                      ]}
-                      placeholderTextColor={
-                        touched.first_name && errors.first_name
-                          ? theme.colorBlack
-                          : theme.colorLightGrey
-                      }
-                      placeholder={t("appointmentTitleLabel")}
-                      onChangeText={handleChange("title")}
-                      onBlur={handleBlur("title")}
-                      value={values.title}
-                    />
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <AppText style={styles.labelText}>
+                    {t("appointmentTitleLabel")}
+                  </AppText>
+                  <AppTextInput
+                    style={[
+                      styles.input,
+                      touched.title && errors.title
+                        ? styles.errorInputBorder
+                        : null,
+                    ]}
+                    placeholderTextColor={
+                      touched.first_name && errors.first_name
+                        ? theme.colorBlack
+                        : theme.colorLightGrey
+                    }
+                    placeholder={t("appointmentTitleLabel")}
+                    onChangeText={handleChange("title")}
+                    onBlur={handleBlur("title")}
+                    value={values.title}
+                  />
 
-                    <AppText style={styles.labelText}>
-                      {t("appointmentDescriptionLabel")}
-                    </AppText>
-                    <AppTextInput
-                      style={[
-                        styles.input,
-                        touched.description && errors.description
-                          ? styles.errorInputBorder
-                          : null,
-                      ]}
-                      placeholderTextColor={
-                        touched.description && errors.description
-                          ? theme.colorBlack
-                          : theme.colorLightGrey
-                      }
-                      placeholder={t("appointmentDescriptionLabel")}
-                      onChangeText={handleChange("description")}
-                      onBlur={handleBlur("description")}
-                      value={values.description}
-                    />
+                  <AppText style={styles.labelText}>
+                    {t("appointmentDescriptionLabel")}
+                  </AppText>
+                  <AppTextInput
+                    style={[
+                      styles.input,
+                      touched.description && errors.description
+                        ? styles.errorInputBorder
+                        : null,
+                    ]}
+                    placeholderTextColor={
+                      touched.description && errors.description
+                        ? theme.colorBlack
+                        : theme.colorLightGrey
+                    }
+                    placeholder={t("appointmentDescriptionLabel")}
+                    onChangeText={handleChange("description")}
+                    onBlur={handleBlur("description")}
+                    value={values.description}
+                  />
 
-                    <AppText style={styles.labelText}>
-                      {t("appointmentStartDateLabel")}
-                    </AppText>
-                    <DateTimeSelector
-                      startDateTime={values.startDateTime}
-                      onBlur={handleBlur("startDateTime")}
-                      onDateTimeChange={(newStartTime) => {
-                        const newEndTime = addMinutes(newStartTime, 45);
-                        setFieldValue("startDateTime", newStartTime);
-                        setFieldValue("endDateTime", newEndTime);
-                      }}
-                      error={errors.startDateTime}
-                      touched={touched.startDateTime}
-                      currentLanguage={currentLanguage}
-                    />
+                  <AppText style={styles.labelText}>
+                    {t("appointmentStartDateLabel")}
+                  </AppText>
+                  <DateTimeSelector
+                    startDateTime={values.startDateTime}
+                    onBlur={handleBlur("startDateTime")}
+                    onDateTimeChange={(newStartTime) => {
+                      const newEndTime = addMinutes(newStartTime, 45);
+                      setFieldValue("startDateTime", newStartTime);
+                      setFieldValue("endDateTime", newEndTime);
+                    }}
+                    error={errors.startDateTime}
+                    touched={touched.startDateTime}
+                    currentLanguage={currentLanguage}
+                  />
 
-                    {!values.external_client ? (
-                      <>
-                        <AppText style={styles.labelText}>
-                          {t("appointmentUserLabel")}
-                        </AppText>
+                  {!values.external_client ? (
+                    <>
+                      <AppText style={styles.labelText}>
+                        {t("appointmentUserLabel")}
+                      </AppText>
 
-                        {/* Secondary conditional: Show loading or DropDownPicker */}
-                        {isLoading || (isFetching && !searchQuery) ? (
-                          <View style={styles.loadingContainer}>
-                            <ActivityIndicator
-                              size="small"
-                              color={theme.colorDarkGrey}
-                            />
-                            <AppText>
-                              {t("loadingUsers") || "Učitavanje korisnika..."}
-                            </AppText>
-                          </View>
-                        ) : (
-                          <View style={styles.dropdownWrapper}>
-                            <DropDownPicker
-                              dropDownContainerStyle={
-                                styles.dropDownContainerStyle
-                              }
-                              open={userDropdownOpen}
-                              value={values.userId}
-                              items={userOptions}
-                              setOpen={setUserDropdownOpen}
-                              setValue={(callback) => {
-                                const newValue = callback(values.userId);
-                                setFieldValue("userId", newValue);
-                                setFieldValue("external_client", null);
-                              }}
-                              onBlur={handleBlur("userId")}
-                              topBarContainerStyle={{
-                                paddingTop:
-                                  Platform.OS === "android" ? insets.top : 0,
-                                backgroundColor: theme.colorWhite,
-                              }}
-                              modalContentContainerStyle={
-                                styles.modalContentContainer
-                              }
-                              searchable={true}
-                              searchPlaceholder={t("searchUserPlaceholder")}
-                              onChangeSearchText={(text) =>
-                                setSearchQuery(text)
-                              }
-                              listMode="MODAL"
-                              zIndex={3000}
-                              placeholder={t("selectUserPlaceholder")}
-                              style={[
-                                styles.dropdownStyle,
-                                touched.userId && errors.userId
-                                  ? styles.errorInputBorder
-                                  : null,
-                              ]}
-                              searchContainerStyle={styles.searchContainerStyle}
-                              searchTextInputStyle={styles.searchInputStyle}
-                              modalAnimationType="fade"
-                            />
-                            {values.userId && (
-                              <View style={styles.clearButtonContainer}>
-                                <AppButton
-                                  style={styles.clearButton}
-                                  onPress={() => setFieldValue("userId", null)}
-                                >
-                                  <AppText style={styles.clearButtonText}>
-                                    ✕
-                                  </AppText>
-                                </AppButton>
-                              </View>
-                            )}
-                          </View>
-                        )}
-                      </>
-                    ) : null}
-
-                    {!values.userId ? (
-                      <>
-                        <AppText style={styles.labelText}>
-                          {t("appointmentExternalClientLabel")}
-                        </AppText>
-                        <AppTextInput
-                          style={[
-                            styles.input,
-                            touched.external_client && errors.external_client
-                              ? styles.errorInputBorder
-                              : null,
-                          ]}
-                          placeholderTextColor={
-                            touched.external_client && errors.external_client
-                              ? theme.colorBlack
-                              : theme.colorLightGrey
-                          }
-                          placeholder={t("appointmentExternalClientLabel")}
-                          onChangeText={(text) => {
-                            setFieldValue("external_client", text);
-                            // Clear registered user ID if typing an external client
-                            if (text) setFieldValue("userId", null);
-                          }}
-                          onBlur={handleBlur("title")}
-                          value={values.external_client}
-                        />
-                      </>
-                    ) : null}
-                    <View>
-                      {touched.title && errors.title && (
-                        <AppText style={styles.errorText}>
-                          {errors.title}
-                        </AppText>
+                      {/* Secondary conditional: Show loading or DropDownPicker */}
+                      {isLoading || (isFetching && !searchQuery) ? (
+                        <View style={styles.loadingContainer}>
+                          <ActivityIndicator
+                            size="small"
+                            color={theme.colorDarkGrey}
+                          />
+                          <AppText>
+                            {t("loadingUsers") || "Učitavanje korisnika..."}
+                          </AppText>
+                        </View>
+                      ) : (
+                        <View style={styles.dropdownWrapper}>
+                          <DropDownPicker
+                            dropDownContainerStyle={
+                              styles.dropDownContainerStyle
+                            }
+                            open={userDropdownOpen}
+                            value={values.userId}
+                            items={userOptions}
+                            setOpen={setUserDropdownOpen}
+                            setValue={(callback) => {
+                              const newValue = callback(values.userId);
+                              setFieldValue("userId", newValue);
+                              setFieldValue("external_client", null);
+                            }}
+                            onBlur={handleBlur("userId")}
+                            topBarContainerStyle={{
+                              paddingTop:
+                                Platform.OS === "android" ? insets.top : 0,
+                              backgroundColor: theme.colorWhite,
+                            }}
+                            modalContentContainerStyle={
+                              styles.modalContentContainer
+                            }
+                            searchable={true}
+                            searchPlaceholder={t("searchUserPlaceholder")}
+                            onChangeSearchText={(text) => setSearchQuery(text)}
+                            listMode="MODAL"
+                            zIndex={3000}
+                            placeholder={t("selectUserPlaceholder")}
+                            style={[
+                              styles.dropdownStyle,
+                              touched.userId && errors.userId
+                                ? styles.errorInputBorder
+                                : null,
+                            ]}
+                            searchContainerStyle={styles.searchContainerStyle}
+                            searchTextInputStyle={styles.searchInputStyle}
+                            modalAnimationType="fade"
+                          />
+                          {values.userId && (
+                            <View style={styles.clearButtonContainer}>
+                              <AppButton
+                                style={styles.clearButton}
+                                onPress={() => setFieldValue("userId", null)}
+                              >
+                                <AppText style={styles.clearButtonText}>
+                                  ✕
+                                </AppText>
+                              </AppButton>
+                            </View>
+                          )}
+                        </View>
                       )}
-                      {touched.description && errors.description && (
-                        <AppText style={styles.errorText}>
-                          {errors.description}
-                        </AppText>
-                      )}
-                      {touched.startDateTime && errors.startDateTime && (
-                        <AppText style={styles.errorText}>
-                          {errors.startDateTime}
-                        </AppText>
-                      )}
-                      {touched.userId && errors.userId && (
-                        <AppText style={styles.errorText}>
-                          {errors.userId}
-                        </AppText>
-                      )}
-                      {touched.external_client && errors.external_client && (
-                        <AppText style={styles.errorText}>
-                          {errors.external_client}
-                        </AppText>
-                      )}
-                    </View>
+                    </>
+                  ) : null}
 
-                    <AppButton
-                      onPress={handleSubmit}
-                      disabled={isSubmitting || isPending}
-                    >
-                      {t("appointmentScheduleBtn")}
-                    </AppButton>
+                  {!values.userId ? (
+                    <>
+                      <AppText style={styles.labelText}>
+                        {t("appointmentExternalClientLabel")}
+                      </AppText>
+                      <AppTextInput
+                        style={[
+                          styles.input,
+                          touched.external_client && errors.external_client
+                            ? styles.errorInputBorder
+                            : null,
+                        ]}
+                        placeholderTextColor={
+                          touched.external_client && errors.external_client
+                            ? theme.colorBlack
+                            : theme.colorLightGrey
+                        }
+                        placeholder={t("appointmentExternalClientLabel")}
+                        onChangeText={(text) => {
+                          setFieldValue("external_client", text);
+                          // Clear registered user ID if typing an external client
+                          if (text) setFieldValue("userId", null);
+                        }}
+                        onBlur={handleBlur("title")}
+                        value={values.external_client}
+                      />
+                    </>
+                  ) : null}
+                  <View>
+                    {touched.title && errors.title && (
+                      <AppText style={styles.errorText}>{errors.title}</AppText>
+                    )}
+                    {touched.description && errors.description && (
+                      <AppText style={styles.errorText}>
+                        {errors.description}
+                      </AppText>
+                    )}
+                    {touched.startDateTime && errors.startDateTime && (
+                      <AppText style={styles.errorText}>
+                        {errors.startDateTime}
+                      </AppText>
+                    )}
+                    {touched.userId && errors.userId && (
+                      <AppText style={styles.errorText}>
+                        {errors.userId}
+                      </AppText>
+                    )}
+                    {touched.external_client && errors.external_client && (
+                      <AppText style={styles.errorText}>
+                        {errors.external_client}
+                      </AppText>
+                    )}
                   </View>
+
+                  <AppButton
+                    onPress={handleSubmit}
+                    disabled={isSubmitting || isPending}
+                  >
+                    {t("appointmentScheduleBtn")}
+                  </AppButton>
                 </View>
-              </ScrollView>
+              </View>
             )}
           </Formik>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
     </>
   );
@@ -365,12 +355,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollContent: {
-    flex: 1,
-  },
-  scrollContentContainer: {
-    paddingBottom: 20,
-  },
+
   inputContainer: {
     margin: 10,
     paddingHorizontal: 15,
