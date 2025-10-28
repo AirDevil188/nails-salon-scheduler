@@ -24,11 +24,13 @@ const languages = {
     validator_email_invalid: "Please provide a valid email address",
     validator_password_required: "Password is required",
     validator_confirm_password: "Confirm Password doesn't match",
-    validator_password_min: "Password must contain at least six characters",
+    validator_password_min:
+      "Your password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one symbol",
     validator_first_name: "First Name is required",
     validator_last_name: "Last Name is required",
     validator_email_password_incorrect: "Login credentials are incorrect",
     validator_email: "User already exists",
+    validator_language: "Language is required",
 
     // Change password errs
     validator_old_password_no_match: "Password is incorrect",
@@ -46,6 +48,8 @@ const languages = {
       "The client ID (userId) is required to book the appointment",
     validator_appointment_userId_invalid:
       "Provided client ID (userId) is invalid",
+    validator_appointment_data_conflict:
+      "Appointment can't have both userId linked and external client",
     validator_appointment_status_invalid: "Appointment status is invalid",
     validator_appointment_status_not_empty: "Appointment status is required",
     validator_external_client_userId_not_allowed:
@@ -88,6 +92,13 @@ const languages = {
     appointment_updated_notification_body:
       "Your appointment is rescheduled for ",
     appointment_updated_notification_title: "Appointment Updated!",
+    appointment_not_found: "Appointment not found",
+    appointment_cannot_change_in_past:
+      "Cannot change the date/time of a past appointment",
+    appointment_new_startDateTime_must_be_in_the_future:
+      "Appointment new start date time must be in the future",
+    appointment_cannot_be_marked_no_show_in_the_future:
+      "Appointment status cannot be set to no show if the start date time is set in the future",
   },
 
   sr: {
@@ -98,7 +109,7 @@ const languages = {
     authenticate_err:
       "Morate biti prijavljeni da bi ste mogli pristupiti ovoj stranici",
     authorization_err: "Nemate dozvolu za izvršenje ove radnje",
-    authenticate_code_err: "Nepostojeći kod, molimm vas probajte ponovo",
+    authenticate_code_err: "Nepostojeći kod, molim vas probajte ponovo",
     general_validator_err: "Greška u podacima. Proverite detalje",
 
     // Refresh token errs
@@ -115,11 +126,13 @@ const languages = {
     validator_email_invalid: "Molimo vas da unesete ispravnu email adresu",
     validator_password_required: "Lozinka je obavezna",
     validator_confirm_password: "Potvrda Lozinke se ne pododura",
-    validator_password_min: "Lozinka mora sadržati minimum šest karaktera",
+    validator_password_min:
+      "Vaša lozinka mora imati najmanje 8 karaktera i uključivati barem jedno malo slovo, jedno veliko slovo, jedan broj i jedan simbol.",
     validator_first_name: "Ime je obavezno",
     validator_last_name: "Prezime je obavezno",
     validator_email_password_incorrect: "Email ili Lozinka nisu tačni",
     validator_email: "Korisnik već postoji",
+    validator_language: "Jezik je obavezan",
 
     // Change password errs
     validator_old_password_no_match: "Lozinka nije tacna",
@@ -136,6 +149,9 @@ const languages = {
       "ID klijenta (userId) je obavezan za zakazivanje termina",
     validator_appointment_userId_invalid:
       "Dati ID klijenta (userId) nije ispravan",
+    validator_appointment_data_conflict:
+      "Termin ne mozže imati ID klijenta i spoljni ID u isto vreme.",
+
     validator_appointment_status_invalid: "Status termina nije ispravan",
     validator_appointment_status_not_empty: "Status termina je obavezan",
     validator_external_client_userId_not_allowed:
@@ -171,6 +187,13 @@ const languages = {
     appointment_created_notification_title: "Termin Potvrđen!",
     appointment_created_notification_body: "Vaš termin je zakazan za  ",
     appointment_created_notification_message: "Novi termin kreiran sa ID ",
+    appointment_not_found: "Termin nije pronađen",
+    appointment_cannot_change_in_past:
+      "Datum termina koji je u prošlosti ne može se promeniti",
+    appointment_new_startDateTime_must_be_in_the_future:
+      "Datum novog termina mora biti u budućnosti",
+    appointment_cannot_be_marked_no_show_in_the_future:
+      "Status termina ne može biti označen sa nije se pojavio ako je u datum i vreme u budućnosti",
   },
 };
 
