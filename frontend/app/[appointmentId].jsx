@@ -10,21 +10,26 @@ import useGetAppointmentDetails from "../src/hooks/useGetAppointmentDetails";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../src/theme";
 import { useEffect } from "react";
+import { AppointmentEditHeader } from "../src/components/AppointmentHeaderEdit";
 export default function AppointmentDetails() {
   const { appointmentId } = useLocalSearchParams();
-  const { preferredLanguage } = useAuthStore.getState();
-  const { t } = useTranslation();
+
+  const { t, currentLanguage } = useTranslation();
   const navigation = useNavigation();
 
   const { data, isLoading } = useGetAppointmentDetails(appointmentId);
 
   useEffect(() => {
-    if (data && data.title && navigation) {
+    if (data && navigation && appointmentId) {
       navigation.setOptions({
         title: data.title,
+
+        headerRight: () => (
+          <AppointmentEditHeader appointmentId={appointmentId} />
+        ),
       });
     }
-  }, [data, navigation]);
+  }, [data, navigation, appointmentId]);
 
   if (isLoading) {
     return <ActivityIndicator />;
@@ -143,7 +148,7 @@ export default function AppointmentDetails() {
                       : { color: theme.colorLightGrey },
               ]}
             >
-              {preferredLanguage === "sr"
+              {currentLanguage === "sr"
                 ? format(
                     new Date(data.startDateTime),
                     "EEEE, dd. MMM yyyy. 'u' HH:mm",
@@ -187,7 +192,7 @@ export default function AppointmentDetails() {
                       : { color: theme.colorLightGrey },
               ]}
             >
-              {preferredLanguage === "sr"
+              {currentLanguage === "sr"
                 ? format(
                     new Date(data.endDateTime),
                     "EEEE, dd. MMM yyyy. 'u' HH:mm",
@@ -238,7 +243,7 @@ export default function AppointmentDetails() {
               >
                 {data.external_client
                   ? data.external_client
-                  : data.user.first_name + " " + data.user.last_name}
+                  : data.user?.first_name + " " + data.user?.last_name}
               </AppText>
             </View>
           </View>
