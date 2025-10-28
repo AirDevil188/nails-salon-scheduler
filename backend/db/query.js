@@ -44,6 +44,7 @@ const findUserById = async (userId) => {
         id: true,
         email: true,
         preferredLanguage: true,
+        role: true,
       },
     });
   } catch (err) {
@@ -114,7 +115,12 @@ const findUserProfile = async (userId) => {
   }
 };
 
-const updateUserProfile = async (userId, first_name, last_name) => {
+const updateUserProfile = async (
+  userId,
+  first_name,
+  last_name,
+  preferred_language
+) => {
   let updateData = {};
   try {
     if (first_name !== undefined) {
@@ -122,6 +128,10 @@ const updateUserProfile = async (userId, first_name, last_name) => {
     }
     if (last_name !== undefined) {
       updateData.last_name = last_name;
+    }
+
+    if (preferred_language !== undefined) {
+      updateData.preferredLanguage = preferred_language;
     }
     return await prisma.user.update({
       where: {
@@ -135,6 +145,7 @@ const updateUserProfile = async (userId, first_name, last_name) => {
         avatar: true,
         password: false,
         role: true,
+        preferredLanguage: true,
       },
     });
   } catch (err) {
@@ -356,18 +367,24 @@ const getUserAppointments = async (
   }
 };
 
-const getMonthlyAppointments = async (userId, month) => {
-  if (!month) {
+const getMonthlyAppointments = async (userId, date, view = "month") => {
+  let boundaries;
+
+  if (!date) {
     console.error("No month provided");
 
     return [];
   }
 
-  const getMonthBoundaries = (month) => {
-    // get the start date of the month example: 1st october
-    const monthStart = startOfMonth(new Date(month));
+  const getWeekBoundaries = (date) => {
+    const startDate = startOfWeek(new Date(date), { weekStartsOn: 1 }); // week view date
+    const endDate = addDays(startDate, 7);
 
-    // gets the date of the first week which is 29th of september
+    return { startDate, endDate };
+  };
+
+  const getMonthBoundaries = (date) => {
+    const monthStart = startOfMonth(new Date(date));
     const calendarViewStart = startOfWeek(monthStart, { weekStartsOn: 1 });
 
     const monthEnd = endOfMonth(monthStart);
@@ -383,8 +400,14 @@ const getMonthlyAppointments = async (userId, month) => {
       endDate: endBoundDate,
     };
   };
+
+  if (view === "week") {
+    boundaries = getWeekBoundaries(date);
+  } else {
+    boundaries = getMonthBoundaries(date);
+  }
   try {
-    const { startDate, endDate } = getMonthBoundaries(month);
+    const { startDate, endDate } = boundaries;
     return await prisma.appointment.findMany({
       where: {
         userId: userId,
@@ -880,6 +903,7 @@ const adminGetAllUsers = async (userId, { limit, page, orderBy, search }) => {
           avatar: true,
           role: true,
           deletedAt: true,
+          createdAt: true,
         },
       }),
       prisma.user.count({
@@ -1145,6 +1169,7 @@ const adminGetAllAppointments = async ({
         take: pageSize,
         select: {
           id: true,
+          appNumber: false,
           title: true,
           description: true,
           external_client: true,
@@ -1165,6 +1190,7 @@ const adminGetAllAppointments = async ({
         where: where,
       }),
     ]);
+    console.warn(appointments, "sss");
     return { appointments: appointments, totalCount: totalCount };
   } catch (err) {
     console.error(err);
@@ -1172,18 +1198,24 @@ const adminGetAllAppointments = async ({
   }
 };
 
-const adminGetMonthlyAppointments = async (month) => {
-  if (!month) {
+const adminGetMonthlyAppointments = async (date, view = "month") => {
+  let boundaries;
+
+  if (!date) {
     console.error("No month provided");
 
     return [];
   }
 
-  const getMonthBoundaries = (month) => {
-    // get the start date of the month example: 1st october
-    const monthStart = startOfMonth(new Date(month));
+  const getWeekBoundaries = (date) => {
+    const startDate = startOfWeek(new Date(date), { weekStartsOn: 1 }); // week view date
+    const endDate = addDays(startDate, 7);
 
-    // gets the date of the first week which is 29th of september
+    return { startDate, endDate };
+  };
+
+  const getMonthBoundaries = (date) => {
+    const monthStart = startOfMonth(new Date(date));
     const calendarViewStart = startOfWeek(monthStart, { weekStartsOn: 1 });
 
     const monthEnd = endOfMonth(monthStart);
@@ -1194,14 +1226,19 @@ const adminGetMonthlyAppointments = async (month) => {
 
     // end bound date to include 1st october time 23:59 but exclude 2th 00:00
     const endBoundDate = startOfDay(addDays(calendarViewEnd, 1));
-    console.error(calendarViewStart, endBoundDate);
     return {
       startDate: calendarViewStart,
       endDate: endBoundDate,
     };
   };
+
+  if (view === "week") {
+    boundaries = getWeekBoundaries(date);
+  } else {
+    boundaries = getMonthBoundaries(date);
+  }
   try {
-    const { startDate, endDate } = getMonthBoundaries(month);
+    const { startDate, endDate } = boundaries;
     return await prisma.appointment.findMany({
       where: {
         startDateTime: { gte: startDate },
@@ -1209,6 +1246,22 @@ const adminGetMonthlyAppointments = async (month) => {
       },
       orderBy: {
         startDateTime: "asc",
+      },
+      select: {
+        id: true,
+        title: true,
+        appNumber: true,
+        status: true,
+        endDateTime: true,
+        startDateTime: true,
+        external_client: true,
+        user: {
+          select: {
+            first_name: true,
+            last_name: true,
+            avatar: true,
+          },
+        },
       },
     });
   } catch (err) {
@@ -1223,6 +1276,23 @@ const adminGetAppointmentDetails = async (id) => {
       where: {
         id: id,
       },
+      select: {
+        id: true,
+        description: true,
+        startDateTime: true,
+        endDateTime: true,
+        external_client: true,
+        userId: true,
+        status: true,
+        title: true,
+        user: {
+          select: {
+            first_name: true,
+            last_name: true,
+            avatar: true,
+          },
+        },
+      },
     });
   } catch (err) {
     console.error(err);
@@ -1233,7 +1303,6 @@ const adminGetAppointmentDetails = async (id) => {
 const adminNewAppointment = async (
   title,
   description,
-  status,
   startDateTime,
   endDateTime,
   external_client,
@@ -1243,7 +1312,10 @@ const adminNewAppointment = async (
   let client;
 
   try {
-    if (!external_client) {
+    if (userId) {
+      if (external_client) {
+        throw new Error("validator_appointment_data_conflict");
+      }
       client = await prisma.user.findUnique({
         where: {
           id: userId,
@@ -1256,15 +1328,17 @@ const adminNewAppointment = async (
       if (!client) {
         throw Error("validator_appointment_userId_invalid");
       }
+    } else if (!external_client) {
+      throw new Error("validator_appointment_missing_client");
     }
     return await prisma.appointment.create({
       data: {
         title: title,
         description: description,
-        status: status,
+        status: "scheduled",
         startDateTime: startDateTime,
-        endDateTime: endDateTime || addMinutes(now, 45),
-        external_client: external_client,
+        endDateTime: endDateTime || addMinutes(startDateTime, 45),
+        external_client: external_client || null,
         userId: client ? client.id : null,
       },
       include: {
@@ -1331,17 +1405,18 @@ const adminUpdateAppointment = async (
     if (endDateTime !== undefined) {
       updateData.endDateTime = endDateTime;
     }
-    if (userId !== undefined) {
+    if (userId !== null && !external_client) {
       updateData.userId = userId;
       updateData.external_client = null;
     }
     if (status !== undefined) {
       updateData.status = status;
     }
-    if (external_client !== undefined) {
+    if (external_client !== null && !userId) {
       updateData.external_client = external_client;
       updateData.userId = null;
     }
+
     return await prisma.appointment.update({
       where: {
         id: id,
