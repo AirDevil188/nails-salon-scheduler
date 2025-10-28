@@ -6,7 +6,7 @@ import api from "../utils/axiosInstance";
 export default function useGetAppointmentDetails(id) {
   const { userInfo } = useAuthStore.getState();
   const { role } = userInfo;
-  console.log(role);
+
   const adminEndpoint = `/api/admin/appointments/${id}`;
   const userEndpoint = `/api/appointments/${id}`;
   return useQuery({
