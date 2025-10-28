@@ -155,10 +155,10 @@ const getAppointments = async (req, res, next) => {
 };
 
 const getMonthlyAppointments = async (req, res, next) => {
-  const { month } = req.query;
+  const { date, view } = req.query;
 
   try {
-    const appointments = await db.adminGetMonthlyAppointments(month);
+    const appointments = await db.adminGetMonthlyAppointments(date, view);
     res.status(200).json({
       appointments: appointments,
     });
@@ -188,11 +188,15 @@ const newAppointment = [
     .withMessage("validator_appointment_startDateTime_not_empty")
     .custom((value, { req }) => {
       // get server time
-      const now = new Date();
       const startTime = new Date(value);
+      const now = new Date();
 
-      // check if the startDateTime is less or equal to now
-      if (startTime <= now) {
+      // if the start time is at least 1 minute in the future
+      // to avoid race conditions and ensure the booking is truly forward-looking.
+      const oneMinuteFromNow = new Date(now.getTime() + 60000);
+
+      // Check if the startDateTime is less than one minute from now.
+      if (startTime < oneMinuteFromNow) {
         throw new Error("validator_appointment_startDateTime_not_in_future");
       }
       return true;
@@ -233,16 +237,17 @@ const newAppointment = [
         return true;
       }
       if (!isUUID(value)) {
+        console.log(value, "witcher");
         throw new Error("validator_appointment_userId_invalid");
       }
       return true;
     }),
   // insure that the appointment status is not empty and that matches the provided options
-  body("status")
-    .notEmpty()
-    .withMessage("validator_appointment_status_not_empty")
-    .isIn(["scheduled", "completed", "canceled", "no_show"])
-    .withMessage("validator_appointment_status_invalid"),
+  // body("status")
+  //   .notEmpty()
+  //   .withMessage("validator_appointment_status_not_empty")
+  //   .isIn(["scheduled", "completed", "canceled", "no_show"])
+  //   .withMessage("validator_appointment_status_invalid"),
 
   body("external_client").custom((value, { req }) => {
     if (value && req.body.userId) {
@@ -256,29 +261,37 @@ const newAppointment = [
     if (!errs.isEmpty()) {
       // map all messages
       const validationErrors = errs.array().map((error) => error.msg);
+      console.log(validationErrors);
       // create costume err obj
       const error = new Error("Validation Error");
+      console.log(error);
       error.status = 400;
       error.name = "ValidationError";
       error.validationMessages = validationErrors; // Attach the array of message keys
       return next(error);
     }
     try {
+      const { startDateTime, endDateTime } = req.body;
+      const appointmentStart = new Date(startDateTime);
+      const now = new Date();
+      now.setMilliseconds(0);
+
+      if (appointmentStart <= now) {
+        const validationErrors = errs.array().map((error) => error.msg);
+        const error = new Error(
+          "validator_appointment_startDateTime_not_in_future"
+        );
+        error.status = 400;
+        error.name = "ValidationError";
+        error.validationMessages = validationErrors;
+        return next(error);
+      }
       const io = getIo();
-      const {
-        title,
-        description,
-        startDateTime,
-        endDateTime,
-        status,
-        external_client,
-        userId,
-      } = req.body;
+      const { title, description, external_client, userId } = req.body;
 
       const appointment = await db.adminNewAppointment(
         title,
         description,
-        status,
         startDateTime,
         endDateTime,
         external_client,
@@ -353,56 +366,48 @@ const updateAppointment = [
     .withMessage("validator_appointment_title")
     .optional(),
   body("startDateTime")
-    .notEmpty()
     .isISO8601()
     .withMessage("validator_appointment_startDateTime_not_empty")
-    .custom((value, { req }) => {
-      // get server time
-      const now = new Date();
-      const startTime = new Date(value);
-
-      // check if the startDateTime is less or equal to now
-      if (startTime <= now) {
-        throw new Error("validator_appointment_startDateTime_not_in_future");
-      }
+    .custom((value) => {
+      // NOTE: We only check format and basic validity here.
+      // The "must be in future" check is moved to the async middleware
+      // to allow dynamic checking against the *existing* appointment time.
       return true;
     })
     .optional(),
   body("endDateTime")
-    .notEmpty()
     .isISO8601()
+    .withMessage("validator_appointment_endDateTime_not_empty")
     .custom((value, { req }) => {
-      const now = new Date();
+      const startTime = new Date(req.body.startDateTime);
       const endTime = new Date(value);
 
-      // run this check only if both dates are present
-      if (value && req.body.startDateTime) {
-        if (endTime < now) {
-          throw new Error("validator_appointment_endDateTime_not_in_past");
-        }
-        return true;
+      // Check 1: endDateTime must be after startDateTime
+      if (startTime && endTime && endTime <= startTime) {
+        throw new Error("validator_appointment_endDateTime_before_start");
       }
+      return true;
     })
-
     .optional(),
+
   body("userId")
     .custom((value, { req }) => {
       if (!req.body.external_client && !value) {
         throw new Error("validator_appointment_userId_required");
       }
+
+      if (req.body.external_client && value) {
+        throw new Error("validator_external_client_userId_not_allowed");
+      }
       return true;
     })
     .custom((value) => {
-      if (req.body.external_client && !value) {
-        return true;
-      }
-      if (!isUUID(value)) {
+      if (value && !isUUID(value)) {
         throw new Error("validator_appointment_userId_invalid");
       }
       return true;
     })
     .optional(),
-  // insure that the appointment status is not empty and that matches the provided options
   body("status")
     .notEmpty()
     .withMessage("validator_appointment_status_not_empty")
@@ -422,7 +427,6 @@ const updateAppointment = [
   async (req, res, next) => {
     const errs = validationResult(req);
 
-    // check if the validation errors are present
     if (!errs.isEmpty()) {
       const validationErrors = errs.array().map((error) => error.msg);
       const error = new Error("Validation Error");
@@ -446,6 +450,66 @@ const updateAppointment = [
         external_client,
       } = req.body;
 
+      const existingAppointment =
+        await db.adminGetAppointmentDetails(appointmentId);
+
+      if (!existingAppointment) {
+        const error = new Error("appointment_not_found");
+        error.name = "appointment_not_found";
+        error.status = 404;
+        return next(error);
+      }
+
+      console.log(existingAppointment);
+
+      const now = new Date();
+      const existingStart = new Date(existingAppointment.startDateTime);
+      const isExistingInPast = existingStart < now;
+
+      // if the appointment was in the past, any new date MUST be in the future.
+      if (isExistingInPast) {
+        // Check if the date is actually being changed
+        if (
+          startDateTime &&
+          startDateTime !== existingAppointment.startDateTime
+        ) {
+          const newStart = new Date(startDateTime);
+
+          if (newStart <= now) {
+            const error = new Error(
+              "appointment_new_startDateTime_must_be_in_the_future"
+            );
+            error.name = "BUSINESS_RULE_VIOLATION";
+            error.status = 400;
+            return next(error);
+          }
+        }
+      }
+
+      if (status && status !== existingAppointment.status) {
+        // prevent no_show status if the appointment is strictly in the future.
+        if (status === "no_show") {
+          if (existingStart > now) {
+            const error = new Error(
+              "appointment_cannot_be_marked_no_show_in_the_future"
+            );
+            error.name = "BUSINESS_RULE_VIOLATION";
+            error.status = 400;
+            return next(error);
+          }
+        }
+
+        const terminalStatuses = ["completed", "canceled", "no_show"];
+        if (terminalStatuses.includes(existingAppointment.status)) {
+          const error = new Error(
+            `Cannot change status from finalized state: ${existingAppointment.status}.`
+          );
+          error.name = "BUSINESS_RULE_VIOLATION";
+          error.status = 400;
+          return next(error);
+        }
+      }
+
       const appointment = await db.adminUpdateAppointment(
         appointmentId,
         title,
@@ -456,34 +520,33 @@ const updateAppointment = [
         status,
         external_client
       );
+
       io.to("admin-dashboard").emit("admin:appointment:updated", appointment);
       console.log(
         `Sent updated appointment alert to the 'admin-dashboard' room.`
       );
+
       if (appointment?.userId) {
-        // get push tokens from the user
+        // ... (Push token and notification logic remains the same) ...
         const recipientTokens = await db.getPushTokensUser(userId);
-        // check if there are tokens for that user
         if (recipientTokens && recipientTokens.length > 0) {
-          // get the message base on preferred language
-          const { title, body, message } = getLocalizedNotificationText(
+          const {
+            title: notifTitle,
+            body,
+            message,
+          } = getLocalizedNotificationText(
             recipientTokens.user?.preferredLanguage,
             "appointment_update"
           );
-
           const finalBody = `${body} ${new Date(appointment.startDateTime).toLocaleString(recipientTokens.user?.preferredLanguage, { dateStyle: "short", timeStyle: "short" })}`;
-
-          const finalMessage = `${message}${appointmentId.id}`;
-
-          // build the object
+          const finalMessage = `${message}${appointmentId}`;
           const notificationsToSend = recipientTokens.map((tokenRecord) => ({
             pushToken: tokenRecord.token,
             userId: appointment.userId,
-            title: title,
+            title: notifTitle,
             message: finalMessage,
             body: finalBody,
           }));
-
           await sendNotificationBatch(notificationsToSend, expo, prisma);
         }
 
@@ -495,9 +558,8 @@ const updateAppointment = [
           `Sent updated appointment alert to the 'user:${userId}' room.`
         );
       }
-      return res.status(200).json({
-        appointment: appointment,
-      });
+
+      return res.status(200).json({ appointment: appointment });
     } catch (err) {
       return next(err);
     }
