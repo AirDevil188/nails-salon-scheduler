@@ -1,6 +1,5 @@
 import {
   Platform,
-  ScrollView,
   StatusBar,
   StyleSheet,
   View,
@@ -13,13 +12,9 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import {
-  KeyboardAvoidingView,
-  KeyboardAwareScrollView,
-} from "react-native-keyboard-controller";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import * as Yup from "yup";
 import { Formik } from "formik";
-import useCreateNewAppointment from "../src/hooks/useCreateNewAppointment";
 import { router, useLocalSearchParams } from "expo-router";
 import { theme } from "../src/theme";
 import AppTextInput from "../src/components/AppTextInput";
@@ -30,7 +25,7 @@ import useGetUsers from "../src/hooks/useGetUsers";
 import AppButton from "../src/components/AppButton";
 import DropDownPicker from "react-native-dropdown-picker";
 import useGetAppointmentDetails from "../src/hooks/useGetAppointmentDetails";
-import useUpdateAppointment from "../src/hooks/useUpdateAppintment";
+import useUpdateAppointment from "../src/hooks/useUpdateAppointment";
 
 export default function UpdateAppointmentScreen() {
   const { t, currentLanguage } = useTranslation();
