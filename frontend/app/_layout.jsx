@@ -17,6 +17,7 @@ import { clearSecureStorage, getToken } from "../src/utils/secureStore";
 import { connectSocket } from "../src/utils/socket";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "../src/hooks/useTranslation";
+import { AppointmentEditHeader } from "../src/components/AppointmentHeaderEdit";
 
 const queryClient = new QueryClient();
 
@@ -93,41 +94,6 @@ export default function RootLayout() {
               <Stack.Screen
                 name="[appointmentId]"
                 options={{
-                  headerRight: () => {
-                    return (
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 20,
-                          padding: 10,
-                          backgroundColor: "transparent",
-                          marginRight: 10,
-                        }}
-                      >
-                        <Link href={"/edit-profile"} asChild>
-                          <TouchableOpacity
-                            style={{ backgroundColor: "transparent" }}
-                          >
-                            <MaterialIcons
-                              name="edit"
-                              size={24}
-                              color={theme.colorDarkPink}
-                            />
-                          </TouchableOpacity>
-                        </Link>
-                        <Link href={"/edit-profile"} asChild>
-                          <TouchableOpacity style={{}}>
-                            <MaterialIcons
-                              name="delete"
-                              size={24}
-                              color={theme.colorDarkPink}
-                            />
-                          </TouchableOpacity>
-                        </Link>
-                      </View>
-                    );
-                  },
                   headerShown: true,
                 }}
               />
@@ -135,6 +101,14 @@ export default function RootLayout() {
                 name="new-appointment"
                 options={{
                   headerTitle: t("appointmentModalTitle"),
+                  presentation: "modal",
+                  headerShown: true,
+                }}
+              />
+              <Stack.Screen
+                name="update-appointment"
+                options={{
+                  headerTitle: t("appointmentModalUpdateTitle"),
                   presentation: "modal",
                   headerShown: true,
                 }}
