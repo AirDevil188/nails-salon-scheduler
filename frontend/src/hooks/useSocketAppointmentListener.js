@@ -7,78 +7,64 @@ export const useSocketAppointmentListener = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const removeAppointmentFromCache = (deletedAppointmentId) => {
-      if (!deletedAppointmentId) return;
+    if (!socket) return;
 
-      // physically delete the specific detail record from the cache
-      queryClient.removeQueries({
-        queryKey: appointmentKeys.detail(deletedAppointmentId),
-      });
+    const handleAppointmentData = (appointment) => {
+      if (!appointment || !appointment.id) return;
 
-      // manually update the list cache to remove the item instantly
-      queryClient.setQueryData(appointmentKeys.list(), (oldData) => {
-        if (!oldData || !Array.isArray(oldData)) return [];
-
-        // Filter out the deleted appointment
-        return oldData.filter((appt) => appt.id !== deletedAppointmentId);
-      });
-
-      // Invalidate list queries for a safe background refetch on filtered views
-      queryClient.invalidateQueries({
-        queryKey: appointmentKeys.list(),
-      });
-    };
-
-    // creation and update handle data
-    const handleAppointmentData = (data) => {
-      const newAppointment = data.appointment;
-
-      if (!newAppointment || !newAppointment.id) return;
-
-      // invalidate the list query (for filtered lists)
-      queryClient.invalidateQueries({
-        queryKey: appointmentKeys.list(),
-      });
-
-      // update the single-appointment detail query
+      // update detailCache
       queryClient.setQueryData(
-        appointmentKeys.detail(newAppointment.id),
-        newAppointment
+        appointmentKeys.detail(appointment.id),
+        appointment
       );
 
-      // update the un-filtered list cache (for instant display)
       queryClient.setQueryData(appointmentKeys.list(), (oldData) => {
-        if (!oldData || !Array.isArray(oldData)) {
-          return [newAppointment];
-        }
-
-        const isExisting = oldData.some(
-          (appt) => appt.id === newAppointment.id
-        );
-
-        if (isExisting) {
-          // if it exists, map and replace the old version with the new one
-          return oldData.map((appt) =>
-            appt.id === newAppointment.id ? newAppointment : appt
-          );
-        }
-
-        // Prepend it to the list (new item)
-        return [newAppointment, ...oldData];
+        if (!oldData || !Array.isArray(oldData)) return [appointment];
+        const exists = oldData.some((a) => a.id === appointment.id);
+        // if the appt exists return the existing one
+        return exists
+          ? oldData.map((a) => (a.id === appointment.id ? appointment : a))
+          : // return the old list
+            [appointment, ...oldData];
+        // prepend the new one and keep the old data
       });
+
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.list() });
+      console.log(
+        `[Socket User] Appointment created/updated ID: ${appointment.id}`
+      );
     };
 
-    // handle User Deletion Event ---
-    const handleUserDeleted = (appointmentId) => {
-      removeAppointmentFromCache(appointmentId);
+    const handleAppointmentDeleted = (appointmentId) => {
+      if (!appointmentId) return;
+
+      queryClient.removeQueries({
+        queryKey: appointmentKeys.detail(appointmentId),
+      });
+      // remove instantly appt if in detail view don't wait for refetch
+
+      queryClient.setQueryData(
+        appointmentKeys.list(),
+        (oldData) => oldData?.filter((a) => a.id !== appointmentId) || []
+      );
+
+      // find the deleted one one remove it from cache
+
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.list() });
+      console.log(`[Socket User] Appointment deleted ID: ${appointmentId}`);
     };
 
-    socket.on("appointment:created", handleAppointmentData);
-    socket.on("user:appointment:deleted", handleUserDeleted);
+    // attach listeners
+    socket.on("user:appointment:created", handleAppointmentData);
+    socket.on("user:appointment:updated", handleAppointmentData);
+    socket.on("user:appointment:deleted", handleAppointmentDeleted);
 
+    // cleanup
     return () => {
-      socket.off("appointment:created", handleAppointmentData);
-      socket.off("user:appointment:deleted", handleUserDeleted);
+      socket.off("user:appointment:created", handleAppointmentData);
+      socket.off("user:appointment:updated", handleAppointmentData);
+      socket.off("user:appointment:deleted", handleAppointmentDeleted);
+      console.log("[Socket User] Listener cleanup done");
     };
   }, [queryClient]);
 };
