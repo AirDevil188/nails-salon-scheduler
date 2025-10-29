@@ -95,6 +95,14 @@ export const translations = {
     appointmentDetailsEndDateTime: "Ending",
     appointmentDetailsUser: "Client",
 
+    // appointment update
+    appointmentModalUpdateTitle: "Update Appointment",
+    appointmentStatusInvalid: "Appointment Status is invalid",
+    appointmentUpdateBtn: "Update",
+
+    // appointment delete
+    appointmentAlert: "Are you sure that you want to delete the appointment?",
+
     // appointment creation
     appointmentModalTitle: "Schedule new appointment",
     appointmentDateTypeError: "Invalid date format",
@@ -117,6 +125,12 @@ export const translations = {
     appointmentScheduleBtn: "Schedule",
     selectUserPlaceholder: "Select the client",
     searchUserPlaceholder: "Search...",
+
+    // Notes creation
+    notesCreateHeaderTitle: "New note",
+    notesTitlePlaceholder: "Note title",
+    notesTextPlaceholder: "Content of the note...",
+    notesType: "Type: ",
   },
 
   sr: {
@@ -211,6 +225,14 @@ export const translations = {
     appointmentDetailsEndDateTime: "Završava",
     appointmentDetailsUser: "Klijent",
 
+    // appointment update
+    appointmentModalUpdateTitle: "Ažuriraj termin",
+    appointmentStatusInvalid: "Status termina je nevažeći",
+    appointmentUpdateBtn: "Ažuriraj",
+
+    // appointment delete
+    appointmentAlert: "Da li ste sigurni da želite da obrišete termin?",
+
     // appointment creation
     appointmentModalTitle: "Zakaži novi termin",
     appointmentDateTypeError: "Neispravan format datuma",
@@ -233,6 +255,12 @@ export const translations = {
     appointmentScheduleBtn: "Zakaži",
     selectUserPlaceholder: "Odaberi klijenta",
     searchUserPlaceholder: "Pretraži...",
+
+    // Notes creation
+    notesCreateHeaderTitle: "Nova beleška",
+    notesTitlePlaceholder: "Naslov beleške",
+    notesTextPlaceholder: "Sadržaj beleške...",
+    notesType: "Tip: ",
   },
 };
 LocaleConfig.locales["sr"] = {
