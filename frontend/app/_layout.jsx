@@ -12,12 +12,14 @@ import {
   View,
 } from "react-native";
 import { theme } from "../src/theme";
-import { setAuthHeader } from "../src/utils/axiosInstance";
+import api, { setAuthHeader } from "../src/utils/axiosInstance";
 import { clearSecureStorage, getToken } from "../src/utils/secureStore";
 import { connectSocket } from "../src/utils/socket";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "../src/hooks/useTranslation";
 import { AppointmentEditHeader } from "../src/components/AppointmentHeaderEdit";
+import SocketInitializer from "../src/components/SocketInitializer";
+import * as SecureStore from "expo-secure-store"; // Assuming this is imported
 
 const queryClient = new QueryClient();
 
@@ -36,27 +38,74 @@ export default function RootLayout() {
   });
   const { isLoggedIn, isSigningUp, isLoading } = useAuthStore();
 
+  // Helper to perform the token refresh logic during startup
+  const attemptSilentRefresh = async (storedRefreshToken) => {
+    // NOTE: This logic assumes 'api' is available in this scope.
+
+    const response = await api.post("/api/token/refresh", {
+      refreshToken: storedRefreshToken,
+    });
+
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+      response.data;
+
+    // Update SecureStore with new tokens
+    await SecureStore.setItemAsync("accessToken", newAccessToken);
+    await SecureStore.setItemAsync("refreshToken", newRefreshToken);
+
+    // Update state/headers with the new tokens
+    const { login } = useAuthStore.getState();
+    const storedUserInfo = await getToken("userInfo"); // Re-retrieve or pass userInfo
+    const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
+
+    setAuthHeader(newAccessToken);
+    login(newAccessToken, newRefreshToken, userInfo);
+
+    return newAccessToken;
+  };
+
   useEffect(() => {
     const initializeAuth = async () => {
-      const { login, setIsLoading } = useAuthStore.getState();
+      const { login, setIsLoading, logout } = useAuthStore.getState();
       setIsLoading(true);
+
+      let storedAccessToken = null;
+      let storedRefreshToken = null;
+      let userInfo = null;
+
       try {
-        // get tokens from expo-secure store
-        const storedAccessToken = await getToken("accessToken");
-        const storedRefreshToken = await getToken("refreshToken");
+        // get stored tokens form expo-secure
+        storedAccessToken = await getToken("accessToken");
+        storedRefreshToken = await getToken("refreshToken");
         const storedUserInfo = await getToken("userInfo");
+        userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
 
-        const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
-
-        // if storedAccessToken is present
+        // check if the required tokens and userInfo are initialized
         if (storedAccessToken && storedRefreshToken && userInfo) {
-          setAuthHeader(storedAccessToken);
+          try {
+            // try to get a brand new refresh token
+            const freshAccessToken =
+              await attemptSilentRefresh(storedRefreshToken);
 
-          login(storedAccessToken, storedRefreshToken, userInfo);
-          connectSocket(storedAccessToken);
+            // connect the socket with that fresh return token
+            connectSocket(freshAccessToken);
+          } catch (refreshErr) {
+            // if refresh fails force logout
+            console.warn(
+              "Silent refresh failed on startup. Tokens were too old/revoked.",
+              refreshErr
+            );
+            logout();
+            await clearSecureStorage();
+          }
+        } else {
+          // No valid session found, logout
+          logout();
+          await clearSecureStorage();
         }
       } catch (err) {
-        useAuthStore.getState().logout();
+        // catch all unexpected errors during storage access
+        logout();
         await clearSecureStorage();
         console.log(err);
       } finally {
@@ -77,6 +126,7 @@ export default function RootLayout() {
   }
   return (
     <QueryClientProvider client={queryClient}>
+      {isLoggedIn && <SocketInitializer />}
       <KeyboardProvider>
         <React.Fragment>
           <StatusBar style="auto" />
@@ -109,6 +159,14 @@ export default function RootLayout() {
                 name="update-appointment"
                 options={{
                   headerTitle: t("appointmentModalUpdateTitle"),
+                  presentation: "modal",
+                  headerShown: true,
+                }}
+              />
+              <Stack.Screen
+                name="new-note"
+                options={{
+                  headerTitle: t("notesCreateHeaderTitle"),
                   presentation: "modal",
                   headerShown: true,
                 }}
