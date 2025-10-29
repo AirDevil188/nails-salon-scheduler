@@ -41,8 +41,21 @@ const authenticate = async (req, res, next) => {
 
   // verify the token
   try {
+    // verify the token
     const decodedPayload = verifyToken(token, "access");
-    req.user = decodedPayload;
+
+    // find the user in the db
+    const user = await db.findUserById(decodedPayload.id);
+
+    if (!user) {
+      const authError = new Error("token_user_not_found");
+      authError.status = 401;
+      return next(authError);
+    }
+
+    // Attach the id and role to req.user
+    req.user = { id: user.id, role: user.role };
+
     return next();
   } catch (err) {
     if (err.name === "TokenExpiredError" || err.name === "JsonWebTokenError") {
@@ -61,10 +74,11 @@ const validateRefreshToken = async (req, res, next) => {
 
   if (!token) {
     console.warn("Refresh token missing in request body.");
-    const error = new Error("authorization_err");
+    const error = new Error("authorization_err: No refresh token provided");
     error.status = 401;
     return next(error);
   }
+
   try {
     const decodedPayload = verifyToken(token, "refresh");
     const tokenId = decodedPayload.id;
@@ -78,16 +92,42 @@ const validateRefreshToken = async (req, res, next) => {
       return next(error);
     }
 
+    if (tokenRecord.isInvalidated || tokenRecord.isRevoked) {
+      console.warn(
+        `Token ID ${tokenId} already invalidated. Possible token reuse detected.`
+      );
+
+      await db.revokeAllRefreshTokensFromUser(tokenRecord.userId);
+
+      const error = new Error("token_stolen_revoked_all");
+      error.status = 401;
+      return next(error);
+    }
+
+    const user = await db.findUserById(tokenRecord.userId);
+
+    if (!user) {
+      console.warn(
+        `User ID ${tokenRecord.userId} not found for refresh token.`
+      );
+      const error = new Error("authorization_err: user_not_found_for_refresh");
+      error.status = 401;
+      return next(error);
+    }
+
     req.refreshToken = tokenRecord;
-    req.user = tokenRecord.userId;
+    req.user = { id: user.id, role: user.role };
+
     return next();
   } catch (err) {
-    const error = new Error("authorization_err");
+    // Catch-all for JWT decode failure
+    const error = new Error(
+      "authorization_err: Invalid refresh token signature"
+    );
     error.status = 401;
     return next(error);
   }
 };
-
 module.exports = {
   checkInvitationStatus,
   authenticate,
