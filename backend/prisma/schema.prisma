@@ -100,7 +100,8 @@ model User {
   password String
   first_name String
   last_name String
-  avatar String? 
+  avatar String?
+  avatarVersion String?
   invitationId String? @unique
   invitation Invitation? @relation( fields: [invitationId], references: [id])
   token Token[]
