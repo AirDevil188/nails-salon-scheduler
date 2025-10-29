@@ -154,7 +154,7 @@ const updateUserProfile = async (
   }
 };
 
-const userSaveAvatar = async (userId, publicId) => {
+const userSaveAvatar = async (userId, publicId, avatarVersion) => {
   try {
     return await prisma.user.update({
       where: {
@@ -162,6 +162,7 @@ const userSaveAvatar = async (userId, publicId) => {
       },
       data: {
         avatar: publicId,
+        avatarVersion: avatarVersion,
       },
       select: {
         id: true,
@@ -1570,13 +1571,14 @@ const adminGetNoteDetails = async (id, userId) => {
   }
 };
 
-const adminCreateNote = async (title, content, userId) => {
+const adminCreateNote = async (title, content, userId, type) => {
   try {
     return await prisma.note.create({
       data: {
         title: title,
         content: content,
         userId: userId,
+        type: type,
       },
     });
   } catch (err) {
