@@ -13,7 +13,6 @@ export default function useUpdateAppointment() {
 
     mutationFn: async (payload) => {
       const { id, ...updatedFields } = payload;
-      console.error(payload);
 
       if (role === "admin") {
         const response = await api.patch(
@@ -21,7 +20,7 @@ export default function useUpdateAppointment() {
           updatedFields
         );
         console.error(response);
-        return response.data;
+        return response.data.appointment;
       }
     },
     onSuccess: (updatedAppointmentData, variables) => {
