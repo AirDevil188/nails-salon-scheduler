@@ -21,4 +21,5 @@ export const theme = {
   noteSecondary: "#80b918",
   noteWarning: "#F6AD55",
   noteCritical: "#E53E3E",
+  noteColorTextPrimary: "#333333",
 };
