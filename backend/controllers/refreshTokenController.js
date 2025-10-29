@@ -3,15 +3,7 @@ const { generateRefreshToken, signToken } = require("@utils/utils");
 const { addDays } = require("date-fns/addDays");
 const generateNewRefreshToken = async (req, res, next) => {
   /// get from validateRefreshToken middleware
-  const { id, userId, isRevoked } = req?.refreshToken;
-
-  if (isRevoked === true) {
-    // Revoke all refresh tokens for this user and log them out.
-    await db.revokeAllRefreshTokensFromUser(userId);
-    const error = new Error("token_stolen_revoked_all");
-    error.status = 401; // Unauthorized
-    return next(error);
-  }
+  const { id, userId } = req?.refreshToken;
 
   try {
     // invalidate the old token
@@ -54,7 +46,8 @@ const generateNewRefreshToken = async (req, res, next) => {
     };
 
     // new access token
-    const accessToken = signToken(newPayload, "20sec", "access");
+    const accessToken = signToken(newPayload, "15min", "access");
+
     // new refresh token
     const refreshToken = signToken(refreshPayload, "30d", "refresh");
 
