@@ -31,3 +31,21 @@ export const appointmentKeys = {
     return [...appointmentKeys.all, "detail", id, role];
   },
 };
+
+export const noteKeys = {
+  all: ["notes"],
+
+  new: ["noteCreate"],
+
+  update: ["noteUpdate"],
+
+  list: (params = {}) => {
+    return [...noteKeys.all, "list", params];
+  },
+
+  detail: (id, role) => {
+    if (!id) return [...noteKeys.all, "detail"];
+
+    return [...noteKeys.all, "detail", id, role];
+  },
+};
