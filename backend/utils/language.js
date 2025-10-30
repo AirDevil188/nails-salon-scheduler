@@ -61,6 +61,7 @@ const languages = {
     // Notes errs
     validator_notes_title: "Note title is required",
     validator_notes_content: "Note content is required",
+    validator_notes_type: "Note type invalid",
 
     // Success messages
 
@@ -99,6 +100,8 @@ const languages = {
       "Appointment new start date time must be in the future",
     appointment_cannot_be_marked_no_show_in_the_future:
       "Appointment status cannot be set to no show if the start date time is set in the future",
+    appointment_delete_in_past:
+      "Appointment that is in the past cannot be deleted",
   },
 
   sr: {
@@ -163,6 +166,7 @@ const languages = {
     // Notes errs
     validator_notes_title: "Naziv beleške je obavezan",
     validator_notes_content: "Sadržaj beleške je obavezan",
+    validator_notes_type: "Pogrešan tip beleške",
 
     // Success messages
 
@@ -194,6 +198,7 @@ const languages = {
       "Datum novog termina mora biti u budućnosti",
     appointment_cannot_be_marked_no_show_in_the_future:
       "Status termina ne može biti označen sa nije se pojavio ako je u datum i vreme u budućnosti",
+    appointment_delete_in_past: "Termin koji je prošao ne može biti izbrisan",
   },
 };
 
