@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Alert,
   View,
+  TouchableOpacity,
 } from "react-native";
 
 import useGetUserProfile from "..//..//..//src/hooks/useGetUserProfile";
@@ -12,12 +13,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
 import Feather from "@expo/vector-icons/Feather";
 
 import useAuthStore from "../../../src/stores/useAuthStore";
 import { disconnectSocket } from "../../../src/utils/socket";
-import { useProfileStore } from "../../../src/stores/useProfileStore";
 import api from "../../../src/utils/axiosInstance";
 import { clearSecureStorage } from "../../../src/utils/secureStore";
 import formatDate from "../../../src/utils/formatDate";
@@ -25,13 +24,69 @@ import { useTranslation } from "../../../src/hooks/useTranslation";
 import { theme } from "../../../src/theme";
 import AppText, { AppTextStyle } from "../../../src/components/AppText";
 import { format } from "date-fns";
+import { router } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
+import useUploadProfileAvatar from "../../../src/hooks/useUploadProfileAvatar";
+
+const IMAGE_TRANSFORMATIONS = "c_fill,w_150,h_150,g_center";
+
+const getTransformedAvatarUrl = (fullUrl) => {
+  // The required insertion point in the Cloudinary URL
+  const insertionPoint = "image/upload/";
+
+  if (fullUrl.includes(insertionPoint)) {
+    // Replace 'image/upload/' with 'image/upload/[transformations]/'
+    // This ensures the URL format is correct: .../upload/t_string/v1234/public_id
+    return fullUrl.replace(
+      insertionPoint,
+      `image/upload/${IMAGE_TRANSFORMATIONS}/`
+    );
+  }
+
+  // If the URL doesn't contain the expected upload segment, return it as is or the fallback
+  return fullUrl;
+};
 
 export default function IndexScreen() {
   const { data, isFetching, isFetched } = useGetUserProfile();
+  const { mutate: uploadAvatar, isPending } = useUploadProfileAvatar();
   const { userInfo, logout, preferredLanguage } = useAuthStore.getState();
   const { t } = useTranslation();
-  const { profileData, setProfileData } = useProfileStore.getState();
-  console.log(data);
+
+  // 3. Logic to handle opening the gallery and initiating the upload
+  const pickImage = async () => {
+    try {
+      // NOTE: Cannot import external packages like ImagePicker here, but the call logic is correct.
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") return Alert.alert("Enable photo access");
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      });
+
+      if (!result.canceled && result.assets?.length > 0) {
+        const imageUri = result.assets[0].uri;
+
+        uploadAvatar(imageUri, {
+          onSuccess: (res) => {
+            // Success handler in the mutation hook updates TanStack Query cache,
+            // which causes currentProfile.avatar and the Image key to change.
+          },
+          onError: () => Alert.alert("Upload failed"),
+        });
+      }
+    } catch (err) {
+      console.error("Image Picker Error:", err);
+      Alert.alert(
+        "Error",
+        "An unexpected error occurred while opening the image picker."
+      );
+    }
+  };
 
   const handleLogOut = () => {
     // invalidate active refreshToken
@@ -73,16 +128,44 @@ export default function IndexScreen() {
   };
 
   if (isFetched) {
-    setProfileData(data.profile);
+    const currentProfile = data.profile;
+
+    // The input `currentProfile.avatar` is the unique, versioned path.
+    const finalAvatarUrl = currentProfile.avatar
+      ? getTransformedAvatarUrl(currentProfile.avatar)
+      : "https://placehold.co/150";
+    console.warn("FINAL AVATAR URL:", finalAvatarUrl);
+
     return (
       <SafeAreaView style={styles.safeArea}>
+        <Pressable
+          style={{
+            width: 48,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: "#000",
+          }}
+          onLongPress={() => router.push(__DEV__ ? "/_sitemap" : "/")}
+        />
         <ScrollView style={styles.scrollContent}>
           <View style={styles.container}>
             <View style={styles.generalInformation}>
-              <Image
-                source={{ uri: data.profile.avatar }}
-                style={styles.userAvatar}
-              />
+              <View style={styles.avatarContainer}>
+                <Image
+                  source={{ uri: finalAvatarUrl }}
+                  style={styles.userAvatar}
+                  onError={(e) =>
+                    console.log("Image failed to load:", e.nativeEvent.error)
+                  }
+                />
+                <TouchableOpacity
+                  style={styles.cameraIconContainer}
+                  onPress={isPending ? null : pickImage}
+                  disabled={isPending}
+                >
+                  <Feather name="camera" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
 
               <AppText style={[AppTextStyle.h2, styles.text]}>
                 {data.profile.first_name + " " + data.profile.last_name}
@@ -224,7 +307,7 @@ export default function IndexScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    marginBottom: -34,
+    marginBottom: -29,
     backgroundColor: "#1E1E1E",
   },
   scrollContent: {
@@ -237,8 +320,12 @@ const styles = StyleSheet.create({
   },
   userAvatar: {
     alignSelf: "center",
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
   },
   generalInformation: {
     backgroundColor: "#1E1E1E",
@@ -299,5 +386,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
+  },
+  avatarContainer: {
+    position: "relative",
+
+    alignSelf: "center",
+    marginBottom: 10,
+  },
+  cameraIconContainer: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: theme.colorDarkPink,
+    padding: 8,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: theme.colorWhite,
+    zIndex: 10,
   },
 });
