@@ -1,18 +1,18 @@
 import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
-import { Link, useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import AppText from "../src/components/AppText";
 import { useTranslation } from "../src/hooks/useTranslation";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { format } from "date-fns";
 import { enUS, srLatn } from "date-fns/locale";
-import useAuthStore from "../src/stores/useAuthStore";
 import useGetAppointmentDetails from "../src/hooks/useGetAppointmentDetails";
 import { LinearGradient } from "expo-linear-gradient";
 import { theme } from "../src/theme";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppointmentEditHeader } from "../src/components/AppointmentHeaderEdit";
 export default function AppointmentDetails() {
   const { appointmentId } = useLocalSearchParams();
+  const [deleteEnable, setDeleteEnable] = useState(false);
 
   const { t, currentLanguage } = useTranslation();
   const navigation = useNavigation();
@@ -21,15 +21,25 @@ export default function AppointmentDetails() {
 
   useEffect(() => {
     if (data && navigation && appointmentId) {
+      const date = new Date();
+      const start = new Date(data.startDateTime);
+      if (date > start) {
+        setDeleteEnable(false);
+      } else {
+        setDeleteEnable(true);
+      }
       navigation.setOptions({
         title: data.title,
 
         headerRight: () => (
-          <AppointmentEditHeader appointmentId={appointmentId} />
+          <AppointmentEditHeader
+            appointmentId={appointmentId}
+            deleteEnable={deleteEnable}
+          />
         ),
       });
     }
-  }, [data, navigation, appointmentId]);
+  }, [data, navigation, appointmentId, deleteEnable]);
 
   if (isLoading) {
     return <ActivityIndicator />;
