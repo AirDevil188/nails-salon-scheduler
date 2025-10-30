@@ -7,26 +7,31 @@ import { useFonts } from "expo-font";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import {
   ActivityIndicator,
+  AppState,
   Pressable,
   TouchableOpacity,
   View,
 } from "react-native";
 import { theme } from "../src/theme";
 import api, { setAuthHeader } from "../src/utils/axiosInstance";
-import { clearSecureStorage, getToken } from "../src/utils/secureStore";
+import {
+  clearSecureStorage,
+  getToken,
+  saveToken,
+} from "../src/utils/secureStore";
 import { connectSocket } from "../src/utils/socket";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTranslation } from "../src/hooks/useTranslation";
 import { AppointmentEditHeader } from "../src/components/AppointmentHeaderEdit";
 import SocketInitializer from "../src/components/SocketInitializer";
-import * as SecureStore from "expo-secure-store"; // Assuming this is imported
+import * as SecureStore from "expo-secure-store";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const { t } = useTranslation();
   const [fontsLoaded] = useFonts({
-    // 💡 Map the font family name (your choice) to the local file path
     "Inter-Light": require("../assets/fonts/Inter-Light.ttf"),
     "Inter-Regular": require("../assets/fonts/Inter-Regular.ttf"),
     "Inter-Medium": require("../assets/fonts/Inter-Medium.ttf"),
@@ -34,85 +39,184 @@ export default function RootLayout() {
     "Inter-Italic": require("../assets/fonts/Inter-Italic.ttf"),
     "Inter-MediumItalic": require("../assets/fonts/Inter-MediumItalic.ttf"),
     "Inter-BoldItalic": require("../assets/fonts/Inter-BoldItalic.ttf"),
-    // Add any other weights you plan to use
   });
   const { isLoggedIn, isSigningUp, isLoading } = useAuthStore();
 
-  // Helper to perform the token refresh logic during startup
-  const attemptSilentRefresh = async (storedRefreshToken) => {
-    // NOTE: This logic assumes 'api' is available in this scope.
+  let refreshInterval;
 
-    const response = await api.post("/api/token/refresh", {
-      refreshToken: storedRefreshToken,
-    });
+  let appState = AppState.currentState;
 
-    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-      response.data;
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState) => {
+      if (appState.match(/inactive|background/) && nextAppState === "active") {
+        try {
+          const storedRefreshToken = await getToken("refreshToken");
+          if (storedRefreshToken) {
+            await attemptSilentRefresh(storedRefreshToken);
+            console.log("Token refreshed on app resume.");
+          }
+        } catch (err) {
+          if (err.message === "TOKEN_EXPIRED") {
+            console.warn("Refresh token expired on resume. Logging out.");
+            useAuthStore.getState().logout();
+            await clearSecureStorage();
+          } else if (err.message === "NETWORK_ERROR") {
+            console.warn(
+              "Network issue on resume, retry later. User stays logged in."
+            );
+          } else {
+            console.error("Unhandled error during resume token refresh:", err);
+            useAuthStore.getState().logout();
+            await clearSecureStorage();
+          }
+        }
+      }
+      appState = nextAppState;
+    };
 
-    // Update SecureStore with new tokens
-    await SecureStore.setItemAsync("accessToken", newAccessToken);
-    await SecureStore.setItemAsync("refreshToken", newRefreshToken);
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
 
-    // Update state/headers with the new tokens
-    const { login } = useAuthStore.getState();
-    const storedUserInfo = await getToken("userInfo"); // Re-retrieve or pass userInfo
-    const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
-    setAuthHeader(newAccessToken);
-    login(newAccessToken, newRefreshToken, userInfo);
+  const startPeriodicRefresh = async () => {
+    // Clear any existing interval
+    if (refreshInterval) clearInterval(refreshInterval);
 
-    return newAccessToken;
+    const refreshRate = 12 * 60 * 1000; // 12 minutes (access token expires in 15min)
+
+    refreshInterval = setInterval(async () => {
+      try {
+        const storedRefreshToken = await getToken("refreshToken");
+        if (storedRefreshToken) {
+          await attemptSilentRefresh(storedRefreshToken);
+          console.log("Periodic silent refresh successful.");
+        }
+      } catch (err) {
+        if (err.message === "TOKEN_EXPIRED") {
+          console.warn("Refresh token expired. Logging out.");
+          useAuthStore.getState().logout();
+          await clearSecureStorage();
+          clearInterval(refreshInterval);
+        } else if (err.message === "NETWORK_ERROR") {
+          console.warn(
+            "Network issue during periodic refresh. Will retry later."
+          );
+        } else {
+          console.error("Unhandled error during periodic refresh:", err);
+          useAuthStore.getState().logout();
+          await clearSecureStorage();
+          clearInterval(refreshInterval);
+        }
+      }
+    }, refreshRate);
   };
 
+  const attemptSilentRefresh = async (storedRefreshToken) => {
+    try {
+      const response = await api.post("/api/token/refresh", {
+        refreshToken: storedRefreshToken,
+      });
+
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        response.data;
+
+      // Update SecureStore with new tokens
+      await SecureStore.setItemAsync("accessToken", newAccessToken);
+      await SecureStore.setItemAsync("refreshToken", newRefreshToken);
+
+      const { login } = useAuthStore.getState();
+      const storedUserInfo = await getToken("userInfo");
+      const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
+
+      setAuthHeader(newAccessToken);
+      login(newAccessToken, newRefreshToken, userInfo);
+      connectSocket(newAccessToken);
+
+      return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    } catch (error) {
+      // Differentiate between error causes
+      if (error.response) {
+        if (error.response.status === 401) {
+          // Refresh token invalid or expired
+          throw new Error("TOKEN_EXPIRED");
+        } else {
+          // Other backend issues
+          throw new Error("REFRESH_FAILED");
+        }
+      } else if (error.request) {
+        // Network / timeout issues
+        throw new Error("NETWORK_ERROR");
+      } else {
+        // Unknown unexpected error
+        throw new Error("UNKNOWN_ERROR");
+      }
+    }
+  };
   useEffect(() => {
     const initializeAuth = async () => {
       const { login, setIsLoading, logout } = useAuthStore.getState();
       setIsLoading(true);
 
-      let storedAccessToken = null;
-      let storedRefreshToken = null;
-      let userInfo = null;
-
       try {
-        // get stored tokens form expo-secure
-        storedAccessToken = await getToken("accessToken");
-        storedRefreshToken = await getToken("refreshToken");
+        const storedAccessToken = await getToken("accessToken");
+        const storedRefreshToken = await getToken("refreshToken");
         const storedUserInfo = await getToken("userInfo");
-        userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
+        const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
 
-        // check if the required tokens and userInfo are initialized
         if (storedAccessToken && storedRefreshToken && userInfo) {
           try {
-            // try to get a brand new refresh token
-            const freshAccessToken =
+            // Try to silently refresh the tokens
+            const { accessToken: freshAccessToken } =
               await attemptSilentRefresh(storedRefreshToken);
 
-            // connect the socket with that fresh return token
             connectSocket(freshAccessToken);
+
+            startPeriodicRefresh();
           } catch (refreshErr) {
-            // if refresh fails force logout
-            console.warn(
-              "Silent refresh failed on startup. Tokens were too old/revoked.",
-              refreshErr
-            );
-            logout();
-            await clearSecureStorage();
+            if (refreshErr.message === "TOKEN_EXPIRED") {
+              console.warn(
+                "Silent refresh failed on startup: refresh token expired. Logging out."
+              );
+              logout();
+              await clearSecureStorage();
+            } else if (refreshErr.message === "NETWORK_ERROR") {
+              console.warn(
+                "Network issue during startup refresh. Keeping user logged in until reconnection."
+              );
+              // You can optionally retry after delay or show offline banner
+            } else {
+              console.error(
+                "Unhandled error during startup token refresh:",
+                refreshErr
+              );
+              logout();
+              await clearSecureStorage();
+            }
           }
         } else {
-          // No valid session found, logout
           logout();
           await clearSecureStorage();
         }
       } catch (err) {
-        // catch all unexpected errors during storage access
+        console.error("Auth initialization error:", err);
         logout();
         await clearSecureStorage();
-        console.log(err);
       } finally {
         setIsLoading(false);
       }
     };
+
     initializeAuth();
+
+    return () => {
+      if (refreshInterval) clearInterval(refreshInterval);
+    };
   }, []);
 
   if (!fontsLoaded || isLoading) {
@@ -167,10 +271,29 @@ export default function RootLayout() {
                 name="new-note"
                 options={{
                   headerTitle: t("notesCreateHeaderTitle"),
-                  presentation: "modal",
+                  presentation: "fullScreenModal",
+                  headerLeft: () => {
+                    return (
+                      <TouchableOpacity onPress={() => router.back()}>
+                        <AntDesign
+                          name="arrow-left"
+                          size={24}
+                          color={theme.colorDarkPink}
+                        />
+                      </TouchableOpacity>
+                    );
+                  },
                   headerShown: true,
                 }}
               />
+              <Stack.Screen
+                name="notes/[noteId]"
+                options={{ headerShown: true }}
+              ></Stack.Screen>
+              <Stack.Screen
+                name="update-note"
+                options={{ headerTitle: t("noteUpdateTitle") }}
+              ></Stack.Screen>
             </Stack.Protected>
             <Stack.Protected guard={!isLoggedIn && !isSigningUp}>
               <Stack.Screen name="sign-in" options={{ headerShown: false }} />
