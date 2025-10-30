@@ -326,7 +326,8 @@ const newAppointment = [
 
           await sendNotificationBatch(notificationsToSend, expo, prisma);
         }
-        io.to(`user:${userId}`).emit("appointment:created", appointment);
+
+        io.to(`user:${userId}`).emit("admin:appointment:created", appointment);
         console.log(`Sent new appointment alert to the 'user:${userId}' room.`);
       }
       return res.status(201).json({
@@ -342,15 +343,32 @@ const deleteAppointment = async (req, res, next) => {
   try {
     const io = getIo();
     const { appointmentId } = req.params;
+    const existingAppointment = db.adminGetAppointmentDetails(appointmentId);
+    if (!existingAppointment) {
+      if (!existingAppointment) {
+        const error = new Error("appointment_not_found");
+        error.name = "appointment_not_found";
+        error.status = 404;
+        return next(error);
+      }
+    }
+    const now = new Date();
+    const existingStart = existingAppointment.startDateTime;
+
+    if (existingStart < now) {
+      const error = new Error("appointment_delete_in_past");
+      error.name = "appointment_delete_in_past";
+      error.status = 400;
+      return next(error);
+    }
+
     const deleteResult = await db.adminDeleteAppointment(appointmentId);
     const userId = deleteResult?.userId;
 
     if (deleteResult.count > 0) {
       io.to("admin-dashboard").emit("admin:appointment:deleted", appointmentId);
-      console.log(`Sent new appointment alert to the 'admin-dashboard' room.`);
       if (userId) {
         io.to(`user:${userId}`).emit("user:appointment:deleted", appointmentId);
-        console.log(`Sent new appointment alert to the 'user:${userId}' room.`);
       }
     }
     return res.status(204).end();
