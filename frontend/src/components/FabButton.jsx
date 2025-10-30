@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { TouchableOpacity, StyleSheet, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+
 import { router } from "expo-router";
 import { theme } from "../theme";
 import Animated, {
@@ -84,8 +86,9 @@ export default function FabButton({ children, onPress }) {
     });
   };
 
-  const inviteStyle = createSubButtonStyle(-120); // Moves up 120px
-  const apptStyle = createSubButtonStyle(-60); // Moves up 60px
+  const notesStyle = createSubButtonStyle(-120); // Moves up 180px
+  const inviteStyle = createSubButtonStyle(-60); // Moves up 120px
+  const apptStyle = createSubButtonStyle(-180); // Moves up 60px
 
   return (
     <View style={styles.fabWrapper}>
@@ -111,6 +114,23 @@ export default function FabButton({ children, onPress }) {
           }}
         >
           <MaterialIcons name="event-available" size={24} color="white" />
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* 1. Create Appointment Button */}
+      <Animated.View style={[styles.subButton, notesStyle]}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => {
+            toggleMenu();
+            router.push("/new-note");
+          }}
+        >
+          <MaterialCommunityIcons
+            name="notebook-plus"
+            size={24}
+            color="white"
+          />
         </TouchableOpacity>
       </Animated.View>
 
