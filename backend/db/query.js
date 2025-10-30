@@ -1244,6 +1244,7 @@ const adminGetMonthlyAppointments = async (date, view = "month") => {
       where: {
         startDateTime: { gte: startDate },
         endDateTime: { lt: endDate },
+        status: "scheduled",
       },
       orderBy: {
         startDateTime: "asc",
@@ -1471,78 +1472,61 @@ const adminGetNotes = async (limit, page, orderBy, search) => {
     const pageSize = parseInt(limit, 10) || 25;
     const pageNumber = parseInt(page, 10) || 1;
     const skipCount = (pageNumber - 1) * pageSize;
+
     const where = {};
 
-    // search quey logic
-    if (search) {
-      where.OR = [
-        {
-          title: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        {
-          content: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-      ];
+    // 🔍 Search query
+    if (search && search.trim() !== "") {
+      where.title = {
+        contains: search.trim(),
+        mode: "insensitive",
+      };
     }
 
-    let orderCriteria = [{ createdAt: "desc" }]; // default option
+    // 📌 Ordering
+    let orderCriteria = [{ createdAt: "desc" }]; // default
 
     if (orderBy) {
-      // split as first_name_asc
-      const [field, directionOfTheOrder] = orderBy.split("_");
+      const [field, direction] = orderBy.split("_");
 
-      // prevent injection
       if (
         ["title", "content", "createdAt", "updatedAt"].includes(field) &&
-        ["asc", "desc"].includes(directionOfTheOrder)
+        ["asc", "desc"].includes(direction)
       ) {
-        // sort based on user choice
-        orderCriteria = [{ [field]: directionOfTheOrder }];
+        orderCriteria = [{ [field]: direction }];
 
-        // add a string tie break
-        let secondaryField = null;
-
-        switch (field) {
-          case "title":
-          case "content":
-          case "createdAt":
-          case "updatedAt":
-            secondaryField = "id";
-            break;
-        }
-
-        if (secondaryField) {
-          orderCriteria.push({ [secondaryField]: "asc" });
-        }
+        // Tie-breaker
+        orderCriteria.push({ id: "asc" });
       }
     }
 
     const [notes, totalCount] = await prisma.$transaction([
       prisma.note.findMany({
-        where: where,
+        where,
         skip: skipCount,
         take: pageSize,
         orderBy: orderCriteria,
         select: {
-          title: true,
           id: true,
-          userId: true,
+          title: true,
           content: true,
+          userId: true,
           createdAt: true,
           updatedAt: true,
+          type: true,
         },
       }),
-      prisma.note.count({
-        where: where,
-      }),
+      prisma.note.count({ where }),
     ]);
-    return { notes: notes, totalCount: totalCount };
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return {
+      notes,
+      totalCount,
+      page: pageNumber,
+      totalPages,
+    };
   } catch (err) {
     console.error(err);
     throw err;
@@ -1587,7 +1571,7 @@ const adminCreateNote = async (title, content, userId, type) => {
   }
 };
 
-const adminUpdateNote = async (title, content, id, userId) => {
+const adminUpdateNote = async (title, content, id, userId, type) => {
   try {
     const updateData = {};
     if (title !== undefined) {
@@ -1595,6 +1579,10 @@ const adminUpdateNote = async (title, content, id, userId) => {
     }
     if (content !== undefined) {
       updateData.content = content;
+    }
+
+    if (content !== undefined) {
+      updateData.type = type;
     }
     return await prisma.note.update({
       where: {
