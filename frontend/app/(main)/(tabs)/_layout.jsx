@@ -6,11 +6,12 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { theme } from "../../../src/theme";
 import DrawerToggle from "../../../src/components/DrawerToggle";
-import { useState } from "react";
 import useLayoutStore from "../../../src/stores/useLayoutStore";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import { useTranslation } from "../../../src/hooks/useTranslation";
+import FabButton from "../../../src/components/FabButton";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function TabsLayout() {
   const isListView = useLayoutStore((state) => state.isListView);
@@ -46,6 +47,23 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="notes"
+        options={{
+          title: t("tabNotes"),
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="notebook" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="new-appointment-slot"
+        options={{
+          title: "",
+          tabBarButton: (props) => <FabButton {...props} />,
+        }}
+      />
+
+      <Tabs.Screen
         name="index"
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -72,11 +90,11 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="notes"
+        name="notifications"
         options={{
-          title: t("tabNotes"),
+          title: "Notifications",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="notebook" size={size} color={color} />
+            <Ionicons name="notifications" size={size} color={color} />
           ),
         }}
       />
