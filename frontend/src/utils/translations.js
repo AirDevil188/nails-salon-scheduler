@@ -2,6 +2,7 @@ import { LocaleConfig } from "react-native-calendars";
 
 export const translations = {
   en: {
+    searchBarPlaceholder: "Search...",
     // public routes
     // sign-in.jsx
     signInHeading: "Login to your account",
@@ -131,9 +132,25 @@ export const translations = {
     notesTitlePlaceholder: "Note title",
     notesTextPlaceholder: "Content of the note...",
     notesType: "Type: ",
+
+    // Note screen
+    notePrimaryLabel: "Primary",
+    noteWarningLabel: "Warning",
+    noteCriticalLabel: "Critical",
+    noteSecondaryLabel: "Secondary",
+    loadingMoreNotes: "Loading...",
+    noMoreNotes: "End of notes",
+    noNotesFoundSearch: "No notes found...",
+
+    // appointment delete
+    noteAlert: "Are you sure that you want to delete the note?",
+
+    // Note update
+    noteUpdateTitle: "Update note",
   },
 
   sr: {
+    searchBarPlaceholder: "Pretraži...",
     // public routes
     // sign-in.jsx
     signInHeading: "Prijavite se na svoj nalog",
@@ -261,6 +278,21 @@ export const translations = {
     notesTitlePlaceholder: "Naslov beleške",
     notesTextPlaceholder: "Sadržaj beleške...",
     notesType: "Tip: ",
+
+    // Note screen
+    notePrimaryLabel: "Primarna",
+    noteWarningLabel: "Upozoravajuća",
+    noteCriticalLabel: "Kritična",
+    noteSecondaryLabel: "Sekundarna",
+    loadingMoreNotes: "Očitavanje...",
+    noMoreNotes: "Kraj beleški",
+    noNotesFoundSearch: "Beleške nisu pronađene...",
+
+    // Note delete
+    noteAlert: "Da li ste sigurni da želite da obrišete belešku?",
+
+    // Note update
+    noteUpdateTitle: "Ažuriraj belešku",
   },
 };
 LocaleConfig.locales["sr"] = {
