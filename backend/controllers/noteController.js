@@ -9,21 +9,26 @@ const getNotes = async (req, res, next) => {
     const safeLimit = parseInt(limit, 10) || 25;
     const safePage = parseInt(page, 10) || 1;
 
-    const { notes, totalCount } = await db.adminGetAllAppointments({
-      limit: safeLimit,
-      page: safePage,
+    const { notes, totalCount } = await db.adminGetNotes(
+      safeLimit,
+      safePage,
       orderBy,
-      search,
-    });
+      search
+    );
+
+    const totalPages = Math.ceil(totalCount / safeLimit);
+
+    console.log(`Fetched ${notes.length} notes out of ${totalCount}`);
 
     return res.status(200).json({
-      notes: notes,
+      notes,
       limit: safeLimit,
       page: safePage,
-      totalCount: totalCount,
-      totalPages: Math.ceil(totalCount / safeLimit),
+      totalCount,
+      totalPages,
     });
   } catch (err) {
+    console.log(err);
     return next(err);
   }
 };
@@ -45,6 +50,11 @@ const getNoteDetails = async (req, res, next) => {
 const createNote = [
   body("title").trim().notEmpty().withMessage("validator_notes_title"),
   body("content").trim().notEmpty().withMessage("validator_notes_content"),
+  body("type")
+    .notEmpty()
+    .withMessage("validator_note_tpype_not_empty")
+    .isIn(["primary", "secondary", "warning", "critical"])
+    .withMessage("validator_note_type_invalid"),
 
   async (req, res, next) => {
     const errs = validationResult(req);
@@ -53,6 +63,7 @@ const createNote = [
     if (!errs.isEmpty()) {
       // map all messages
       const validationErrors = errs.array().map((error) => error.msg);
+      console.log(validationErrors);
       // create error message
       const error = new Error("Validation Error");
       error.status = 400;
@@ -62,9 +73,9 @@ const createNote = [
     }
     try {
       const { id } = req.user;
-      const { title, content } = req.body;
+      const { title, content, type } = req.body;
       // create note
-      const note = await db.adminCreateNote(title, content, id);
+      const note = await db.adminCreateNote(title, content, id, type);
       io.to("admin-dashboard").emit("admin:noteCreated", note);
       return res.status(200).json({
         note: note,
@@ -86,6 +97,12 @@ const updateNote = [
     .notEmpty()
     .withMessage("validator_notes_content")
     .optional(),
+  body("type")
+    .notEmpty()
+    .withMessage("validator_note_tpype_not_empty")
+    .isIn(["primary", "secondary", "warning", "critical"])
+    .withMessage("validator_note_type_invalid")
+    .optional(),
 
   async (req, res, next) => {
     const errs = validationResult(req);
@@ -104,8 +121,8 @@ const updateNote = [
     try {
       const { id } = req.user;
       const { noteId } = req.params;
-      const { title, content } = req.body;
-      const note = await db.adminUpdateNote(title, content, noteId, id);
+      const { title, content, type } = req.body;
+      const note = await db.adminUpdateNote(title, content, noteId, id, type);
       io.to("admin-dashboard").emit("admin:noteUpdated", note);
       console.log(
         `Sent updated appointment alert to the 'admin-dashboard' room. for the note ${note.id}`
