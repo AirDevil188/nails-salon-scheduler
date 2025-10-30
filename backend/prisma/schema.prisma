@@ -21,6 +21,14 @@ enum Language {
   en
 }
 
+
+enum NoteType {
+  primary 
+  secondary 
+  warning
+  critical 
+}
+
 enum Role {
   user
   admin
@@ -143,6 +151,8 @@ model Note {
   user User @relation(fields: [userId], references: [id], onDelete: Restrict)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  type NoteType @default(primary)
+
 
   @@map("note")
 
