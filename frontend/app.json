@@ -15,7 +15,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.frontend"
+      "bundleIdentifier": "com.anonymous.frontend",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow access to your photos so you can select a profile avatar."
+      }
     },
     "android": {
       "adaptiveIcon": {
