@@ -1,9 +1,18 @@
 import { Text, StyleSheet } from "react-native";
 import { theme } from "../theme";
 
-export default function AppText({ children, style, ...otherProps }) {
+export default function AppText({
+  children,
+  style,
+  numberOfLines,
+  ...otherProps
+}) {
   return (
-    <Text style={(AppTextStyle.defaultText, style)} {...otherProps}>
+    <Text
+      style={(AppTextStyle.defaultText, style)}
+      {...otherProps}
+      numberOfLines={numberOfLines}
+    >
       {children}
     </Text>
   );
