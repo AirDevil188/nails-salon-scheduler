@@ -17,9 +17,12 @@ export const theme = {
   gradientNoShow: ["#fceeee", "#f7d6d6"],
   gradientCanceled: ["#e8e8e8", "#d0d0d0"],
   default: ["white", "white"],
-  notePrimary: "#4299E1",
-  noteSecondary: "#80b918",
-  noteWarning: "#F6AD55",
-  noteCritical: "#E53E3E",
+
+  noteColors: {
+    primary: "#4299E1",
+    secondary: "#80b918",
+    warning: "#F6AD55",
+    critical: "#E53E3E",
+  },
   noteColorTextPrimary: "#333333",
 };
